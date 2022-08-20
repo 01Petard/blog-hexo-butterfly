@@ -4,16 +4,20 @@
 
 menu:
   主页: / || fas fa-home
-  文档||fa-fw fas fa-book:
-    归档: /archives/ || fas fa-archive
-    标签: /tags/ || fas fa-tags
-    分类: /categories/ || fas fa-folder-open
-  媒体||fas fa-list:
-    图库: /gallery/ || fa-fw fas fa-images
-    追番: /bangumis/ || fa-fw fab fa-youtube
-  友情链接: /link/ || fas fa-link
-  留言板: /messageboard/ || fa-fw fas fa-comment-dots
-  关于我: /about/ || fas fa-heart
+  ACG: /categories/ACG/ || fas fa-heart
+  学习: /categories/学习/ || fas fa-code
+  软件: /categories/软件/ || fa-brands fa-app-store-ios
+  其他: /categories/其他/ || fa-solid fa-comment-slash
+  留言: /messageboard/ || fa-fw fas fa-comment-dots
+  # 文档||fa-fw fas fa-book:
+  归档: /archives/ || fas fa-archive
+    # 标签: /tags/ || fas fa-tags
+    # 分类: /categories/ || fas fa-folder-open
+  # 媒体||fas fa-list:
+    # 图库: /gallery/ || fa-fw fas fa-images
+    # 追番: /bangumis/ || fa-fw fab fa-youtube
+  # 友链: /link/ || fas fa-link
+  关于: /about/ || fa-solid fa-address-card
 
 # Code Blocks (代碼相關)
 # --------------------------------------
@@ -39,9 +43,9 @@ copy:
 social:
   fab fa-github: https://github.com/01Petard || Github
   fas fa-envelope: mailto:1520394133@qq.com || Email
-  fas fa-code: https://blog.csdn.net/kjiolluy711 || CSDN
+  # fas fa-code: https://blog.csdn.net/kjiolluy711 || CSDN
   fab fa-bilibili: https://space.bilibili.com/12764212 || Bilibili
-  fab fa-steam: https://steamcommunity.com/profiles/76561198285086764/ || steam
+  # fab fa-steam: https://steamcommunity.com/profiles/76561198285086764/ || steam
   fab fa-qq: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/qq.jpg || QQ
   fab fa-weixin: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/wechat.jpg || Wechat
   fas fa-rss: /atom.xml || RSS
@@ -235,10 +239,10 @@ reward:
   QR_code:
     - img: /img/wechatpay.jpg
       link:
-      text: wechat
+      text: 微信
     - img: /img/alipay.jpg
       link:
-      text: alipay
+      text: 支付宝
 
 # Post edit
 # Easily browse and edit blog source code online.
@@ -704,7 +708,7 @@ aside:
     sort: date # date or updated
     sort_order: # Don't modify the setting unless you know how it works
   card_categories:
-    enable: true
+    enable: false
     limit: 8 # if set 0 will show all
     expand: true # none/true/false
     sort_order: # Don't modify the setting unless you know how it works
@@ -720,12 +724,12 @@ aside:
     order: -1 # Sort of order. 1, asc for ascending; -1, desc for descending
     limit: 8 # if set 0 will show all
     sort_order: # Don't modify the setting unless you know how it works
+  card_pixiv: true
   card_webinfo:
     enable: true
     post_count: true
     last_push_date: true
     sort_order: # Don't modify the setting unless you know how it works
-  card_pixiv: true
 
 # busuanzi count for PV / UV in site
 # 訪問人數
