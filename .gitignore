@@ -3,6 +3,9 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+db.json
+_*
+*.log
 .deploy_git/
 node_modules/
 public/
