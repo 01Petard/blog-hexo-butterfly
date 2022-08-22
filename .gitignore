@@ -9,7 +9,7 @@ Thumbs.db
 .deploy_git/
 node_modules/
 public/
-source/_posts
+# source/_posts
 # source/_data/bangumis.json
 # themes/matery
 # themes/next
