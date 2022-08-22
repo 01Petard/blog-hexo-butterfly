@@ -1,0 +1,12 @@
+# hexo-admin authentification
+admin:
+  username: kjiolluy711
+  password_hash: $2a$10$0.C6/Etlv758mBr9NE3C8OKxtfGtG9nFWoAAZ.AtarQmp3jQgek3G
+  secret: 05021735
+options:
+  lineNumbers: true
+  spellcheck: false
+editor:
+  lineNumbers: true
+  inputStyle: contenteditable
+  spellcheck: false
