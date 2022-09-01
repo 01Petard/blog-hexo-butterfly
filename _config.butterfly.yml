@@ -715,8 +715,8 @@ aside:
       text: 我的GitHub仓库
       link: https://github.com/01Petard
   card_announcement:
-    enable: false
-    content: 建立个人网站——每一个程序员的梦想！
+    enable: true
+    content: 博主机型为Mac，是一个不会coding的程序员，喜欢ACG同人。
   card_recent_post:
     enable: false
     limit: 5 # if set 0 will show all
