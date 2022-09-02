@@ -371,7 +371,8 @@ valine:
 #   pageview: true
 #   option:
 waline:
-  serverURL: https://blog-waline-830fkfzr4-01petard.vercel.app # Waline 服务端地址，这里填Railway里给的那个域名
+  serverURL: https://blog-waline-dv8otgwal-01petard.vercel.app
+  # serverURL: https://blog-waline-830fkfzr4-01petard.vercel.app # Waline 服务端地址，这里填Railway里给的那个域名
   bg:  # waline background
   pageview: false
   option:
