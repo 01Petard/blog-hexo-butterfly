@@ -9,14 +9,14 @@ menu:
   软件: /categories/软件/ || fa-brands fa-app-store-ios
   其他: /categories/其他/ || fa-solid fa-comment-slash
   留言: /messageboard/ || fa-fw fas fa-comment-dots
-  # 文档||fa-fw fas fa-book:
-  归档: /archives/ || fas fa-archive
-    # 标签: /tags/ || fas fa-tags
-    # 分类: /categories/ || fas fa-folder-open
-  # 媒体||fas fa-list:
-    # 图库: /gallery/ || fa-fw fas fa-images
-    # 追番: /bangumis/ || fa-fw fab fa-youtube
-  # 友链: /link/ || fas fa-link
+  文档 || fa-fw fas fa-book:
+    归档: /archives/ || fas fa-archive
+    标签: /tags/ || fas fa-tags
+    分类: /categories/ || fas fa-folder-open
+  媒体 || fas fa-list:
+    图库: /gallery/ || fa-fw fas fa-images
+    追番: /bangumis/ || fa-fw fab fa-youtube
+  友链: /link/ || fas fa-link
   关于: /about/ || fa-solid fa-address-card
 
 # Code Blocks (代碼相關)
