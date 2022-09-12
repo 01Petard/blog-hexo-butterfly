@@ -511,10 +511,10 @@ microsoft_clarity:
 # Google Adsense (谷歌廣告)
 google_adsense:
   enable: false
-  auto_ads: true
+  auto_ads: false
   js: https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js
   client:
-  enable_page_level_ads: true
+  enable_page_level_ads: false
 
 # Insert ads manually (手動插入廣告)
 # ad:
@@ -605,7 +605,7 @@ canvas_fluttering_ribbon:
 # canvas_nest
 # https://github.com/hustcc/canvas-nest.js
 canvas_nest:
-  enable: true
+  enable: false
   color: '0,0,255' #color of lines, default: '0,0,0'; RGB values: (R,G,B).(note: use ',' to separate.)
   opacity: 0.7 # the opacity of line (0~1), default: 0.5.
   zIndex: -1 # z-index property of the background, default: -1.
@@ -717,7 +717,7 @@ aside:
       link: https://github.com/01Petard
   card_announcement:
     enable: true
-    content: 博主机型为Mac，是一个地道的coding boy，杂食向，喜欢ACG、同人。如果打开网页发现内容没更新，请清除之前的缓存！评论要灵活上网才能获取！
+    content: 博主机型为Mac，杂食向研狗，喜欢ACG、同人。如果打开网页发现内容没更新，请清除之前的缓存！评论要灵活上网才能获取！
   card_recent_post:
     enable: false
     limit: 5 # if set 0 will show all
