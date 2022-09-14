@@ -17,8 +17,8 @@ keywords:
 - CrossOver
 - Wine
 description: 一种可以在arm架构Mac上运行exe程序的办法
-cover: https://cdn.akamai.steamstatic.com/steam/apps/1905180/capsule_616x353.jpg?t=1654173198
-top_img: https://cdn.cloudflare.steamstatic.com/steam/apps/1905180/ss_f7aa6c7a804e0a06ea5a9742a9afc15f637d498e.1920x1080.jpg?t=1654173198
+cover: https://www.omgubuntu.co.uk/wp-content/uploads/2016/03/wine.jpg
+top_img: https://i.ytimg.com/vi/nVxzCteaWnc/maxresdefault.jpg
 ---
 
 记录一下，如何在arm架构芯片的Mac上打开exe后缀的windows程序
