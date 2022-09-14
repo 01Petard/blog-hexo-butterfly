@@ -74,7 +74,7 @@ winecfg
 
 很不幸，报错打不开（悲）
 
-<img src="/Users/hzx/Library/Application%20Support/typora-user-images/image-20220914174910056.png" alt="image-20220914174910056" style="zoom:33%;" />
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20220914174910056_1.png" alt="image-20220914174910056" style="zoom:33%;" />
 
 但是万华镜就打开了……说明还得看情况，暂时不清楚打不开的原因是什么（大悲）
 
