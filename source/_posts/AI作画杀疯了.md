@@ -11,8 +11,8 @@ keywords:
 - NovelAI
 - Pixiv
 description: 对面无穷无尽的瑟图，人类还有救吗？
-cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/=image.png
-top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/=image.png
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/novelai_vedio_cut.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/novelai_vedio_cut.png
 ---
 
 坐标：
