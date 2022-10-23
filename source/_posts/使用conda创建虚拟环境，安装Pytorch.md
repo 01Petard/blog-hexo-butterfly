@@ -1,5 +1,5 @@
 ---
-title: 使用conda创建虚拟环境
+title: 使用conda创建虚拟环境，安装Pytorch
 date: 2022-10-23 19:09:15
 updated:
 categories: 
@@ -99,27 +99,27 @@ conda install pytorch torchvision
 
 如果能输出torch版本就算成功了！
 
-### 4、pip和conda导出requirement.txt文件
+### 4、pip和conda导出requirement.txt
 
 pip批量导出包含环境中所有组件的requirements.txt文件
 
 ```shell
 pip freeze > requirements.txt
 ```
-
-
-pip批量安装requirements.txt文件中包含的组件依赖
-
-```shell
-pip install -r requirements.txt
-```
-
 conda批量导出包含环境中所有组件的requirements.txt文件
 
 ```shell
 conda list -e > requirements.txt
 ```
 
+
+### 5、pip和conda从requirement.txt安装
+
+pip批量安装requirements.txt文件中包含的组件依赖
+
+```shell
+pip install -r requirements.txt
+```
 conda批量安装requirements.txt文件中包含的组件依赖
 
 ```shell
