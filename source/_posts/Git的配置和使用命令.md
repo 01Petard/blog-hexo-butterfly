@@ -1,7 +1,7 @@
 ---
 title: Git的配置和使用命令
 date: 2022-04-26 16:22:15
-updated: 2022-08-20 16:40:00
+updated: 2022-12-15 21:13:00
 categories: 
 - 开发
 tags: 
@@ -36,6 +36,7 @@ git config --global gui.encoding utf-8  # gui界面的编码方式改为utf-8
 git config --global i18n.commitencoding utf-8  # 将commit时信息转为urf-8，默认二进制
 git config --global i18n.logoutputencoding utf-8  # 显示日志时的转为utf-8，默认二进制
 git config --global core.quotepath false  # 不要转义中文文件名或路径，默认转义
+git config --global core.autocrlf false  # 关闭crlf自动换行（windows下建议）
 ```
 
 查看配置信息
@@ -43,6 +44,7 @@ git config --global core.quotepath false  # 不要转义中文文件名或路径
 ```shell
 cat ~/.gitconfig
 ```
+
 ```shell
 git config --list
 ```
@@ -117,7 +119,9 @@ git init
 ```shell
 touch .gitignore
 ```
+
 常见忽略文件，可以按需添加
+
 ```yaml
 .DS_Store
 node_modules/
@@ -144,7 +148,7 @@ pnpm-debug.log*
 .rar
 ```
 
-使用tuoch和vim创建好.gitignore文件
+使用touch和vim创建好.gitignore文件
 
 ![image-20220820141851327](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20220820141851327.png)
 
@@ -153,6 +157,7 @@ pnpm-debug.log*
 ```shell
 git add/reset 文件
 ```
+
 ![image-20220820141907835](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20220820141907835.png)
 
 ## 2.4 创建一个提交并提供提交信息
