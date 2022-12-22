@@ -37,6 +37,8 @@ git config --global i18n.commitencoding utf-8  # 将commit时信息转为urf-8�
 git config --global i18n.logoutputencoding utf-8  # 显示日志时的转为utf-8，默认二进制
 git config --global core.quotepath false  # 不要转义中文文件名或路径，默认转义
 git config --global core.autocrlf false  # 关闭crlf自动换行（windows下建议）
+git config --global core.filemode false  # 关闭crlf自动换行（windows下建议）
+git config --global core.safecrlf true   # 关闭crlf自动换行（windows下建议）
 ```
 
 查看配置信息
