@@ -6,14 +6,8 @@ categories:
 - 软件
 tags: 
 - Windows
-- MacOS
-- .DS_Store
-- ._
 keywords:
 - Windows
-- MacOS
-- .DS_Store
-- ._
 description: 一种批量删除.DS_Store和._文件的办法
 cover: https://img-blog.csdnimg.cn/925af9cfad1141e885f0334e3c131497.png?x-oss-process=image/resize,m_fixed,h_224,w_224
 top_img: https://miro.medium.com/max/920/1*dkE1TrK5K3jlSA0gY1-ggQ.png
