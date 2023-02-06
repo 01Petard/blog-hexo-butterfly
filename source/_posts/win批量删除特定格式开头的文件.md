@@ -1,5 +1,5 @@
 ---
-title: Windows批量删除._开头的MacOS文件
+title: win批量删除特定格式开头的文件
 date: 2022-12-15 20:44:15
 updated:
 categories: 
