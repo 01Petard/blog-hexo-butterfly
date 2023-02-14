@@ -3,7 +3,7 @@ title: HTML标签重点划注
 date: 2022-02-17 21:42:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - 前端
 - HTML
@@ -53,6 +53,7 @@ top_img: http://vimaj.com/images/html-dersleri.jpg
 <!--点击这个a标签就会打开邮箱-->
 <a href="mailto:1520394133@qq.com"></a>
 ```
+
 例子：qq推广链接
 https://shang.qq.com/v3/widget.html
 
@@ -210,4 +211,3 @@ autoplay:自动播放
 ```html
 <input type="text" pattern="这里输入正则表达式"/>
 ```
-

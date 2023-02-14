@@ -34,10 +34,10 @@ int main(int argc, char *argv[]) {
   vector<int> v;
   int n;
   cout<<"输入最大值n:"<<endl;
-	cin>>n;
-	for(int i=0;i<n;i++) {
-		v.push_back(i);
-	}
+    cin>>n;
+    for(int i=0;i<n;i++) {
+        v.push_back(i);
+    }
 }
 ```
 
@@ -45,16 +45,18 @@ int main(int argc, char *argv[]) {
 
 ```c++
 int main(int argc, char *argv[]) {
-	vector<int> v{3,2,6,5,0};
-  
-	//insert begin+n是在从前往后数，第n个元素之后插入
-	v.insert(v.begin()+2,111);//3 2 111 6 5 0
-	print_container1(v);
-	
-  //insert end + n 是在从后往前数，第n个元素之前插入
-	v.insert(v.end()-1,111);//3 2 6 5 111 0
-	print_container1(v);
-	
+    vector<int> v{3,2,6,5,0};
+
+  //begin返回指向容器第一个元素的迭代器
+  //begin+n 从下标0开始，在0+n下标的元素前面插入，begin就是在最前面插入
+    v.insert(v.begin()+2,111);//3 2 111 6 5 0
+    print_container1(v);
+
+  //end返回指向容器最后一个元素下一个位置的迭代器
+  //end + n 从最后一个元素开始，在倒数n个元素之前插入，end就是直接在最后插入
+    v.insert(v.end()-1,111);//3 2 6 5 111 0
+    print_container1(v);
+
 }
 ```
 
@@ -73,7 +75,7 @@ v.erase(v.begin()+2,v.end()-3);
 结果：0 1 7 8 9
 只保留了前2个数和后3个数。因此，v.erase(v.begin()+x,v.end()-y)的作用就是保留前x个数和后y个数的意思
 */
-  
+
 ```
 
 erase实例：去除偶数
@@ -82,11 +84,11 @@ erase实例：去除偶数
 vector<int> k{0,1,2,3,4,5,6,7,8,9};
 vector<int> tmp = k;//不破坏原数组
 for(vector<int>::iterator it = tmp.begin();it!=tmp.end();){
-	if(*it%2==0){//*it是当前下标的数，it是指向当前位置数的迭代器（指针）
-		it = tmp.erase(it);//把当前位置的迭代器（指针）删除，就删除这个指针所指向的数，因此这个数就被删除了
-	}else{
-		it++;
-	}
+    if(*it%2==0){//*it是当前下标的数，it是指向当前位置数的迭代器（指针）
+        it = tmp.erase(it);//把当前位置的迭代器（指针）删除，就删除这个指针所指向的数，因此这个数就被删除了
+    }else{
+        it++;
+    }
 }
 print_container1(v);
 /*结果：
@@ -123,7 +125,7 @@ k.capacity();//2048
 vector<int> v = {0,1,2,3,4,5,6,7,8,9};
 reverse(v.begin()+2, v.end()-2);
 for (int i=0 ;i<v.size(); i++) {
-	cout<<v[i]<<endl;
+    cout<<v[i]<<endl;
 }
 /*
 结果：0 1 7 6 5 4 3 2 8 9
@@ -136,7 +138,7 @@ for (int i=0 ;i<v.size(); i++) {
 ```c++
 //自定义比较函数
 bool Comp(const int &a,const int &b){
-	return a>b;
+    return a>b;
 }
 int main(int argc, char *argv[]) {
   vector<int> v = {2,1,3,5,7,9,8,0,6,4};
@@ -152,17 +154,17 @@ int main(int argc, char *argv[]) {
 
 using namespace std;
 int main(int argc, char *argv[]) {
-	string s1;
-	string s2;
-	
-	char s[100];
-	scanf("%s",s);//scanf输入速度比cin快得多，但是scanf是C函数，不可以输入string
-	s1 = s;//因此需要用等号赋值给string(但是这个操作不好，用printf会报错，后面会说的)
-	cout<<s1<<endl;
-	
-	cin>>s2;//但是用cin就方便很多
-	cout<<s2<<endl;
-	
+    string s1;
+    string s2;
+
+    char s[100];
+    scanf("%s",s);//scanf输入速度比cin快得多，但是scanf是C函数，不可以输入string
+    s1 = s;//因此需要用等号赋值给string(但是这个操作不好，用printf会报错，后面会说的)
+    cout<<s1<<endl;
+
+    cin>>s2;//但是用cin就方便很多
+    cout<<s2<<endl;
+
 }
 ```
 
@@ -176,25 +178,25 @@ string实例，求一个整数各位数的和
 
 using namespace std;
 int main(int argc, char *argv[]) {
-	string s;
-	s = "123456789";
-	int sum = 0;
-	for(int i = 0; i < s.size(); ++i){
-		switch(s[i]){
-			case '1': sum += 1;break;
-			case '2': sum += 2;break;
-			case '3': sum += 3;break;
-			case '4': sum += 4;break;
-			case '5': sum += 5;break;
-			case '6': sum += 6;break;
-			case '7': sum += 7;break;
-			case '8': sum += 8;break;
-			case '9': sum += 9;break;
-			default:break;
-		}
-	}
-	cout << sum << endl;
-	return 0;
+    string s;
+    s = "123456789";
+    int sum = 0;
+    for(int i = 0; i < s.size(); ++i){
+        switch(s[i]){
+            case '1': sum += 1;break;
+            case '2': sum += 2;break;
+            case '3': sum += 3;break;
+            case '4': sum += 4;break;
+            case '5': sum += 5;break;
+            case '6': sum += 6;break;
+            case '7': sum += 7;break;
+            case '8': sum += 8;break;
+            case '9': sum += 9;break;
+            default:break;
+        }
+    }
+    cout << sum << endl;
+    return 0;
 }
 
 /*输出结果：
@@ -211,17 +213,17 @@ C语言的一些遗留问题，比如使用string类的自身方法c_str()去处
 using namespace std;
 
 int main(){
-	string s_string;
-	char s_char[1000];
-	scanf("%s",s_char);
-	s_string = s_char;
-	
-	printf("s_string.c_str():%s\n", s_string.c_str());//printf输出char*时用c_str处理，c_str()函数返回一个指向正规C字符串的指针, 内容与本string串相同
-	cout<<"s_string:"<<s_string<<endl;
-	printf("s_char:%s\n",s_char);
-	cout<<"s_char:"<<s_char<<endl;
-	cout<<"s_string"<<s_string<<endl;
-	
+    string s_string;
+    char s_char[1000];
+    scanf("%s",s_char);
+    s_string = s_char;
+
+    printf("s_string.c_str():%s\n", s_string.c_str());//printf输出char*时用c_str处理，c_str()函数返回一个指向正规C字符串的指针, 内容与本string串相同
+    cout<<"s_string:"<<s_string<<endl;
+    printf("s_char:%s\n",s_char);
+    cout<<"s_char:"<<s_char<<endl;
+    cout<<"s_string"<<s_string<<endl;
+
 }
 ```
 
@@ -305,21 +307,21 @@ vector数组的3种遍历方法，我写了三个都挺好用的，可以适当�
 
 ```c++
 void print_container1(vector<int> vec){
-	for(vector<int>::iterator it = vec.begin();it!=vec.end();it++){
-		cout<<*it<<endl;
-	}
+    for(vector<int>::iterator it = vec.begin();it!=vec.end();it++){
+        cout<<*it<<endl;
+    }
 }
 void print_container2(vector<int> vec){
-	vector<int>::iterator it = vec.begin();
-	while(it!=vec.end()) {
-		cout<<*it<<endl;
-		it++;
-	}
+    vector<int>::iterator it = vec.begin();
+    while(it!=vec.end()) {
+        cout<<*it<<endl;
+        it++;
+    }
 }
 void print_container3(vector<int> vec){
-	for(int i=0;i<vec.size();i++){
-		cout<<vec[i]<<endl;
-	}
+    for(int i=0;i<vec.size();i++){
+        cout<<vec[i]<<endl;
+    }
 }
 ```
 
@@ -337,21 +339,21 @@ multiset，与set不同之处就是它允许有重复的键值。
 using namespace std;
 
 int main(int argc, char *argv[]) {
-	set<int> v;
-	v.insert(1);//边插边排序
-	v.insert(3);
-	v.insert(5);
-	v.insert(2);
-	v.insert(4);
-	v.insert(3);//会被忽略
-  
-	//中序遍历 升序遍历
-	for(set<int>::iterator it = v.begin(); it != v.end(); ++it){
-		cout<<*it<<" ";
-	}
-	for(set<int>::reverse_iterator rit = v.rbegin(); rit != v.rend(); ++rit){
-		cout<<*rit<<" ";
-	}
+    set<int> v;
+    v.insert(1);//边插边排序
+    v.insert(3);
+    v.insert(5);
+    v.insert(2);
+    v.insert(4);
+    v.insert(3);//会被忽略
+
+    //中序遍历 升序遍历
+    for(set<int>::iterator it = v.begin(); it != v.end(); ++it){
+        cout<<*it<<" ";
+    }
+    for(set<int>::reverse_iterator rit = v.rbegin(); rit != v.rend(); ++rit){
+        cout<<*rit<<" ";
+    }
 }
 /*结果：
 1 2 3 4 5 //升序iterator
@@ -369,29 +371,29 @@ int main(int argc, char *argv[]) {
 using namespace std;
 
 struct Comp{
-	//重载()
-	bool operator()(const int &a, const int &b){
-		return a > b;
-	}
+    //重载()
+    bool operator()(const int &a, const int &b){
+        return a > b;
+    }
 };
 int main(int argc, char *argv[]) {
-	set<int> v;
-	v.insert(1);
-	v.insert(3);
-	v.insert(5);
-	v.insert(2);
-	v.insert(4);
-	v.insert(3);
-	
-	for(set<int,Comp>::iterator it = v.begin(); it != v.end(); ++it){
-		cout << *it << " ";
-	}
-	cout << endl;
-	
-	for(set<int,Comp>::reverse_iterator rit = v.rbegin(); rit != v.rend(); ++rit){
-		cout << *rit << " ";
-	}
-	cout << endl;
+    set<int> v;
+    v.insert(1);
+    v.insert(3);
+    v.insert(5);
+    v.insert(2);
+    v.insert(4);
+    v.insert(3);
+
+    for(set<int,Comp>::iterator it = v.begin(); it != v.end(); ++it){
+        cout << *it << " ";
+    }
+    cout << endl;
+
+    for(set<int,Comp>::reverse_iterator rit = v.rbegin(); rit != v.rend(); ++rit){
+        cout << *rit << " ";
+    }
+    cout << endl;
 }
 /*结果：//这个之前的正好相反
 5 4 3 2 1 
@@ -408,37 +410,37 @@ int main(int argc, char *argv[]) {
 using namespace std;
 
 struct Info{
-	string name;
-	double score;
-	//重载 <
-	bool operator < (const Info &a) const{
-		return a.score < score;
-	}
+    string name;
+    double score;
+    //重载 <
+    bool operator < (const Info &a) const{
+        return a.score < score;
+    }
 };
 int main(int argc, char *argv[]) {
-	set<Info> s;
-	Info info;
-	
-	info.name = "abc";
-	info.score = 123.3;
-	s.insert(info);
-	
-	info.name = "EDF";
-	info.score = -23.53;
-	s.insert(info);
-	
-	info.name = "xyz";
-	info.score = 73.3;
-	s.insert(info);
-	
-	for(set<Info>::iterator it = s.begin(); it != s.end(); ++it){
-		cout<<(*it).name<<":"<<(*it).score<<endl;
-	}
-	cout << endl;
-	for(set<Info>::reverse_iterator rit = s.rbegin(); rit != s.rend(); ++rit){
-		cout<<(*rit).name<<":"<<(*rit).score<<endl;
-	}
-	cout << endl;
+    set<Info> s;
+    Info info;
+
+    info.name = "abc";
+    info.score = 123.3;
+    s.insert(info);
+
+    info.name = "EDF";
+    info.score = -23.53;
+    s.insert(info);
+
+    info.name = "xyz";
+    info.score = 73.3;
+    s.insert(info);
+
+    for(set<Info>::iterator it = s.begin(); it != s.end(); ++it){
+        cout<<(*it).name<<":"<<(*it).score<<endl;
+    }
+    cout << endl;
+    for(set<Info>::reverse_iterator rit = s.rbegin(); rit != s.rend(); ++rit){
+        cout<<(*rit).name<<":"<<(*rit).score<<endl;
+    }
+    cout << endl;
 }
 /*
 abc:123.3
@@ -469,18 +471,18 @@ map也是使用红黑树，他是一个键值对（key：value映射），遍历
 using namespace std;
 
 int main(int argc, char *argv[]){
-	map<string,double> m;
-		
-	//声明即插入
-	m["li"] = 123.4;
-	m["wang"] = 23.1;
-	m["zhang"] = -21.9;
-	m["abc"] = 12.1;
-	for(map<string,double>::iterator it = m.begin(); it != m.end(); ++it){
-		//first --> key second --> value
-		cout << (*it).first << ":" << (*it).second << endl;
-	}
-	cout << endl;
+    map<string,double> m;
+
+    //声明即插入
+    m["li"] = 123.4;
+    m["wang"] = 23.1;
+    m["zhang"] = -21.9;
+    m["abc"] = 12.1;
+    for(map<string,double>::iterator it = m.begin(); it != m.end(); ++it){
+        //first --> key second --> value
+        cout << (*it).first << ":" << (*it).second << endl;
+    }
+    cout << endl;
 }
 /*结果：
 abc:12.1
@@ -503,17 +505,17 @@ multimap由于允许有重复的元素，所以元素插入、删除、查找都
 using namespace std;
 
 int main(int argc, char *argv[]) {
-	
-	multimap<string,double> m;
-	m.insert(pair<string,double>("Abc",123.2));
-	m.insert(pair<string,double>("Abc",123.2));
-	m.insert(pair<string,double>("xyz",-43.2));
-	m.insert(pair<string,double>("dew",43.2));
-	
-	for(multimap<string,double>::iterator it = m.begin(); it != m.end(); ++it ){
-		cout << (*it).first << ":" << (*it).second << endl;
-	}
-	cout << endl;
+
+    multimap<string,double> m;
+    m.insert(pair<string,double>("Abc",123.2));
+    m.insert(pair<string,double>("Abc",123.2));
+    m.insert(pair<string,double>("xyz",-43.2));
+    m.insert(pair<string,double>("dew",43.2));
+
+    for(multimap<string,double>::iterator it = m.begin(); it != m.end(); ++it ){
+        cout << (*it).first << ":" << (*it).second << endl;
+    }
+    cout << endl;
 
 }
 /*结果：
@@ -548,41 +550,41 @@ deque的一些操作
 using namespace std;
 
 int main(int argc, char *argv[]) {
-	deque<int> d;
-	
-	//尾部插入
-	d.push_back(1);
-	d.push_back(3);
-	d.push_back(2);
-	
-	//头部插入
-	d.push_front(10);
-	d.push_front(-23);
-	
-	//中间插入
-	d.insert(d.begin() + 2,9999);
-	
-	//清空
-	d.clear();
-	
-	//从头部删除元素
-	d.pop_front();
-	//从尾部删除元素
-	d.pop_back();
-	//中间删除
-	d.erase(d.begin()+2,d.end()-5);
-	
-	//正方向遍历
-	for(deque<int>::iterator it = d.begin(); it != d.end(); ++it ){
-		cout << (*it) << " ";
-	}
-	cout << endl << endl;
-	
-	//反方向遍历
-	for(deque<int>::reverse_iterator rit = d.rbegin(); rit != d.rend(); ++rit ){
-		cout << (*rit) << " ";
-	}
-	cout << endl << endl;
+    deque<int> d;
+
+    //尾部插入
+    d.push_back(1);
+    d.push_back(3);
+    d.push_back(2);
+
+    //头部插入
+    d.push_front(10);
+    d.push_front(-23);
+
+    //中间插入
+    d.insert(d.begin() + 2,9999);
+
+    //清空
+    d.clear();
+
+    //从头部删除元素
+    d.pop_front();
+    //从尾部删除元素
+    d.pop_back();
+    //中间删除
+    d.erase(d.begin()+2,d.end()-5);
+
+    //正方向遍历
+    for(deque<int>::iterator it = d.begin(); it != d.end(); ++it ){
+        cout << (*it) << " ";
+    }
+    cout << endl << endl;
+
+    //反方向遍历
+    for(deque<int>::reverse_iterator rit = d.rbegin(); rit != d.rend(); ++rit ){
+        cout << (*rit) << " ";
+    }
+    cout << endl << endl;
 }
 ```
 
@@ -620,18 +622,18 @@ int main(int argc, char *argv[]) {
 using namespace std;
 
 int main(int argc, char *argv[]){
-	stack<int> s;
-	s.push(1);
-	s.push(2);
-	s.push(4);
-	s.push(5);
-		
-	cout<<"s.size():"<<s.size()<<endl;
-		
-	while(!s.empty()){
-		cout<<s.top()<<endl;
-		s.pop();
-	}
+    stack<int> s;
+    s.push(1);
+    s.push(2);
+    s.push(4);
+    s.push(5);
+
+    cout<<"s.size():"<<s.size()<<endl;
+
+    while(!s.empty()){
+        cout<<s.top()<<endl;
+        s.pop();
+    }
 }
 /*结果：
 s.size():4
@@ -658,22 +660,22 @@ queue有入队push（插入）、出队pop（删除）、读取队首元素front
 using namespace std;
 
 int main(int argc, char *argv[]) {
-	
-	priority_queue<int> pq;
-	
-	pq.push(1);
-	pq.push(3);
-	pq.push(2);
-	pq.push(8);
-	pq.push(9);
-	pq.push(0);
-	
-	cout<<"pq.size:"<<pq.size()<<endl;
-	
-	while(pq.empty() != true){
-		cout << pq.top() << endl;
-		pq.pop();
-	}
+
+    priority_queue<int> pq;
+
+    pq.push(1);
+    pq.push(3);
+    pq.push(2);
+    pq.push(8);
+    pq.push(9);
+    pq.push(0);
+
+    cout<<"pq.size:"<<pq.size()<<endl;
+
+    while(pq.empty() != true){
+        cout << pq.top() << endl;
+        pq.pop();
+    }
 }
 /*结果：
 pq.size:6

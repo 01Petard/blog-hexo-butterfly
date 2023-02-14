@@ -3,7 +3,7 @@ title: node与npm的一些命令
 date: 2022-02-24 15:22:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - node
 - npm
@@ -81,4 +81,3 @@ npm list -g --depth 0
 ```shell
 npm list --depth 0
 ```
-

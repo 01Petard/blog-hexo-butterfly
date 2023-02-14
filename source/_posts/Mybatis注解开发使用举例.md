@@ -3,7 +3,7 @@ title: Mybatis注解开发使用举例
 date: 2022-02-06 16:12:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - Mybatis
 - 注解

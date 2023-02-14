@@ -3,7 +3,7 @@ title: Nginx的配置和使用命令
 date: 2022-07-26 13:10:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - 服务器
 - Nginx
@@ -51,11 +51,10 @@ sudo nginx -s stop
     server {
         listen       8080;
         server_name  192.168.0.114; #前端主机地址，我前后端都部署在局域网同一电脑上
-        
+
         location / {
             root   html/dist;
             index  index.html index.htm;
             proxy_pass 192.168.0.114; #后端主机地址
         }
 ```
-

@@ -3,7 +3,7 @@ title: thymeleaf的th:href带参数转跳
 date: 2022-03-08 23:35:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - SpringBoot
 - thymelef

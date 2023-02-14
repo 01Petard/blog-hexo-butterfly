@@ -3,7 +3,7 @@ title: 切换jdk版本的方法（jenv法）
 date: 2022-03-04 20:01:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - Java
 - jdk

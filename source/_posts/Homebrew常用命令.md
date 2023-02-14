@@ -3,10 +3,10 @@ title: Homebrew常用命令
 date: 2022-02-08 12:37:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - Homebrew
-keywords:
+- keywords:
 - Homebrew
 description: Mac下最好的包管理工具
 cover: http://n.sinaimg.cn/sinakd202126s/506/w840h466/20210206/2eff-kirmaiu5118776.png

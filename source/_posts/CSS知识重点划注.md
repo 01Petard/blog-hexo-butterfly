@@ -3,7 +3,7 @@ title: CSS知识重点划注
 date: 2022-02-20 22:03:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - 前端
 - CSS
@@ -64,7 +64,7 @@ h1{
 ```css
 /*对象：选中元素下的所有对象。例子中是选中了body下的所有p标签*/
 body p{
-	background: red;
+    background: red;
 }
 ```
 
@@ -73,7 +73,7 @@ body p{
 ```css
 /*对象：选中对象下的所有子级标签。例子中是选中了body下的所有子级p标签*/
 body > p{
-	background: red;
+    background: red;
 }
 ```
 
@@ -82,7 +82,7 @@ body > p{
 ```css
 /*对象：选中对象下的一个弟标签。例子中是选中了class名为bro下面的一个弟级p标签*/
 .bro + p{
-	background: red;
+    background: red;
 }
 ```
 
@@ -91,7 +91,7 @@ body > p{
 ```css
 /*对象：选中对象下的所有弟级标签。例子中是选中了class为bro下面的所有弟级p标签*/
 .bro ~ p{
-	background: red;
+    background: red;
 }
 ```
 

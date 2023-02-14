@@ -3,7 +3,7 @@ title: MySql数据库命令
 date: 2022-01-26 16:13:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - Mysql
 keywords:
@@ -100,31 +100,31 @@ alter table 表名 drop index 索引名 (on 表名);
 --可加可不加--
 drop table 表名 if exist;
 create table 表名(
-	integer(整型) not null primary key auto_increment,
-	varchar(字符串类型，必须要跟最大字符串),
-	text(大文本),
-	float(单精度，即7-8位有效数字),
-	double(双精度，即15-16位有效数字),
-	date(只有年月日),
-	time（只有时分秒),
-	datetime(既有年月日，又有时分秒),
+    integer(整型) not null primary key auto_increment,
+    varchar(字符串类型，必须要跟最大字符串),
+    text(大文本),
+    float(单精度，即7-8位有效数字),
+    double(双精度，即15-16位有效数字),
+    date(只有年月日),
+    time（只有时分秒),
+    datetime(既有年月日，又有时分秒),
 );
 eg1.主键+外键
 CREATE table course(
-	cno char(7) not null PRIMARY KEY,
-	cname VARCHAR(7) not null,
-	ccredit int(2) not null,
-	cpno char(7) REFERENCES course(con)
+    cno char(7) not null PRIMARY KEY,
+    cname VARCHAR(7) not null,
+    ccredit int(2) not null,
+    cpno char(7) REFERENCES course(con)
 );
 eg2.复合主键+复合外键（多对多情况）
 CREATE table sc(
-	sno char(7),
-	cno char(7),
-	score DECIMAL(4,1),
-	point DECIMAL(2,1)
-	PRIMARY key(sno,cno),
-	FOREIGN key sno REFERENCES students(sno),
-	FOREIGN key cno REFERENCES course(cno)
+    sno char(7),
+    cno char(7),
+    score DECIMAL(4,1),
+    point DECIMAL(2,1)
+    PRIMARY key(sno,cno),
+    FOREIGN key sno REFERENCES students(sno),
+    FOREIGN key cno REFERENCES course(cno)
 );
 ```
 
@@ -188,4 +188,3 @@ drop table 表名;
 ```sql
 delete from 表名;
 ```
-

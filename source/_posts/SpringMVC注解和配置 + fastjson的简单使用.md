@@ -3,7 +3,7 @@ title: SpringMVC注解和配置 + fastjson的简单使用
 date: 2022-02-14 20:47:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - SpringMVC
 - 注解
@@ -16,8 +16,6 @@ description: Controller层常用注解、fastjson简单上手使用
 cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/7a46220cec7e445508245e0e7cebccbf62dff0b2.png_320w_200h_1c.jpg
 top_img: https://www.yht7.com/upload/image/20200519/2024393-20200518230425868-1113585406.jpg
 ---
-
-
 
 ```java
 @Controller
@@ -75,7 +73,7 @@ top_img: https://www.yht7.com/upload/image/20200519/2024393-20200518230425868-11
    //将js对象转换成json字符串
    var str = JSON.stringify(user);
    console.log(str);
-   
+
    //将json字符串转换为js对象
    var user2 = JSON.parse(str);
    console.log(user2.age,user2.name,user2.sex);
@@ -150,9 +148,6 @@ lombok依赖要引入的几个必要注解：
 @AllArgsConstructor
 @NoArgsConstructor
 public class person(){
-  
+
 }
 ```
-
-
-

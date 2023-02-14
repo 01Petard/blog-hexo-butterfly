@@ -3,7 +3,7 @@ title: Vue的事件修饰符
 date: 2022-03-11 18:51:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - Vue
 - 事件修饰符
@@ -23,6 +23,3 @@ Vue的事件修饰符：
 - capture：使用事件的捕获模式；
 - self：只有event.target是当前操作的元素时才触发事件；
 - passive：事件的默认行为立即执行，无需等待事件回调执行完毕；
-
-
-

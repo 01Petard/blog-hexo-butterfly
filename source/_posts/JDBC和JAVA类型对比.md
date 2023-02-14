@@ -3,7 +3,7 @@ title: JDBC和JAVA类型对比
 date: 2022-07-19 16:30:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - JDBC
 - JAVA

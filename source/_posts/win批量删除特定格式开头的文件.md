@@ -11,7 +11,6 @@ keywords:
 description: 一种批量删除.DS_Store和._文件的办法
 cover: https://img-blog.csdnimg.cn/925af9cfad1141e885f0334e3c131497.png?x-oss-process=image/resize,m_fixed,h_224,w_224
 top_img: https://miro.medium.com/max/920/1*dkE1TrK5K3jlSA0gY1-ggQ.png
-
 ---
 
 博主将文件从MacOS拷贝到Windows时，经常会遇到有很多.DS_Store和.\_的文件，这些在MacOS里用来保存类型和创建者代码、修改日期、图标等信息的。

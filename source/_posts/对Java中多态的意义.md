@@ -3,7 +3,7 @@ title: 对Java中多态的意义
 date: 2022-02-25 21:59:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - Java
 - 多态

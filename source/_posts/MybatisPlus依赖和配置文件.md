@@ -3,7 +3,7 @@ title: MybatisPlus依赖和配置文件
 date: 2022-03-07 22:01:15
 updated:
 categories: 
-- 学习
+- 开发
 tags: 
 - MybatisPlus
 - 依赖
@@ -20,7 +20,7 @@ top_img: https://www.chendan116.com/upload/2021/02/relationship-with-mybatis-d54
 ### 依赖
 
 ```
-			<dependencies>
+            <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
@@ -39,10 +39,10 @@ top_img: https://www.chendan116.com/upload/2021/02/relationship-with-mybatis-d54
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
-        
-        
-        
+
+
+
+
         <!--Mysql8.0-->
         <dependency>
             <groupId>mysql</groupId>
@@ -133,4 +133,3 @@ mybatis-plus:
     lazyLoadingEnabled: true
     aggressiveLazyLoading: false
 ```
-

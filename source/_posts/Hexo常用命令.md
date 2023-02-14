@@ -71,10 +71,10 @@ hexo new photo "My Gallery"
 hexo new "Hello World"
 ```
 
-| 变量   | 描述         |
-| ------ | ------------ |
-| layout | 布局         |
-| title  | 标题         |
+| 变量     | 描述     |
+| ------ | ------ |
+| layout | 布局     |
+| title  | 标题     |
 | date   | 文件建立日期 |
 
 ```subunit
@@ -94,10 +94,10 @@ description: 生命在于折腾，又把博客折腾到Hexo了。给Hexo点赞�
 hexo new photo "My Gallery"
 ```
 
-| 变量   | 描述         |
-| ------ | ------------ |
-| layout | 布局         |
-| title  | 标题         |
+| 变量     | 描述     |
+| ------ | ------ |
+| layout | 布局     |
+| title  | 标题     |
 | date   | 文件建立日期 |
 
 ## 设置文章摘要
@@ -113,12 +113,11 @@ hexo new page <title>
 hexo new post <title>
 ```
 
-| 变量     | 描述                       |
-| -------- | -------------------------- |
-| :title   | 标题                       |
-| :year    | 建立的年份（4 位数）       |
-| :month   | 建立的月份（2 位数）       |
+| 变量       | 描述            |
+| -------- | ------------- |
+| :title   | 标题            |
+| :year    | 建立的年份（4 位数）   |
+| :month   | 建立的月份（2 位数）   |
 | :i_month | 建立的月份（去掉开头的零） |
-| :day     | 建立的日期（2 位数）       |
+| :day     | 建立的日期（2 位数）   |
 | :i_day   | 建立的日期（去掉开头的零） |
-
