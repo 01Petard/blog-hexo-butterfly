@@ -10,7 +10,7 @@ keywords:
 - YOLOv5
 description: 初始YOLOv5
 cover: https://storage.googleapis.com/wandb-production.appspot.com/wandb-public-images/3hql0qh3b7.png
-top_img: https://pic1.zhimg.com/v2-bfc9c0f0b8668f3ecf84ac5da71d9aea_720w.jpg?source=172ae18b
+top_img: https://user-images.githubusercontent.com/26833433/155040763-93c22a27-347c-4e3c-847a-8094621d3f4e.png
 ---
 
 # 参考网站
