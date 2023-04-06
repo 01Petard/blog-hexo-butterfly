@@ -1,3 +1,18 @@
+---
+title: Linux常用命令
+date: 2023-04-06 18:05:15
+updated:
+categories: 
+- 学习
+tags: 
+- Linux
+keywords:
+- Linux
+description: 实验室服务器常用的Linux常用命令
+cover: https://bloximages.newyork1.vip.townnews.com/redandblack.com/content/tncms/assets/v3/editorial/4/59/45940eb2-5403-11e9-a843-db0e4491cc90/5ca13d8453042.image.jpg
+top_img: https://blog.desdelinux.net/wp-content/uploads/2021/10/Linux-Desktop-1.jpg
+---
+
 # Linux初级命令
 
 ~~太低级的我也不想说了~~
