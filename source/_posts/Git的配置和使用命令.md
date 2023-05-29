@@ -87,7 +87,7 @@ cat ~/.ssh/id_rsa.pub
 
 ### 1.4.3 添加key
 
-![img](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/webp-20220820172058826)
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/webp-20220820172058826" alt="img" style="zoom:67%;" />
 
 ### 1.4.5 验证链接
 
@@ -101,12 +101,12 @@ ssh -T git@github.com
 
 # 二、本地操作
 
-## 2.0 在github上创建一个repository
+## 2.1 创建一个Github仓库
 
 ![image-20220820151031468](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20220820151031468.png)
 ![image-20220820151126921](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20220820151126921.png)
 
-## 2.1 创建一个新仓库
+## 2.1 创建一个本地仓库
 
 ```
 git init
@@ -114,7 +114,7 @@ git init
 
 回到本地，新建一个测试文件夹，里面放点文件，写点东西
 
-![image-20220820141754957](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20220820141754957.png)
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20220820141754957.png" alt="image-20220820141754957" style="zoom:67%;" />
 
 ## 2.2 创建一个忽略的文件列表
 
@@ -152,7 +152,7 @@ pnpm-debug.log*
 
 使用touch和vim创建好.gitignore文件
 
-![image-20220820141851327](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20220820141851327.png)
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20220820141851327.png" alt="image-20220820141851327" style="zoom: 67%;" />
 
 ## 2.3 将指定文件标记/取消标记为将要提交的状态
 
@@ -306,7 +306,7 @@ git checkout HEAD .
 
 # 三、远程仓库操作
 
-## 修改远程仓库地址
+## 3.1 修改远程仓库地址
 
 ```shell
 git remote rm origin  # 删除
@@ -316,14 +316,56 @@ git remote rm origin  # 删除
 git remote add origin https://github.com/用户名/仓库名  # 添加
 ```
 
-## 合并远程仓库和分支下的文件
+## 3.2 合并远程仓库和分支下的文件
 
 ```shell
 git pull origin main
 ```
 
-## 将本地分支推送到远程主机的分支上
+## 3.3 将本地分支推送到远程主机的分支上
 
 ```shell
 git push (--force) origin (--delete) main:main  # 远程主机名 本地分支名:远程分支名(相同可不写)
 ```
+
+# 四、文件的回滚
+
+## 4.1 查看当前未提交的版本的改动
+
+```shell
+git diff
+```
+
+红色的是上一版本的，绿色是当前修改后的，减号表示删除的内容，加号表示新增的内容
+
+![image-20230529153045566](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20230529153045566.png)
+
+## 4.2 查看历史提交记录
+
+```shell
+git reflog
+```
+
+黄字是版本号，HEAD后的数字是第n次的提交历史，commit是提交时候的备注
+
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20230529153942765.png" alt="image-20230529153942765" style="zoom: 67%;" />
+
+## 4.3 退回指定的版本
+
+```shell
+git reset --hard {版本号}
+```
+
+![image-20230529153853743](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20230529153853743.png)
+
+## 4.4 对比两个版本的区别
+
+```shell
+git diff {版本号1} {版本号2} [文件路径]
+```
+
+会分别展示两个版本的区别，但是写得很乱，我都看不懂。
+
+而且这两个版本相隔太久，差别很大，在这里无法真正体现出区别。
+
+![image-20230529154317054](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20230529154317054.png)
