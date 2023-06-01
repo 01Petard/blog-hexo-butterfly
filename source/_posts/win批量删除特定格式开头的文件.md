@@ -9,7 +9,7 @@ tags:
 keywords:
 - Windows
 description: 一种批量删除.DS_Store和._文件的办法
-cover: https://qna.smzdm.com/202204/23/62637770440134478.jpg_fo742.jpg
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/62637770440134478jpg_fo742.jpg
 top_img: https://miro.medium.com/max/920/1*dkE1TrK5K3jlSA0gY1-ggQ.png
 ---
 
