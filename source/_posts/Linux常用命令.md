@@ -154,3 +154,12 @@ sudo fuser -v /dev/nvidia2 |awk '{for(i=1;i<=NF;i++)print "kill -9 " $i;}' | sud
 ps aux|grep USER_NAMW|grep python
 ```
 
+# 读取文件夹大小
+
+```shell
+sudo du -h --max-depth=1 home/
+```
+
+读取home文件下的大小
+
+![image-20230609140738378](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20230609140738378.png)
