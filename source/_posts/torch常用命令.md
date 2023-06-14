@@ -13,6 +13,7 @@ keywords:
 description: 通过torch查看信息
 cover: https://pytorch.org/tutorials/_static/img/thumbnails/cropped/profiler.png
 top_img: https://imagingsolution.net/wordpress/wp-content/uploads/2022/03/pytorch_logo_icon.png
+top: 100
 ---
 
 # 1、服务器信息查询
@@ -32,14 +33,13 @@ cat /proc/cpuinfo | grep 'model name' |uniq #查看CPU型号
 # 查看GPU信息
 sudo dpkg --list | grep nvidia-* # 查看驱动版本
 lshw -c video #查看显卡型号
-$ lspci | grep -i nvidia # 可以查询所有nvidia显卡
-$ lspci -v -s [显卡编号] # 可以查看显卡具体属性
-$ nvidia-smi # 可以查看显卡的显存利用率
-$ cat /etc/issue # 查看Linux发布版本号
-$ lsb_release -a # 查看Linux发布版本号
-$ uname -sr # 查看内核版本号
-$ uname -a # 查看内核版本号
-
+lspci | grep -i nvidia # 可以查询所有nvidia显卡
+lspci -v -s [显卡编号] # 可以查看显卡具体属性
+nvidia-smi # 可以查看显卡的显存利用率
+cat /etc/issue # 查看Linux发布版本号
+lsb_release -a # 查看Linux发布版本号
+uname -sr # 查看内核版本号
+uname -a # 查看内核版本号
 ```
 
 `lspci`是一种实用程序，用于在系统中显示有关[pci总线](https://so.csdn.net/so/search?q=pci总线&spm=1001.2101.3001.7020)的信息以及连接到它们的设备。

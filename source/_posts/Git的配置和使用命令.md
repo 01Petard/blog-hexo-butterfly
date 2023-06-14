@@ -13,6 +13,7 @@ keywords:
 description: Git的配置、使用，足够个人使用
 cover: https://www.mrfangge.com/img/blog/git.jpg
 top_img: https://www.mrfangge.com/img/blog/git.jpg
+top: 999
 ---
 
 # 简单汇总
