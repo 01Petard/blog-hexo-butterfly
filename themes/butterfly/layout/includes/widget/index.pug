@@ -20,29 +20,37 @@
     //- page
     !=partial('includes/widget/card_author', {}, {cache: true})
     !=partial('includes/widget/card_announcement', {}, {cache: true})
-    
-
-    
-    
     !=partial('includes/widget/card_top_self', {}, {cache: true})      
 
     .sticky_layout
       if showToc
         include ./card_post_toc.pug
-      !=partial('includes/widget/card_recent_post', {}, {cache: true})
-      !=partial('includes/widget/card_ad', {}, {cache: true})
-      !=partial('includes/widget/card_categories', {}, {cache: true})
-      !=partial('includes/widget/card_newest_comment', {}, {cache: true})
+
+      //文章标签
       !=partial('includes/widget/card_tags', {}, {cache: true})
-      
-      
+
       //pixiv日榜
       if theme.aside.card_pixiv
         !=partial('includes/widget/card_pixiv', {}, {cache:true})
-      //
-      
-      
-      
+
+      //最近发布
+      !=partial('includes/widget/card_recent_post', {}, {cache: true})
+
+      //文章分类
+      !=partial('includes/widget/card_categories', {}, {cache: true})
+
+      //归档
       !=partial('includes/widget/card_archives', {}, {cache: true})
+
+      //最新评论
+      !=partial('includes/widget/card_newest_comment', {}, {cache: true})
+      
+      
+      //网站信息
       !=partial('includes/widget/card_webinfo', {}, {cache: true})
+
+
+      //广告
+      !=partial('includes/widget/card_ad', {}, {cache: true})
+      //
       !=partial('includes/widget/card_bottom_self', {}, {cache: true})

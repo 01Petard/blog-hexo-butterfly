@@ -22,7 +22,7 @@ menu:
 # Code Blocks (代碼相關)
 # --------------------------------------
 
-highlight_theme: pale night #  darker / pale night / light / ocean / mac / mac light / false
+highlight_theme: mac #  darker / pale night / light / ocean / mac / mac light / false
 highlight_copy: true # copy button
 highlight_lang: true # show the code language
 highlight_shrink: false # true: shrink the code blocks / false: expand the code blocks | none: expand code blocks and hide the button
@@ -164,7 +164,7 @@ cover:
   archives_enable: false
   # the position of cover in home page (封面顯示的位置)
   # left/right/both
-  position: left
+  position: right
   # When cover is not set, the default cover is displayed (當沒有設置cover時，默認的封面顯示)
   default_cover:
     # - https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg
@@ -660,13 +660,13 @@ font:
   global-font-size:
   code-font-size:
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Lato, Roboto, "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", sans-serif
-  code-font-family: consolas, Menlo, "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", sans-serif
+  code-font-family: PingFang SC, consolas, Menlo, "Microsoft JhengHei", "Microsoft YaHei", sans-serif
     
 # Font settings for the site title and site subtitle
 # 左上角网站名字 主页居中网站名字
 blog_title_font:
   font_link: https://fonts.googleapis.com/css?family=Titillium+Web&display=swap
-  font-family: Titillium Web, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft JhengHei', 'Microsoft YaHei', sans-serif
+  font-family: PingFang SC, Titillium Web, 'Hiragino Sans GB', 'Microsoft JhengHei', 'Microsoft YaHei', sans-serif
 
 
 # The setting of divider icon (水平分隔線圖標設置)
@@ -703,7 +703,7 @@ aside:
   hide: false
   button: true
   mobile: true # display on mobile
-  position: right # left or right
+  position: left # left or right
   display:
     archive: true
     tag: true
@@ -718,30 +718,30 @@ aside:
       link: https://github.com/01Petard
   card_announcement:
     enable: true
-    content: （评论区截止到5月29日已经炸了）计研狗。涉猎谷、绘、同，二次元同人领域专精。松鼠党，喜欢屯资源。Hobbyist of Doujinshi && 日本語が下手です.查看博客完整内容请“灵活”上网！如果打开网页发现内容没更新，请清除之前的缓存！
+    content: 计研狗，松鼠党，爱好杂食向，干啥啥不行，fork第一名。
+  card_tags:
+    enable: true
+    limit: 40 # if set 0 will show all
+    color: true
+    sort_order: # Don't modify the setting unless you know how it works
+  card_pixiv: true
   card_recent_post:
-    enable: false
+    enable: true
     limit: 5 # if set 0 will show all
     sort: date # date or updated
     sort_order: # Don't modify the setting unless you know how it works
   card_categories:
-    enable: false
+    enable: true
     limit: 8 # if set 0 will show all
     expand: true # none/true/false
     sort_order: # Don't modify the setting unless you know how it works
-  card_tags:
-    enable: false
-    limit: 40 # if set 0 will show all
-    color: true
-    sort_order: # Don't modify the setting unless you know how it works
   card_archives:
-    enable: false
-    type: monthly # yearly or monthly
+    enable: true
+    type: yearly # yearly or monthly
     format: YYYY年MM月 # eg: YYYY年MM月
     order: -1 # Sort of order. 1, asc for ascending; -1, desc for descending
     limit: 8 # if set 0 will show all
     sort_order: # Don't modify the setting unless you know how it works
-  card_pixiv: true
   card_webinfo:
     enable: true
     post_count: true
@@ -768,14 +768,14 @@ runtimeshow:
 newest_comments:
   enable: true
   sort_order: # Don't modify the setting unless you know how it works
-  limit: 4
+  limit: 5
   storage: 1 # unit: mins, save data to localStorage
   avatar: true
   leancloud:
     enable: true
     appId: sAvlGefH2K7vjnn3WOzeXXzT-MdYXbMMI # leancloud application app id
     appKey: jJJEYqFVdod0rtX0e7XkRnkv # leancloud application app key
-    serverURLs:  # This configuration is suitable for domestic custom domain name users, overseas version will be automatically detected (no need to manually fill in)
+    serverURLs: https://savlgefh.api.lncldglobal.com # This configuration is suitable for domestic custom domain name users, overseas version will be automatically detected (no need to manually fill in)
     avatar:  #mp/identicon/monsterid/wavatar/retro/robohash/blank
   github_issues:
     enable: false
@@ -937,6 +937,7 @@ inject:
   head:
     - <link rel="stylesheet" href="/css/modify.css">
     - <link rel="stylesheet" href="/css/box_alpha.css">
+    - <link rel="stylesheet" href="/css/font.css">
     # - <link rel="stylesheet" href="/xxx.css">
 #   - '<style type="text/css">#toggle-sidebar {bottom: 80px}</style>'
   bottom:
