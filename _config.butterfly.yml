@@ -4,9 +4,9 @@
 
 menu:
   主页: / || fas fa-home
-  ACG: /categories/ACG/ || fas fa-heart
   学习: /categories/学习/ || fas fa-code
   软件: /categories/软件/ || fa-brands fa-app-store-ios
+  ACG: /categories/ACG/ || fas fa-heart
   其他: /categories/其他/ || fa-solid fa-comment-slash
   留言: /messageboard/ || fa-fw fas fa-comment-dots
   文档 || fa-fw fas fa-book:
