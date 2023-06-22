@@ -11,7 +11,7 @@ keywords:
 description: 实验室服务器常用的Linux常用命令
 cover: https://bloximages.newyork1.vip.townnews.com/redandblack.com/content/tncms/assets/v3/editorial/4/59/45940eb2-5403-11e9-a843-db0e4491cc90/5ca13d8453042.image.jpg
 top_img: https://blog.desdelinux.net/wp-content/uploads/2021/10/Linux-Desktop-1.jpg
-top: 100
+top: 700
 ---
 
 # Linux初级命令
@@ -111,11 +111,13 @@ ls -l 文件夹路径 |awk '/^d/ {print $NF}'
 - -j ：用bzip2压缩，以tar.bz2结尾，压缩率高
 
 ### 压缩
+
 `tar -cvf xxx.tar /data` : 仅打包
 `tar -zcvf xxx.tar /data` : 打包，gzip压缩
 `tar -jcvf xxx.tar /data` : 打包，bzip2压缩
 
 ### 解压
+
 `tar -xvf xxx.tar` : 解压
 `tar -zxvf xxx.tar` : 解压gzip压缩文件
 `tar -jxvf xxx.tar` : 解压bzip2压缩文件

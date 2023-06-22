@@ -3,7 +3,7 @@ title: 切换jdk版本的方法（环境变量法）
 date: 2022-03-07 22:14:15
 updated:
 categories: 
-- 开发
+- 学习
 tags: 
 - Java
 - jdk

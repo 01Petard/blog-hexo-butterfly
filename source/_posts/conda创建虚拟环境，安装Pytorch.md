@@ -93,8 +93,9 @@ conda remove --name 虚拟环境名称 包名称
     
     #显示镜像通道
     conda config --show channels
-    
-    
+
+
+​    
     #删除之前的镜像源，恢复默认状态
     conda config --remove-key channels
 

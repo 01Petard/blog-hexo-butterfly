@@ -3,7 +3,7 @@ title: Mybatis注解开发使用举例
 date: 2022-02-06 16:12:15
 updated:
 categories: 
-- 开发
+- 学习
 tags: 
 - Mybatis
 - 注解
@@ -13,6 +13,7 @@ keywords:
 description: 有关Mybatis单表操作、多表操作，立即加载、延迟加载的操作
 cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/1620.png
 top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/1620.jpg
+
 ---
 
 单表操作

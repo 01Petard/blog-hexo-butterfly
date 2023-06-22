@@ -3,7 +3,7 @@ title: node与npm的一些命令
 date: 2022-02-24 15:22:15
 updated:
 categories: 
-- 开发
+- 学习
 tags: 
 - node
 - npm

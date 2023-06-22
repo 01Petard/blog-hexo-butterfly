@@ -3,7 +3,7 @@ title: Redis在SpringBoot的配置
 date: 2022-04-02 13:25:15
 updated:
 categories: 
-- 开发
+- 学习
 tags: 
 - Redis
 - SpringBoot

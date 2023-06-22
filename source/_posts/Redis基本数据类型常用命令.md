@@ -3,7 +3,7 @@ title: Redis基本数据类型常用命令
 date: 2022-03-15 21:58:15
 updated:
 categories: 
-- 开发
+- 学习
 tags: 
 - Redis
 keywords:

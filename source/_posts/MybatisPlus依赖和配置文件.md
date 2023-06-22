@@ -3,7 +3,7 @@ title: MybatisPlus依赖和配置文件
 date: 2022-03-07 22:01:15
 updated:
 categories: 
-- 开发
+- 学习
 tags: 
 - MybatisPlus
 - 依赖
@@ -15,6 +15,7 @@ keywords:
 description: MybatisPlus的依赖和配置文件
 cover: https://img-blog.csdnimg.cn/img_convert/dcaab75e2a3a75cd7b336667739e4a86.png
 top_img: https://www.chendan116.com/upload/2021/02/relationship-with-mybatis-d54d359809b54f1886d97258ebf0b4c8.png
+
 ---
 
 ### 依赖

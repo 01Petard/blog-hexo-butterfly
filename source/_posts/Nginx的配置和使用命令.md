@@ -3,7 +3,7 @@ title: Nginx的配置和使用命令
 date: 2022-07-26 13:10:15
 updated:
 categories: 
-- 开发
+- 学习
 tags: 
 - 服务器
 - Nginx

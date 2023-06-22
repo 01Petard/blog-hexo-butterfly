@@ -3,7 +3,7 @@ title: MySql数据库命令
 date: 2022-01-26 16:13:15
 updated:
 categories: 
-- 开发
+- 学习
 tags: 
 - Mysql
 keywords:
@@ -11,6 +11,7 @@ keywords:
 description: 涵盖了能用得到Mysql命令
 cover: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSd40RJxu6f27D-WN-Y2l5khctyeGywaWZWB0Ma6vP9pSaaYMKFLgT_efTeLQUQsjS4x9I&usqp=CAU
 top_img: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrBtVoNNXsOC0nXSRP3HGLVgFaB0zBI0nOsPck1D1KfopBKLGz-vx2MCVfO4x2FLXe2g&usqp=CAU
+
 ---
 
 开启数据库服务

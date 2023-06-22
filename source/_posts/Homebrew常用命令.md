@@ -3,7 +3,7 @@ title: Homebrew常用命令
 date: 2022-02-08 12:37:15
 updated:
 categories: 
-- 开发
+- 学习
 tags: 
 - Homebrew
 - keywords:

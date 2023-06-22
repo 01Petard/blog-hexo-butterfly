@@ -3,7 +3,7 @@ title: CSS知识重点划注
 date: 2022-02-20 22:03:15
 updated:
 categories: 
-- 开发
+- 学习
 tags: 
 - 前端
 - CSS
@@ -13,6 +13,7 @@ keywords:
 description: CSS重点知识记录，虽然我也不喜欢写CSS……
 cover: https://www.sun-exp.com/images/article/main/09f925c3-0d59-482f-8374-49a402ce461b.png
 top_img: http://www.tastones.com/img/Tutorial/CSS/css-illustration.png
+
 ---
 
 ### 一、引入CSS的方式

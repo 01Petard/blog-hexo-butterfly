@@ -3,7 +3,7 @@ title: Git的配置和使用命令
 date: 2022-04-26 16:22:15
 updated: 2022-12-15 21:13:00
 categories: 
-- 开发
+- 学习
 tags: 
 - Git
 - Github
