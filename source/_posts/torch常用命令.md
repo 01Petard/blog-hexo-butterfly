@@ -52,7 +52,7 @@ nvidia-smi # 右上角CUDA Version，但可能不准确，推荐使用nvcc -V
 nvcc -V # 建议以nvcc -V查询为主
 ```
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/19b97250915d432f8af3cea56df6db2c.png)
+![在这里插入图片描述](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/19b97250915d432f8af3cea56df6db2c.png)
 
 ## 实时查看`nvidia-smi`
 
@@ -86,7 +86,7 @@ s = f'MODEL 🚀 torch {torch.__version__} '
     print(s)
 ```
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/230468572b0048dcb2eb1de6f79a9823.png)
+![在这里插入图片描述](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/230468572b0048dcb2eb1de6f79a9823.png)
 
 # 4、指定使用显卡
 
