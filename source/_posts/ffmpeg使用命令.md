@@ -52,3 +52,11 @@ ffmpeg -i video.mp4 -qscale:v 1 -qmin 1 -qmax 1 -vsync 0 video_frames/frame%08d.
 ffmpeg -i video_frames/frame%08d.jpg -i onepiece_demo.mp4 -map 0:v:0 -map 1:a:0 -c:a copy -c:v libx264 -r 23.98 -pix_fmt yuv420p video_with_audio.mp4
 ```
 
+## `ffmpeg中文文档`
+
+ffmpeg官方文档没有中文，所以我找了篇质量较高的中文文档，作为备用参考
+
+> [ffmpeg中文文档 - 简书](https://www.jianshu.com/p/da47b00c42ce)
+
+> [ffmpeg中文文档 - CSDN博客](https://blog.csdn.net/xiayulengleng/article/details/125444466)
+
