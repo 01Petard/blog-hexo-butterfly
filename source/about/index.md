@@ -19,8 +19,8 @@ comments: false
 Name: 伪音花火 / 01Petard
 Address: Zhejiang, Hangzhou
 Github: https://github.com/01Petard
-Blog: https://01petard.github.io	
-Hobbies: Bangumis, Doujin，Surfing Online，Digital Devices
+Blog: https://01petard.github.io
+Hobbies: Bangumis, Doujin, Surfing Online, Digital Devices
 ```
 
 ## 🔨 技术栈
@@ -40,3 +40,6 @@ Hobbies: Bangumis, Doujin，Surfing Online，Digital Devices
 
 本站以分享经验、知识还有我的个人爱好为为目的，所有文章所涉及使用的工具、资源<strong style="color:red">均源自</strong>互联网，本人不对因浏览网站内容而产生的实际问题负责。
 本网站仅进行搬运和分享以供学习和研究使用，版权归作者所有，如果无意之中侵犯了您的版权，请右下角私信与我取得联系，我将在第一时间删除！另外， 本站内的文章仅供学习交流之用，不参与商业用途。
+
+**Last Update：2022-04-23**
+
