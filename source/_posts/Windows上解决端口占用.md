@@ -3,13 +3,13 @@ title: Windows上解决端口占用
 date: 2022-08-20 16:30:00
 updated:
 categories:
-  - 软件
+- 软件
 tags:
-  - Windows
-  - 端口占用
+- Windows
+- 端口占用
 keywords:
-  - Windows
-  - 端口占用
+- Windows
+- 端口占用
 description: 利用命令行解决Windows上的端口占用
 cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/897393-20180808081044172-1318415163.png
 top_img: https://img-blog.csdnimg.cn/img_convert/59fd236da82b50799be27b20c64bf959.png
