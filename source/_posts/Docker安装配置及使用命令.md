@@ -13,7 +13,7 @@ keywords:
 - 虚拟机
 - Linux
 description: 在虚拟机上装使用Docker部署
-cover: https://developers.redhat.com/sites/default/files/styles/article_feature/public/blog/2014/05/homepage-docker-logo.png?itok=zx0e-vcP
+cover: https://miro.medium.com/v2/resize:fit:1400/0*ddZLS-Gd9GFc71Lc
 top_img: https://www.docker.com/wp-content/uploads/2023/06/meta-image-what-is-a-container.png
 ---
 
