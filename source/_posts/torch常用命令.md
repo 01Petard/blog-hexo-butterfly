@@ -13,7 +13,7 @@ keywords:
 description: 通过torch查看信息
 cover: https://pytorch.org/tutorials/_static/img/thumbnails/cropped/profiler.png
 top_img: https://imagingsolution.net/wordpress/wp-content/uploads/2022/03/pytorch_logo_icon.png
-top: 600
+top: 996
 ---
 
 # 1、服务器信息查询
