@@ -40,7 +40,6 @@ $ cat /etc/issue # 查看Linux发布版本号
 $ lsb_release -a # 查看Linux发布版本号
 $ uname -sr # 查看内核版本号
 $ uname -a # 查看内核版本号
-
 ```
 
 `lspci`是一种实用程序，用于在系统中显示有关[pci总线](https://so.csdn.net/so/search?q=pci总线&spm=1001.2101.3001.7020)的信息以及连接到它们的设备。
