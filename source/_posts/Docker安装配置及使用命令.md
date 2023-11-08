@@ -1,7 +1,7 @@
 ---
 title: Docker安装配置及使用命令
 date: 2023-07-25 22:06:15
-updated: 2023-09-23 17:10:15
+updated: 2023-11-08 19:58:15
 categories: 
 - 学习
 tags: 
@@ -12,7 +12,7 @@ keywords:
 - Docker
 - 虚拟机
 - Linux
-description: 在虚拟机上装使用Docker部署
+description: 在Linux上使用Docker部署相关服务
 cover: https://miro.medium.com/v2/resize:fit:1400/0*ddZLS-Gd9GFc71Lc
 top_img: https://www.docker.com/wp-content/uploads/2023/06/meta-image-what-is-a-container.png
 top: 998
@@ -28,7 +28,7 @@ top: 998
 >
 > 用户：root
 >
-> 密码：Hzx,qazwsxedc123
+> 密码：H开头的最长密码
 
 ## 安装CentOS
 
