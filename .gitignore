@@ -13,3 +13,5 @@ public/
 # source/_data/bangumis.json
 # themes/matery
 # themes/next
+
+hexo_run.js
