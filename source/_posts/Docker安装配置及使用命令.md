@@ -1,7 +1,7 @@
 ---
 title: Docker安装配置及使用命令
 date: 2023-07-25 22:06:15
-updated: 2023-11-08 19:58:15
+updated: 2023-11-09 22:56:15
 categories: 
 - 学习
 tags: 
@@ -150,16 +150,22 @@ top: 998
 docker pull [image]:[version]
 ```
 
+查看下载的镜像
+
+```shell
+docker images
+```
+
+本地加载镜像压缩包
+
+```shell
+docker load -i [saved_image].tar
+```
+
 保存镜像
 
 ```shell
 docker save -o [saved_image].tar [image]:[version]
-```
-
-加载镜像
-
-```shell
-docker load -i [saved_image].tar
 ```
 
 推送镜像
@@ -174,12 +180,6 @@ docker push
 docker build
 ```
 
-查看下载的镜像
-
-```shell
-docker images
-```
-
 删除镜像
 
 ```shell
@@ -188,7 +188,7 @@ docker rmi [image]
 
 ### 容器
 
-运行容器
+第一次运行容器时，运行以下命令构建容器
 
 ```shell
 docker run \
@@ -213,10 +213,16 @@ docker start [container]
 docker restart [container]
 ```
 
-停止/强制停止容器
+停止容器
 
 ```shell
-docker stop/kill [container]
+docker stop [container]
+```
+
+强制停止容器
+
+```shell
+docker kill [container]
 ```
 
 删除容器
@@ -249,7 +255,7 @@ docker inspect [container]
 docker ps (-a)
 ```
 
-查看容器的日志
+查看容器的日志（跟随刷新）
 
 ```shell
 docker logs [container] (-f)
@@ -307,19 +313,19 @@ docker volume ls
 docker volume inspect [volume] 
 ```
 
-删除未使用的数据卷
-
-```shell
-docker volume prune [volume] 
-```
-
 删除数据卷
 
 ```shell
 docker volume rm [volume] 
 ```
 
-### 构建镜像
+删除未使用的数据卷
+
+```shell
+docker volume prune [volume] 
+```
+
+## 构建镜像
 
 ```shell
 docker build -t [image]:[version] ./[uri_dockerfile]
@@ -327,7 +333,7 @@ docker build -t [image]:[version] ./[uri_dockerfile]
 
 uri_dockerfile目录下必须包含"DockerFile"和"Dockerfile中需要的文件"
 
-### 部署微服务集群
+## 部署微服务集群
 
 在docker-compose.yml中配置好
 
@@ -385,7 +391,7 @@ node -v
 npm -v
 ```
 
-## 安装hexo部署博客
+### 安装hexo部署博客
 
 安装hexo
 
@@ -407,7 +413,51 @@ ln -s /usr/local/nodejs/bin/hexo /usr/local/bin
 hexo -v
 ```
 
-## 安装Portainer
+### 安装pm2后台运行
+
+安装pm2
+
+```
+npm install pm2 -g
+```
+
+（如果命令没有找到，则需要软链接一下pm2）
+
+ ```shell
+ ln -s /usr/local/nodejs/bin/pm2 /usr/local/bin
+ ```
+
+在博客根目录下创建文件`hexo_run.js`
+
+```javascript
+const { exec } = require('child_process')
+exec('hexo server',(error, stdout, stderr) => {
+    if(error){
+        console.log('exec error: ${error}')
+        return
+    }
+    console.log('stdout: ${stdout}');
+    console.log('stderr: ${stderr}');
+})
+```
+
+在博客目录下运行脚本
+
+```shell
+pm2 start hexo_run.js
+```
+
+![image-20231108201732869](D:\devTools\Typora\学习\assets\image-20231108201732869.png)
+
+关闭脚本
+
+```shell
+pm2 stop hexo_run.js
+```
+
+![image-20231108201808805](D:\devTools\Typora\学习\assets\image-20231108201808805.png)
+
+## 部署Portainer
 
 > Portainer 是一款轻量级的应用，它提供了图形化界面，用于方便地管理Docker环境，包括单机环境和集群环境。
 
@@ -429,7 +479,7 @@ docker run -d -p 9000:9000 --restart=always -v /var/run/docker.sock:/var/run/doc
 
 Portainer的默认账号和密码是：admin/admin，第一次进入需要创建用户
 
-## 安装Mysql
+## 部署Mysql
 
 下载mysql5.7镜像文件
 
@@ -439,6 +489,8 @@ docker pull mysql:5.7
 
 创建实例并启动
 
+（Mysql5.7）
+
 ```shell
 docker run -p 3306:3306 --name mysql \
 -v /mydata/mysql/log:/var/log/mysql \
@@ -447,6 +499,8 @@ docker run -p 3306:3306 --name mysql \
 -e MYSQL_ROOT_PASSWORD=root \
 -d mysql:5.7
 ```
+
+（Mysql8最新版）
 
 ```shell
 docker run -p 3388:3388 --name mysql8 \
@@ -507,7 +561,7 @@ flush privileges;
 ```
 
 
-## 安装Redis
+## 部署Redis
 
 下载最新的镜像
 
@@ -609,34 +663,33 @@ Redis持久化的RDB和AOF对比
 | 系统资源占用   | 高，大量CPU和内存消耗                        | 低，主要占用磁盘IO资源，且重写时会占用大量CPU资源和内存资源 |
 | 使用场景       | 可以容忍数分钟的数据丢失，追求更快的启动速度 | 对数据安全性要求较高                                        |
 
-## 配置Redis主从关系
+### 配置Redis主从关系
 
-### 1、首先用Docker部署好三台Redis，部署好如下所示
+#### 1、用Docker部署好三台Redis
 
-主机为redis，ip地址：192.168.113.132:6379
+主机redis，ip地址：192.168.113.132:6379
 
-从机为redis2和redis3，ip地址：192.168.113.132:6380和192.168.113.132:6381
+从机redis2，ip地址：192.168.113.132:6380
+
+从机redis3，ip地址：192.168.113.132:6381
 
 ![image-20230907171409814](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20230907171409814.png)
 
-### 2、进入docker沙箱内部操作redis
+#### 2 在从机上配置主机ip
 
-### 2.1 进入容器内部
+进入redis2容器内部，配置主机ip
 
 ```shell
 docker exec -it redis2 bash
 ```
 
-### 2.2 进入redis命令行
-
 ```shell
 redis-cli
 ```
 
-### 2.3 在从机上配置主机ip
-
 ```shell
 slaveof 192.168.113.132 6379
+或
 replicaof 192.168.113.132 6379
 ```
 
@@ -644,11 +697,19 @@ replicaof 192.168.113.132 6379
 
 ```shell
 docker exec -it redis3 bash
-redis-cli
-slaveof 192.168.113.132 6379
 ```
 
-### 2.4 在主机上查看主从配置结果
+```shell
+redis-cli
+```
+
+````shell
+slaveof 192.168.113.132 6379
+或
+replicaof 192.168.113.132 6379
+````
+
+#### 3、在主机上查看主从配置结果
 
 
 ```shell
@@ -657,11 +718,11 @@ info replication
 
 ![image-20230907172256490](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20230907172256490.png)
 
-至此，主从配置就好了！比单独部署更方便！
+至此，Redis主从配置就好了！比单独部署更方便！
 
-### 2.5 主从数据同步原理
+#### 4、 主从数据同步原理
 
-#### 2.5.1 全量同步的流程
+##### 全量同步的流程
 
 - slave节点请求增量同步
 - master节点判断replid，发现不一致，拒绝增量同步
@@ -670,7 +731,7 @@ info replication
 - master将RDB期间的命令记录在repl_baklog，并持续将log中的命令发送给slave
 - slave执行接收到的命令，保持与master之间的同步
 
-#### 2.5.2 增量同步的流程
+##### 增量同步的流程
 
 master节点和slave节点中维护了一个环形数组（前文提到的repl_baklog）和一个指针为offset。
 
@@ -678,9 +739,9 @@ slave来申请增量同步，带着replid和offset，然后master根据获取off
 
 - 此时会出现一个问题，当slave下限太久时，master中存储的数据已经超过了这个repl_baklog的上线，因此就需要重新进行全量同步。
 
-## 安装nacos
+## 部署nacos
 
-### windows下启动nacos
+### Windows下启动nacos
 
 下载nacos安装包：https://github.com/alibaba/nacos/releases
 
@@ -690,7 +751,7 @@ my_startup.bat：`目录路径\nacos\bin\startup.cmd -m standalone`
 
 正常的启动命令是：`startup.cmd -m standalone`
 
-### Linux下安装nacos：
+### Linux下安装nacos（稍麻烦）
 
 先远程连接服务器数据库，创建nacos数据库
 
@@ -908,13 +969,18 @@ INSERT INTO roles (username, role) VALUES ('nacos', 'ROLE_ADMIN');
 docker pull nacos/nacos-server
 ```
 
-接着挂载目录：
+挂载目录
 
 ```shell
 mkdir -p /mydata/nacos/data/
-mkdir -p /mydata/nacos/logs/                   #新建logs目录
-mkdir -p /mydata/nacos/init.d/                 
-vim /mydata/nacos/init.d/custom.properties     #修改配置文件
+mkdir -p /mydata/nacos/logs/
+mkdir -p /mydata/nacos/init.d/
+```
+
+修改nacos配置文件
+
+```shell
+vim /mydata/nacos/init.d/custom.properties
 ```
 
 ```
@@ -989,4 +1055,203 @@ https：xx.xx.xx.xx:8848/nacos
 ```shell
 docker update --restart=always nacos
 ```
+
+## 部署RabbitMQ
+
+拉取镜像
+
+```shell
+docker pull rabbitmq:3-management
+```
+
+或本地加载
+
+```shell
+docker load -i mq.tar
+```
+
+启动MQ
+
+>  -e RABBITMQ_DEFAULT_USER=itcast \   后台管理界面的用户名、密码
+>  -e RABBITMQ_DEFAULT_PASS=123321 \
+>  -p 15672:15672 \    后台管理界面的端口
+>  -p 5672:5672 \      消息通信的端口
+
+```## shell
+docker run \
+ -e RABBITMQ_DEFAULT_USER=itcast \
+ -e RABBITMQ_DEFAULT_PASS=123321 \
+ --name mq \
+ --hostname mq1 \
+ -p 15672:15672 \
+ -p 5672:5672 \
+ -d \
+ rabbitmq:3-management
+```
+
+## 部署Elasticsearch
+
+拉取/加载镜像
+
+```shel
+docker load -i es.tar
+```
+
+运行docker命令，部署单点es：
+
+>     命令解释：
+>
+>     - `-e "cluster.name=es-docker-cluster"`：设置集群名称
+>     - `-e "http.host=0.0.0.0"`：监听的地址，可以外网访问
+>     - `-e "ES_JAVA_OPTS=-Xms512m -Xmx512m"`：内存大小
+>     - `-e "discovery.type=single-node"`：非集群模式
+>     - `-v es-data:/usr/share/elasticsearch/data`：挂载逻辑卷，绑定es的数据目录
+>     - `-v es-logs:/usr/share/elasticsearch/logs`：挂载逻辑卷，绑定es的日志目录
+>     - `-v es-plugins:/usr/share/elasticsearch/plugins`：挂载逻辑卷，绑定es的插件目录
+>     - `--privileged`：授予逻辑卷访问权
+>     - `--network es-net` ：加入一个名为es-net的网络中
+>     - `-p 9200:9200`：暴露给http的端口
+>     - `-p 9300:9300`：暴露给其他节点互联的端口
+
+```sh
+docker run -d \
+	--name es \
+    -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
+    -e "discovery.type=single-node" \
+    -v es-data:/usr/share/elasticsearch/data \
+    -v es-plugins:/usr/share/elasticsearch/plugins \
+    --privileged \
+    --network es-net \
+    -p 9200:9200 \
+    -p 9300:9300 \
+elasticsearch:7.12.1
+```
+
+在浏览器中输入：http://192.168.113.132:9200 即可看到elasticsearch的响应结果
+
+### 安装IK分词器
+
+#### 在线安装
+
+```shell
+# 进入容器内部
+docker exec -it elasticsearch /bin/bash
+
+# 在线下载并安装
+./bin/elasticsearch-plugin  install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.12.1/elasticsearch-analysis-ik-7.12.1.zip
+
+#退出
+exit
+#重启容器
+docker restart elasticsearch
+```
+
+#### 离线安装
+
+查看elasticsearch的数据卷目录
+
+```shell
+docker volume inspect es-plugins
+```
+
+显示结果：
+
+```json
+[
+    {
+        "CreatedAt": "2022-05-06T10:06:34+08:00",
+        "Driver": "local",
+        "Labels": null,
+        "Mountpoint": "/var/lib/docker/volumes/es-plugins/_data",
+        "Name": "es-plugins",
+        "Options": null,
+        "Scope": "local"
+    }
+]
+```
+
+将ik文件夹上传到`/var/lib/docker/volumes/es-plugins/_data`目录下
+
+重启容器
+
+```shell
+docker restart es
+```
+
+查看日志，发现加载ik插件，就说明安装成功了
+
+```sh
+docker logs -f es
+```
+
+#### 测试IK分词器
+
+* `ik_smart`：最少切分
+* `ik_max_word`：最细切分
+
+```
+GET /_analyze
+{
+  "analyzer": "ik_max_word",
+  "text": "黑马程序员学习java太棒了"
+}
+```
+
+#### 扩展词词典 && 停用词词典
+
+前往`/var/lib/docker/volumes/es-plugins/_data/ik/config`目录下，编辑`IKAnalyzer.cfg.xml`文件，添加扩展词词典`ext.dic`和停用词词典`stop.dic`
+
+> 注意当前文件的编码必须是 UTF-8 格式，严禁使用Windows记事本编辑
+
+重启elasticsearch和kibana
+
+```shell
+docker restart elasticsearch
+docker restart kibana
+```
+
+查看日志，发现日志中已经成功加载ext.dic和stop.dic配置文件
+
+```sh
+docker logs -f es
+```
+
+## 部署kibana
+
+创建网络
+
+需要让es和kibana容器互联，因此需要创建一个网络
+
+```shell
+docker network create es-net
+```
+
+拉取/加载镜像
+
+```shel
+docker load -i kibana.tar
+```
+
+部署kibana
+
+> - `--network es-net` ：加入一个名为es-net的网络中，与elasticsearch在同一个网络中
+> - `-e ELASTICSEARCH_HOSTS=http://es:9200"`：设置elasticsearch的地址，因为kibana已经与elasticsearch在一个网络，因此可以用容器名直接访问elasticsearch
+> - `-p 5601:5601`：端口映射配置
+
+```shell
+docker run -d \
+--name kibana \
+-e ELASTICSEARCH_HOSTS=http://es:9200 \
+--network=es-net \
+-p 5601:5601  \
+kibana:7.12.1
+```
+
+此时，在浏览器输入地址访问：http://192.168.113.132:5601，即可看到结果
+
+
+
+
+
+
 

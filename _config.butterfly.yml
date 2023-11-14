@@ -718,7 +718,7 @@ aside:
       link: https://github.com/01Petard
   card_announcement:
     enable: true
-    content: ACG隐者，混沌善良，杂食向，同人派，中左。这是我的博客，也是我的赛博休息室。希望浏览这些东西能给你一些启示！
+    content: ACG隐者，混沌善良，H脑；混同人圈的，也是“舟”谷人；数码、小烧；中左光谱。这是我的博客，也是我的赛博休息室。希望浏览这些东西能给你一些启示！
   card_tags:
     enable: true
     limit: 30 # if set 0 will show all
