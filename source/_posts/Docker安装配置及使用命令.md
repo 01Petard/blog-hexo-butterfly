@@ -1,7 +1,7 @@
 ---
 title: Docker安装配置及使用命令
 date: 2023-07-25 22:06:15
-updated: 2023-11-09 22:56:15
+updated: 2023-11-30 22:56:15
 categories: 
 - 学习
 tags: 
@@ -58,7 +58,9 @@ top: 998
 
 1、查询已经对外开放的端口：`netstat -anp`
 
-2、查询指定端口是否已经开放：`firewall-cmd --query-port=8848/tcp`
+2、查看防火墙所有开放的端口：`firewall-cmd --zone=public --list-ports`
+
+3、查询指定端口是否已经开放：`firewall-cmd --query-port=8848/tcp`
 
 返回**yes/no**。此时也有可能返回**firewalld is not running**，此时需要**打开防火墙在开放端口**。
 
@@ -66,7 +68,7 @@ top: 998
 
 添加指定需要开放的端口：`firewall-cmd --add-port=8848/tcp --permanent`
 
-重载入添加的端口：`firewall-cmd --reload`
+重载入添加的端口，配置立即生效：`firewall-cmd --reload`
 
 查询指定端口是否开启成功：`firewall-cmd --query-port=8848/tcp`
 
@@ -477,7 +479,7 @@ docker pull 6053537/portainer-ce   # 汉化版
 docker run -d -p 9000:9000 --restart=always -v /var/run/docker.sock:/var/run/docker.sock --name portainer 6053537/portainer-ce
 ```
 
-Portainer的默认账号和密码是：admin/admin，第一次进入需要创建用户
+Portainer的默认账号和密码是：admin/admin，第一次进入需要创建用户，同时会提示你修改密码
 
 ## 部署Mysql
 
@@ -980,7 +982,7 @@ mkdir -p /mydata/nacos/init.d/
 修改nacos配置文件
 
 ```shell
-vim /mydata/nacos/init.d/custom.properties
+vi /mydata/nacos/init.d/custom.properties
 ```
 
 ```
@@ -990,7 +992,7 @@ server.port=8848
  
 spring.datasource.platform=mysql
 db.num=1
-db.url.0=jdbc:mysql://localhost:3306/nacos_config? characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true #这里需要修改端口
+db.url.0=jdbc:mysql://localhost:3306/nacos_config?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true #这里需要修改端口
 db.user=root #用户名
 db.password=root #密码
  
@@ -1015,16 +1017,15 @@ nacos.naming.expireInstance=true
 启动nacos容器：
 
 ```shell
-docker  run \
+docker run \
 --name nacos -d \
 -p 8848:8848 \
 --privileged=true \
 --restart=always \
--e JVM_XMS=256m \
--e JVM_XMX=256m \
+-e JVM_XMS=256m -e JVM_XMX=256m \
 -e MODE=standalone \
 -e PREFER_HOST_MODE=hostname \
--v /mydata/nacos/nacos/data:/home/nacos/data-v
+-v /mydata/nacos/nacos/data:/home/nacos/data \
 -v /mydata/nacos/logs:/home/nacos/logs \
 -v /mydata/nacos/init.d/custom.properties:/home/nacos/init.d/custom.properties \
 nacos/nacos-server
@@ -1042,7 +1043,7 @@ vim application.properties
 此时nacos容器就安装成功了可以打开浏览器进行登录：
 
 ```shell
-https：xx.xx.xx.xx:8848/nacos
+https://192.168.113.132:8848/nacos
 ```
 
 ```
@@ -1091,6 +1092,10 @@ docker run \
 
 ## 部署Elasticsearch
 
+![es与mysql对比](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/es%E4%B8%8Emysql%E5%AF%B9%E6%AF%94.jpg)
+
+![es的mapping属性解析](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/es%E7%9A%84mapping%E5%B1%9E%E6%80%A7%E8%A7%A3%E6%9E%90.jpg)
+
 拉取/加载镜像
 
 ```shel
@@ -1120,6 +1125,7 @@ docker run -d \
     -e "discovery.type=single-node" \
     -v es-data:/usr/share/elasticsearch/data \
     -v es-plugins:/usr/share/elasticsearch/plugins \
+    -v es-logs:/usr/share/elasticsearch/logs \
     --privileged \
     --network es-net \
     -p 9200:9200 \
@@ -1249,9 +1255,199 @@ kibana:7.12.1
 
 此时，在浏览器输入地址访问：http://192.168.113.132:5601，即可看到结果
 
+## 部署nginx
+
+### 拉取镜像
+
+```
+docker pull nginx
+```
+
+### 简单上手
+
+```shell
+docker run --restart=always --name=nginx -p 80:80 -d nginx
+```
+
+### 创建数据卷文件
+
+```shell
+mkdir /mydata/nginx/conf/
+touch /mydata/nginx/conf/nginx.conf
+```
+
+```shell
+mkdir /mydata/nginx/conf.d/
+touch /mydata/nginx/conf.d/default.conf
+```
+
+```
+mkdir /mydata/nginx/log/
+```
+
+```shell
+mkdir /mydata/nginx/html/
+```
+
+```shell
+mkdir /mydata/nginx/conf/leadnews/
+```
+
+### 创建容器
+
+```shell
+docker run -d \
+  -p 80:80 \
+  -p 81:81 \
+  --name nginx2 \
+  -v /mydata/nginx/conf/nginx.conf:/etc/nginx/nginx.conf \
+  -v /mydata/nginx/conf/leadnews/:/etc/nginx/leadnews/ \
+  -v /mydata/nginx/html:/usr/share/nginx/html \
+  -v /mydata/nginx/logs:/var/log/nginx \
+  nginx
+```
+
+**需要手写挂载的数据卷**
+
+`/etc/nginx/nginx.conf`
+
+```
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log notice;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    include /etc/nginx/conf.d/*.conf;
+}
+```
+
+`/etc/nginx/conf.d/default.conf`
+
+```
+server {
+    listen       80;
+    server_name  localhost;
+
+    #access_log  /var/log/nginx/host.access.log  main;
+
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+
+    #error_page  404              /404.html;
+
+    # redirect server error pages to the static page /50x.html
+    #
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+    # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+    #
+    #location ~ \.php$ {
+    #    proxy_pass   http://127.0.0.1;
+    #}
+
+    # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+    #
+    #location ~ \.php$ {
+    #    root           html;
+    #    fastcgi_pass   127.0.0.1:9000;
+    #    fastcgi_index  index.php;
+    #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+    #    include        fastcgi_params;
+    #}
+
+    # deny access to .htaccess files, if Apache's document root
+    # concurs with nginx's one
+    #
+    #location ~ /\.ht {
+    #    deny  all;
+    #}
+}
+```
+
+`自定义配置文件`
+
+```
+upstream  heima-app-gateway{
+    server localhost:51601;
+}
+
+server {
+	listen 8801;
+	location / {
+		root D:/Projects_Java/workspace_heima-leadnews/app-web/;
+		index index.html;
+	}
+	
+	location ~/app/(.*) {
+		proxy_pass http://heima-app-gateway/$1;
+		proxy_set_header HOST $host;  # 不改变源请求头的值
+		proxy_pass_request_body on;  #开启获取请求体
+		proxy_pass_request_headers on;  #开启获取请求头
+		proxy_set_header X-Real-IP $remote_addr;   # 记录真实发出请求的客户端IP
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  #记录代理信息
+	}
+}
+```
 
 
 
+## 部署minio
+
+拉取镜像
+
+```shelll
+docker pull minio/minio
+```
+
+创建容器（minio端口默认是9000，但是会和Portainer端口冲突，所以这里改成了9100）
+
+> 现在需要增加额外一个端口号用于web管理 --console-address “:9090” ；API管理地址 --console-address “:9000”
+
+```shell
+docker run -d \
+--name minio \
+-p 9100:9000  \
+-p 9001:9001  \
+-d --restart=always \
+-e "MINIO_ROOT_USER=minio" \
+-e "MINIO_ROOT_PASSWORD=12345678" \
+-v /mydata/minio/data:/data \
+-v /mydata/minio/config:/root/.minio \
+minio/minio server  /data --console-address ":9001"
+```
+
+web管理地址：`http://192.168.113.132:9001/`
+
+API管理地址：`http://192.168.113.132:9100/`
 
 
 
