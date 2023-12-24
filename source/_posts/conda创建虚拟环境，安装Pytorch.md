@@ -23,7 +23,9 @@ top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/conda_top_image.
 
 ## 一、使用Anaconda创建虚拟环境
 
-### 1、可以引入需要依赖的包，以下仅作演示
+### 1、创建环境
+
+可以引入需要依赖的包，以下仅作演示
 
 - numpy： python数值计算包
 - matplotlib: 支持python画图
@@ -32,6 +34,10 @@ top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/conda_top_image.
 
 ```shell
 conda create -n 环境名 python=3.x numpy matplotlib pandas jupyter notebook
+```
+
+```
+pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu117
 ```
 
 ### 2、进入虚拟环境
@@ -94,10 +100,11 @@ conda remove --name 虚拟环境名称 包名称
     #显示镜像通道
     conda config --show channels
 
+**删除之前的镜像源，恢复默认状态**
 
-​    
-    #删除之前的镜像源，恢复默认状态
-    conda config --remove-key channels
+  ```shell
+  conda config --remove-key channels
+  ```
 
 **去掉-c pytorch，默认从清华源下载安装包**
 
