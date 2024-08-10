@@ -11,7 +11,7 @@ keywords:
 description: 实验室服务器常用的Linux常用命令
 cover: https://bloximages.newyork1.vip.townnews.com/redandblack.com/content/tncms/assets/v3/editorial/4/59/45940eb2-5403-11e9-a843-db0e4491cc90/5ca13d8453042.image.jpg
 top_img: https://blog.desdelinux.net/wp-content/uploads/2021/10/Linux-Desktop-1.jpg
-top: 997
+top: 700
 ---
 
 # Linux初级命令
@@ -66,7 +66,7 @@ ln Hello.py Hello_lnk.py
 
 
 
-# Linux高级命令（更新中......）
+# Linux高级命令
 
 ### 获取指定目录下所有文件夹名
 
@@ -74,7 +74,11 @@ ln Hello.py Hello_lnk.py
 ls -l 文件夹路径 |awk '/^d/ {print $NF}'
 ```
 
+### 杀死指定端口
 
+```shell
+kill -9 `lsof -t -i:端口号`
+```
 
 
 
@@ -95,8 +99,6 @@ ls -l 文件夹路径 |awk '/^d/ {print $NF}'
 `zip -m 压缩包.zip ./待添加文件`：添加文件到压缩包中
 
 `zip -d 压缩包.zip 待删除文件`：删除压缩包中文件
-
-
 
 # tar解压缩命令
 
@@ -123,40 +125,6 @@ ls -l 文件夹路径 |awk '/^d/ {print $NF}'
 `tar -jxvf xxx.tar` : 解压bzip2压缩文件
 `tar -zxvf xxx.tar.gz etc/passwd` :解压到指定目录
 
-# 清理显存
-
-在跑Caffe、TensorFlow、pytorch之类的需要CUDA的程序时，强行Kill掉进程后发现显存仍然占用，这时候可以使用如下命令查看到top或者ps中看不到的进程，之后再kill掉：
-
-```shell
-fuser -v /dev/nvidia*
-```
-
-接着杀掉显示出的进程（有多个）：
-
-```shell
-kill -9 12345
-kill -9 12345m
-```
-
-
-批量清理**所有显卡**中残留的进程：**（危险操作）**
-
-```shell
-sudo fuser -v /dev/nvidia* |awk '{for(i=1;i<=NF;i++)print "kill -9 " $i;}' | sudo sh
-```
-
-清理指定GPU显卡中残留进程，如GPU 2：
-
-```shell
-sudo fuser -v /dev/nvidia2 |awk '{for(i=1;i<=NF;i++)print "kill -9 " $i;}' | sudo sh
-```
-
-查找某用户下的python程序进程
-
-```shell
-ps aux|grep USER_NAMW|grep python
-```
-
 # 读取文件夹大小
 
 ```shell
@@ -166,3 +134,42 @@ sudo du -h --max-depth=1 home/
 读取home文件下的大小
 
 ![image-20230609140738378](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20230609140738378.png)
+
+# 查看硬盘占用情况
+
+## 查看硬盘使用情况
+
+```shell
+df -h .
+```
+
+![image-20230626190856450](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20230626190856450.png)
+
+## 查看目录下一级文件夹的大小
+
+```shell
+sudo du -h --max-depth=0 *
+```
+
+深度就是--max-depth，0不展示子文件夹
+
+![image-20230626191226972](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/image-20230626191226972.png)
+
+然后查看某个文件夹下各文件的大小
+
+```shell
+du -h -max-depth=1 /home/hzx
+```
+
+> 更多关于磁盘信息的命令：[linux查询磁盘使用情况_linux查看磁盘使用情况_沐已成风的博客-CSDN博客](https://blog.csdn.net/weixin_42854904/article/details/124944311)
+
+
+
+# 清理显卡显存占用
+
+```shell
+sudo fuser -v /dev/nvidia* |awk '{for(i=1;i<=NF;i++)print "kill -9 " $i;}' | sudo sh
+```
+
+
+
