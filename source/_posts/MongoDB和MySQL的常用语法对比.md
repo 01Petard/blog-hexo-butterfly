@@ -1,3 +1,19 @@
+---
+title: MongoDB和MySQL的常用语法对比
+date: 2024-07-10 12:47:00
+updated: 2024-08-10 18:52:00
+categories: 
+- 学习
+tags: 
+- MongoDB
+- MySQL
+keywords:
+- MongoDB
+- MySQL
+description: MongoDB和MySQL的常用语法对比
+cover: 
+top_img: 
+---
 | 方法 | 说明    | 语法                                                         |
 | ---- | ------- | ------------------------------------------------------------ |
 | 新增 | MongoDB | db.getCollection('user').insert({"userId" : "014","uclass" : "B","name" : "Back","age" : 11,"email" : "b14@sina.com","birthday" : ISODate("2018-07-31T03:46:13.885Z"),"dataStatus" : 1}); |

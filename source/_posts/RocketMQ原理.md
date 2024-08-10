@@ -11,7 +11,7 @@ keywords:
 - 消息队列
 - RocketMQ
 description: RocketMQ原理
-cover: https://www.ryujung.com/wp-content/uploads/2023/05/apache_rocketmq.png
+cover: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_iyugpn34xDsEQS7V7TLPRkhxoL0RtOnmjw&s
 top_img: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_iyugpn34xDsEQS7V7TLPRkhxoL0RtOnmjw&s
 ---
 
