@@ -1,5 +1,5 @@
 ---
-title: Quarkus: 云原生时代的Java框架
+title: Quarkus——云原生时代的Java框架
 date: 2024-08-15 10:26:00
 updated: 2024-08-15 10:26:00
 categories: 
@@ -10,7 +10,7 @@ tags:
 keywords:
 - Quarkus
 - 云原生
-description: Quarkus: 云原生时代的Java框架
+description: Quarkus——云原生时代的Java框架
 ---
 # Quarkus: 云原生时代的Java框架
 
