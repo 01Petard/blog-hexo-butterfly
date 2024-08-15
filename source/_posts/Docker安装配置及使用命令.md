@@ -72,6 +72,20 @@ top: 998
 
 查询指定端口是否开启成功：`firewall-cmd --query-port=8848/tcp`
 
+## 解决Windows端口占用
+
+查看占用端口的`进程号`
+
+```shell
+netstat -ano | findstr '被占用的端口号'
+```
+
+根据`进程号`杀掉占用的进程
+
+```shell
+taskkill /F /PID '进程号'
+```
+
 ## 安装Docker
 
 1. 卸载系统之前的 docker
@@ -343,122 +357,6 @@ uri_dockerfile目录下必须包含"DockerFile"和"Dockerfile中需要的文件"
 docker-compose up -d
 ```
 
-## 安装nodejs
-
-在Windows和Macos上安装nodejs较方便，但是在Linux上就非常不方便，特此记录
-
-去官网下载链接：[http://nodejs.cn/download](http://nodejs.cn/download/)
-
-选择Linux二进制文件（x64）
-
-![img](D:\devTools\Typora\学习\assets\v2-92bc8518d1788f784c6385a120c9b641_r.jpg)
-
-或用wget命令下载指定版本的包
-
-```shell
-wget https://nodejs.org/dist/v14.15.4/node-v14.15.4-linux-x64.tar.xz
-```
-
-解压缩
-
-```shell
-tar -xvf node-v14.15.4-linux-x64.tar.xz
-mkdir -p /usr/local/nodejs
-（之后所有nodejs安装的文件，例如“hexo”都会保存在/usr/local/nodejs目录下）
-mv node-v14.15.4-linux-x64/* /usr/local/nodejs/
-```
-
-创建软链接
-
-```shell
-# 建立node软链接
-ln -s /usr/local/nodejs/bin/node /usr/local/bin
-# 建立npm 软链接
-ln -s /usr/local/nodejs/bin/npm /usr/local/bin
-```
-
-更换镜像源
-
-```shell
-# 设置国内淘宝镜像源
-npm config set registry https://registry.npm.taobao.org
-# 查看设置信息
-npm config list
-```
-
-验证是否安装成功
-
-```shell
-node -v
-npm -v
-```
-
-### 安装hexo部署博客
-
-安装hexo
-
-```shell
-npm install hexo-cli -g
-```
-
-创建软链接
-
-```shell
-（如果之前已经链接过hexo了，则删除/usr/local/bin目录下的hexo软链接，重新添加hexo软链接）
-ln -s /usr/local/nodejs/bin/hexo /usr/local/bin
-（这里的“/usr/local/nodejs/bin/hexo”就是nodejs安装的hexo命令文件目录）
-```
-
-查看是否生效
-
-```shell
-hexo -v
-```
-
-### 安装pm2后台运行
-
-安装pm2
-
-```
-npm install pm2 -g
-```
-
-（如果命令没有找到，则需要软链接一下pm2）
-
- ```shell
- ln -s /usr/local/nodejs/bin/pm2 /usr/local/bin
- ```
-
-在博客根目录下创建文件`hexo_run.js`
-
-```javascript
-const { exec } = require('child_process')
-exec('hexo server',(error, stdout, stderr) => {
-    if(error){
-        console.log('exec error: ${error}')
-        return
-    }
-    console.log('stdout: ${stdout}');
-    console.log('stderr: ${stderr}');
-})
-```
-
-在博客目录下运行脚本
-
-```shell
-pm2 start hexo_run.js
-```
-
-![image-20231108201732869](D:\devTools\Typora\学习\assets\image-20231108201732869.png)
-
-关闭脚本
-
-```shell
-pm2 stop hexo_run.js
-```
-
-![image-20231108201808805](D:\devTools\Typora\学习\assets\image-20231108201808805.png)
-
 ## 部署Portainer
 
 > Portainer 是一款轻量级的应用，它提供了图形化界面，用于方便地管理Docker环境，包括单机环境和集群环境。
@@ -502,15 +400,24 @@ docker run -p 3306:3306 --name mysql \
 -d mysql:5.7
 ```
 
-（Mysql8最新版）
+（Mysql8最新版）**（存在问题，暂未解决）***
 
 ```shell
-docker run -p 3388:3388 --name mysql8 \
--v /mydata/mysql8/log:/var/log/mysql \
--v /mydata/mysql8/data:/var/lib/mysql \
--v /mydata/mysql8/conf:/etc/mysql \
+docker run \
+-p 3307:3306 \
+--name mysql8 \
+--privileged=true \
+--restart unless-stopped \
+-v /docker/mysql8.0.20/mysql:/etc/mysql \
+-v /docker/mysql8.0.20/logs:/logs \
+-v /docker/mysql8.0.20/data:/var/lib/mysql \
+-v /etc/localtime:/etc/localtime \
 -e MYSQL_ROOT_PASSWORD=root \
--d mysql:latest
+-d mysql:8.0.20
+```
+
+```shell
+docker run -d -v /mydata/mysql8/data:/var/lib/mysql -v /mydata/mysql8/conf:/etc/mysql/conf.d --name mysql8 -e MYSQL_ROOT_PASSWORD=mysql123 -p 3308:3306 -d mysql:8.0.28
 ```
 
 
@@ -526,6 +433,8 @@ docker run -p 3388:3388 --name mysql8 \
 ```shell
 vi /mydata/mysql/conf/my.cnf
 ```
+
+适合Mysql5.7
 
 ```shell
 [mysqld]
@@ -548,6 +457,27 @@ default-character-set=utf8
 [mysql]
 default-character-set=utf8
 ```
+
+适合Mysql8**（存在问题，暂未解决）**
+
+```shell
+[mysqld]
+user=mysql
+character-set-server=utf8
+default_authentication_plugin=mysql_native_password
+secure_file_priv=/var/lib/mysql
+expire_logs_days=7
+sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+max_connections=1000
+ 
+[client]
+default-character-set=utf8
+ 
+[mysql]
+default-character-set=utf8
+```
+
+
 
 进入容器的mysql命令行
 
@@ -582,7 +512,8 @@ touch /mydata/redis/conf/redis.conf
 ```
 
 ```shell
-docker run -p 6379:6379 --name redis -v /mydata/redis/data:/data \
+docker run -p 6379:6379 --name redis --restart=always \
+-v /mydata/redis/data:/data \
 -v /mydata/redis/conf/redis.conf:/etc/redis/redis.conf \
 -d redis redis-server /etc/redis/redis.conf
 ```
@@ -1080,8 +1011,8 @@ docker load -i mq.tar
 
 ```## shell
 docker run \
- -e RABBITMQ_DEFAULT_USER=itcast \
- -e RABBITMQ_DEFAULT_PASS=123321 \
+ -e RABBITMQ_DEFAULT_USER=admin \
+ -e RABBITMQ_DEFAULT_PASS=a \
  --name mq \
  --hostname mq1 \
  -p 15672:15672 \
@@ -1090,11 +1021,17 @@ docker run \
  rabbitmq:3-management
 ```
 
-## 部署Elasticsearch
+## 部署elasticsearch
 
-![es与mysql对比](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/es%E4%B8%8Emysql%E5%AF%B9%E6%AF%94.jpg)
+### es与mysql的概念名词对比
 
-![es的mapping属性解析](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/es%E7%9A%84mapping%E5%B1%9E%E6%80%A7%E8%A7%A3%E6%9E%90.jpg)
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/es%E4%B8%8Emysql%E5%AF%B9%E6%AF%94.jpg" alt="es与mysql对比" style="zoom: 33%;" />
+
+### es的mapping属性解析
+
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/es%E7%9A%84mapping%E5%B1%9E%E6%80%A7%E8%A7%A3%E6%9E%90.jpg" alt="es的mapping属性解析" style="zoom:33%;" />
+
+### 本地安装es
 
 拉取/加载镜像
 
@@ -1134,6 +1071,43 @@ elasticsearch:7.12.1
 ```
 
 在浏览器中输入：http://192.168.113.132:9200 即可看到elasticsearch的响应结果
+
+### 在线安装es
+
+拉取镜像
+
+```shell
+docker pull elasticsearch:7.4.0
+```
+
+创建容器
+
+```shell
+docker run -id --name elasticsearch -d \
+    --restart=always \
+    -p 9200:9200 -p 9300:9300 \
+    -v /usr/share/elasticsearch/plugins:/usr/share/elasticsearch/plugins \
+    -e "discovery.type=single-node" \
+elasticsearch:7.4.0
+```
+
+配置IK分词器（与上文中的`usr/share/elasticsearch/plugins`保持一致）
+
+```shell
+#切换目录
+cd /usr/share/elasticsearch/plugins
+
+#新建目录
+mkdir analysis-ik
+cd analysis-ik
+
+#root根目录中拷贝文件
+mv elasticsearch-analysis-ik-7.4.0.zip /usr/share/elasticsearch/plugins/analysis-ik
+
+#解压文件
+cd /usr/share/elasticsearch/plugins/analysis-ik
+unzip elasticsearch-analysis-ik-7.4.0.zip
+```
 
 ### 安装IK分词器
 
@@ -1222,7 +1196,7 @@ docker restart kibana
 docker logs -f es
 ```
 
-## 部署kibana
+## 部署kibana（可视化管理es）
 
 创建网络
 
@@ -1256,6 +1230,27 @@ kibana:7.12.1
 此时，在浏览器输入地址访问：http://192.168.113.132:5601，即可看到结果
 
 ## 部署nginx
+
+### nginx命令
+
+> 开启服务：`start nginx`
+> 直接点击Nginx目录下的nginx.exe 
+>
+> 快速停止服务：`nginx -s stop`
+>
+> 重启服务：`nginx -s reload`
+>
+> 有序停止服务：`nginx -s quit`
+>
+> 其他命令重启、关闭nginx：`ps -ef | grep nginx`
+>
+> 强制停止Nginx：`pkill -9 nginx`
+>
+> 从容停止Nginx：`kill -QUIT 主进程号`
+>
+> 快速停止Nginx：`kill -TERM 主进程号`
+>
+> 平滑重启nginx：`kill -HUP 主进程号`
 
 ### 拉取镜像
 
@@ -1296,15 +1291,15 @@ mkdir /mydata/nginx/conf/leadnews/
 ### 创建容器
 
 ```shell
-docker run -d \
+docker run \
   -p 80:80 \
-  -p 81:81 \
-  --name nginx2 \
+  --name nginx \
+  --restart=always \
   -v /mydata/nginx/conf/nginx.conf:/etc/nginx/nginx.conf \
   -v /mydata/nginx/conf/leadnews/:/etc/nginx/leadnews/ \
   -v /mydata/nginx/html:/usr/share/nginx/html \
   -v /mydata/nginx/logs:/var/log/nginx \
-  nginx
+  -d nginx
 ```
 
 **需要手写挂载的数据卷**
@@ -1418,8 +1413,6 @@ server {
 }
 ```
 
-
-
 ## 部署minio
 
 拉取镜像
@@ -1448,6 +1441,105 @@ minio/minio server  /data --console-address ":9001"
 web管理地址：`http://192.168.113.132:9001/`
 
 API管理地址：`http://192.168.113.132:9100/`
+
+## 安装1Panel管理工具
+
+> 建议内存不低于4G安装此工具，如果内存2G会很卡
+
+安装步骤参考文档：
+
+`1Panel文档`：https://1panel.cn/docs/installation/online_installation/
+
+我在虚拟机里安装了，非常简单，结果如下：
+
+![1Panel安装完成](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/1Panel%E5%AE%89%E8%A3%85%E5%AE%8C%E6%88%90.jpg)
+
+## 辣位大人的语音合成器
+
+> [xijinping615/xi-jinping-tts Tags | Docker Hub](https://hub.docker.com/r/xijinping615/xi-jinping-tts)
+
+拉取镜像
+
+```shell
+docker pull xijinping615/xi-jinping-tts
+```
+
+运行容器
+
+```shell
+docker run --rm -it -p 8501:8501 xijinping615/xi-jinping-tts
+```
+
+然后在浏览器中打开：`http://192.168.113.132:8501/`
+
+
+
+
+
+
+
+## 部署zookeeper、kafka
+
+拉取`zookeeper`镜像
+
+```shell
+docker pull zookeeper:3.4.14
+```
+
+创建`zookeeper`容器
+
+```shell
+docker run -d --name zookeeper -p 2181:2181 zookeeper:3.4.14
+```
+
+拉取`kafka`镜像
+
+```shell
+docker pull wurstmeister/kafka:2.12-2.3.1
+```
+
+创建`kafka`容器
+
+```shell
+docker run -d --name kafka \
+--env KAFKA_ADVERTISED_HOST_NAME=192.168.179.129 \
+--env KAFKA_ZOOKEEPER_CONNECT=192.168.179.129:2181 \
+--env KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://192.168.179.129:9092 \
+--env KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 \
+--env KAFKA_HEAP_OPTS="-Xmx256M -Xms256M" \
+--net=host wurstmeister/kafka:2.12-2.3.1
+```
+
+如果是云主机，需要把`--net=host`改成`-p 9092:9092`（个人未验证过）
+
+## 部署MongoDB
+
+拉取镜像
+
+```
+docker pull mongo
+```
+
+创建容器
+
+```
+docker run -di --name mongo-service --restart=always -p 27017:27017 -v ~/data/mongodata:/data mongo
+```
+
+yml配置
+
+```xml
+server:
+  port: 9998
+spring:
+  data:
+    mongodb:
+      host: 192.168.200.130
+      port: 27017
+      database: leadnews-history
+```
+
+nacos依赖
 
 
 
