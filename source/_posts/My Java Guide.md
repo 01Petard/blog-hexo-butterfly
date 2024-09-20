@@ -4,14 +4,14 @@ date: 2024-04-06 12:21:00
 updated: 2024-09-21 01:14:00
 categories: 
 - 学习
-  tags: 
+tags: 
 - Java
-  keywords:
+keywords:
 - Java
-  description: Java, all in one！
-  cover: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQChC-EwLOivWgSLpPH3v3bT_le_jAPVZkoKPZ1-go5eA&s
-  top_img: https://media.geeksforgeeks.org/wp-content/cdn-uploads/20190718150152/Java-tutorials-by-GeeksForGeeks.png
-  top: 1000
+description: Java, all in one！
+cover: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQChC-EwLOivWgSLpPH3v3bT_le_jAPVZkoKPZ1-go5eA&s
+top_img: https://media.geeksforgeeks.org/wp-content/cdn-uploads/20190718150152/Java-tutorials-by-GeeksForGeeks.png
+top: 1000
 ---
 
 # 设计模式
@@ -8624,5 +8624,4 @@ Session失效策略：设置合理的session失效策略，例如根据用户活
  集群：使用集群环境来分散请求和负载，这样可以使应用程序在多个服务器上运行，从而提高应用程序的性能和可扩展性。
 
  总之，为了提高会话管理的效率，需要使用合理的持久化和集群技术，并设置合理的会话失效策略，以避免会话信息的无限增长。
-
 
