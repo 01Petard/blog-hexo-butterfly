@@ -1,7 +1,7 @@
 ---
 title: VMware固定虚拟机ip
 date: 2023-12-24 15:06:00
-updated:
+updated: 2024-09-21 22:47:00
 categories: 
 - 学习
 tags:
@@ -49,6 +49,30 @@ DNS1=192.168.179.2       # DNS1和网关一样
 ```shell
  systemctl restart network
 ```
+
+这个过程中可能会报错，例如：
+
+> Job for network.service failed...
+
+此时可以将networkmanager服务停了：
+
+```shell
+systemctl stop NetworkManager
+systemctl disable NetworkManager
+```
+
+重启网卡，就ok了
+
+```shell
+systemctl restart network
+systemctl status network
+```
+
+查看所有已安装服务
+
+ ```shell
+ systemctl list-units --type=service
+ ```
 
 IP绑定成功，结束！
 
