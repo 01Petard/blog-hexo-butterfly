@@ -914,31 +914,33 @@ public class Client {
 
 ```java
 // 直接继承法，继承LinkedHashMap，只需要重写get和put、修改淘汰规则即可
-class LRUCache<K, V> extends LinkedHashMap<K, V> {
-    
-    private int capacity = 10;
-    
-    public LRUCache() {
-        super(this.capacity, 0.75F, true);
-    }
+class LRUCache<K, V> {
+    private final int capacity;
+    private final LinkedHashMap<K, V> cache;
 
     public LRUCache(int capacity) {
         this.capacity = capacity;
-        LRUCache();
+        this.cache = new LinkedHashMap<K, V>(capacity, 0.75f, true) {
+            protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
+                return size() > LRUCache.this.capacity;
+            }
+        };
     }
 
-    public V get(Object key) {
-        return super.getOrDefault(key, null);
+    public V get(K key) {
+        return cache.getOrDefault(key, null);
     }
 
-    public V put(K key, V value) {
-        super.put(key, value);
-        return value;
+    public void put(K key, V value) {
+        cache.put(key, value);
     }
 
-    @Override
-    protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-        return size() > capacity;
+    public void remove(K key) {
+        cache.remove(key);
+    }
+
+    public int size() {
+        return cache.size();
     }
 }
 
@@ -952,16 +954,7 @@ class LRUCache<K, V> {
         this.capacity = capacity;
         map = new LinkedHashMap<>();
     }
-
-    public V get(K key) {
-        if (!map.containsKey(key)) {
-            return null;
-        }
-        V value = map.remove(key);
-        map.put(key, value);
-        return value;
-    }
-
+    
     public void put(K key, V value) {
         if (map.containsKey(key)) {
             map.remove(key);
@@ -973,12 +966,21 @@ class LRUCache<K, V> {
             map.remove(map.entrySet().iterator().next().getKey());
         }
     }
+    
+    public V get(K key) {
+        if (!map.containsKey(key)) {
+            return null;
+        }
+        V value = map.remove(key);
+        map.put(key, value);
+        return value;
+    }
 }
 
 
 class Test{
     public static void main(String[] args) {
-        LRUCacheWithLinkedHashMap map = new LRUCacheWithLinkedHashMap(5);
+        LRUCache map = new LRUCache(5);
         map.put(4, 44);
         map.put(1, 11);
         map.put(2, 22);
@@ -1010,50 +1012,73 @@ class Test{
 LFU 缓存需要同时记录使用频率和访问时间，通过哈希表和最小堆实现。
 
 ```java
-import java.util.*;
-
 class LFUCache {
-    private int capacity;
-    private int minFrequency;
-    private Map<Integer, Integer> valueMap;
-    private Map<Integer, Integer> freqMap;
-    private Map<Integer, LinkedHashSet<Integer>> freqListMap;
+    private final int capacity;
+    private final Map<Integer, Node> cache;
+    private final TreeMap<Integer, LinkedList<Node>> freqMap;
+    private int minFreq = 0;
+    private static class Node {
+        int key, value, freq;
+        Node(int key, int value) {
+            this.key = key;
+            this.value = value;
+            this.freq = 1;
+        }
+    }
 
     public LFUCache(int capacity) {
+        if (capacity <= 0) {
+            throw new IllegalArgumentException("Capacity must be positive.");
+        }
         this.capacity = capacity;
-        this.minFrequency = 0;
-        this.valueMap = new HashMap<>();
-        this.freqMap = new HashMap<>();
-        this.freqListMap = new HashMap<>();
+        cache = new HashMap<>();
+        freqMap = new TreeMap<>();
     }
 
     public int get(int key) {
-        if (!valueMap.containsKey(key)) return -1;
-        int freq = freqMap.get(key);
-        freqListMap.get(freq).remove(key);
-        if (freqListMap.get(freq).isEmpty() && freq == minFrequency) minFrequency++;
-        freqMap.put(key, freq + 1);
-        freqListMap.computeIfAbsent(freq + 1, k -> new LinkedHashSet<>()).add(key);
-        return valueMap.get(key);
+        if (!cache.containsKey(key)) {
+            return -1;
+        }
+        Node node = cache.get(key);
+        updateFreq(node);
+        return node.value;
     }
 
     public void put(int key, int value) {
-        if (capacity == 0) return;
-        if (valueMap.containsKey(key)) {
-            valueMap.put(key, value);
-            get(key); // Update frequency
-            return;
+        if (cache.containsKey(key)) {
+            Node node = cache.get(key);
+            node.value = value;
+            updateFreq(node);
+        } else {
+            Node node = new Node(key, value);
+            if (cache.size() >= capacity) {
+                // 删除最不常用的数据
+                LinkedList<Node> minList = freqMap.get(minFreq);
+                Node removeNode = minList.pollFirst();
+                cache.remove(removeNode.key);
+                if (minList.isEmpty()) {
+                    freqMap.remove(minFreq);
+                }
+            }
+            cache.put(key, node);
+            freqMap.computeIfAbsent(1, k -> new LinkedList<>()).addLast(node);
+            node.freq = 1;
+            minFreq = 1;
         }
-        if (valueMap.size() == capacity) {
-            int evict = freqListMap.get(minFrequency).iterator().next();
-            freqListMap.get(minFrequency).remove(evict);
-            valueMap.remove(evict);
-            freqMap.remove(evict);
+    }
+
+    private void updateFreq(Node node) {
+        int oldFreq = node.freq;
+        LinkedList<Node> oldList = freqMap.get(oldFreq);
+        oldList.remove(node);
+        if (oldList.isEmpty()) {
+            freqMap.remove(oldFreq);
+            if (minFreq == oldFreq) {
+                minFreq = freqMap.firstKey();
+            }
         }
-        valueMap.put(key, value);
-        freqMap.put(key, 1);
-        minFrequency = 1;
-        freqListMap.computeIfAbsent(1, k -> new LinkedHashSet<>()).add(key);
+        node.freq++;
+        freqMap.computeIfAbsent(node.freq, k -> new LinkedList<>()).addLast(node);
     }
 }
 ```
@@ -1228,66 +1253,81 @@ class PrintOddEvenSemaphore {
 三个线程按顺序打印ABC，重复10次。
 
 ```java
-class PrintABC {
-    private final Object lock = new Object();
-    private int state = 0;
+public class 线程交替打印字母_PrintABC {
+    private static final Object object = new Object();
 
-    public void printA() {
-        synchronized (lock) {
-            for (int i = 0; i < 10; i++) {
-                while (state % 3 != 0) {
+    private static final int rounds = 3;
+
+    private static int runNum = 0;
+    private static final int max = 3 * rounds;
+
+
+    private static void printA() {
+
+        synchronized (object) {
+            while (runNum < max) {
+                if (runNum % 3 == 0) {
+                    System.out.println(Thread.currentThread().getName() + " " + runNum + ":A");
+                    runNum++;
+                    object.notifyAll();
+                } else {
                     try {
-                        lock.wait();
-                    } catch (InterruptedException e) {
+                        object.wait();
+                    } catch (Exception e) {
                         Thread.currentThread().interrupt();
                     }
                 }
-                System.out.print("A");
-                state++;
-                lock.notifyAll();
             }
         }
     }
 
-    public void printB() {
-        synchronized (lock) {
-            for (int i = 0; i < 10; i++) {
-                while (state % 3 != 1) {
+    private static void printB() {
+
+        synchronized (object) {
+            while (runNum < max) {
+                if (runNum % 3 == 1) {
+                    System.out.println(Thread.currentThread().getName() + " " + runNum + ":B");
+                    runNum++;
+                    object.notifyAll();
+                } else {
                     try {
-                        lock.wait();
-                    } catch (InterruptedException e) {
+                        object.wait();
+                    } catch (Exception e) {
                         Thread.currentThread().interrupt();
                     }
+
                 }
-                System.out.print("B");
-                state++;
-                lock.notifyAll();
             }
         }
     }
+    
+    private static void printC() {
 
-    public void printC() {
-        synchronized (lock) {
-            for (int i = 0; i < 10; i++) {
-                while (state % 3 != 2) {
+        synchronized (object) {
+            while (runNum < max) {
+                if (runNum % 3 == 2) {
+                    System.out.println(Thread.currentThread().getName() + " " + runNum + ":C");
+                    runNum++;
+                    object.notifyAll();
+                } else {
+
                     try {
-                        lock.wait();
-                    } catch (InterruptedException e) {
+                        object.wait();
+                    } catch (Exception e) {
                         Thread.currentThread().interrupt();
                     }
                 }
-                System.out.println("C");
-                state++;
-                lock.notifyAll();
             }
         }
     }
-
+    
     public static void main(String[] args) {
-        PrintABC printABC = new PrintABC();
-        new Thread(printABC::printA, "A").start();
-        new Thread(printABC::printB, "B").start();
-        new Thread(printABC::printC, "C").start();
+        Thread threadA = new Thread(线程交替打印字母_PrintABC::printA, "线程A");
+        Thread threadB = new Thread(线程交替打印字母_PrintABC::printB, "线程B");
+        Thread threadC = new Thread(线程交替打印字母_PrintABC::printC, "线程C");
+        threadA.start();
+        threadB.start();
+        threadC.start();
     }
 }
 ```
@@ -1393,9 +1433,7 @@ class ProducerConsumer {
 使用信号量解决哲学家进餐问题。
 
 ```java
-import java.util.concurrent.Semaphore;
-
-class Philosopher extends Thread {
+class Philosopher implements Runnable {
     private final Semaphore leftChopstick;
     private final Semaphore rightChopstick;
     private final int philosopherNumber;
@@ -1406,6 +1444,7 @@ class Philosopher extends Thread {
         this.rightChopstick = rightChopstick;
     }
 
+    @Override
     public void run() {
         try {
             while (true) {
@@ -1440,19 +1479,28 @@ class Philosopher extends Thread {
         rightChopstick.release();
         System.out.println("Philosopher " + philosopherNumber + " put down chopsticks.");
     }
+}
 
-    public static void main(String[] args) {
+public class 哲学家进餐问题 extends Thread {
+
+    public static void main(String[] args) throws InterruptedException {
         int numberOfPhilosophers = 5;
         Semaphore[] chopsticks = new Semaphore[numberOfPhilosophers];
         for (int i = 0; i < numberOfPhilosophers; i++) {
             chopsticks[i] = new Semaphore(1);
         }
-        Philosopher[] philosophers = new Philosopher[numberOfPhilosophers];
+
+        Thread[] philosophers = new Thread[numberOfPhilosophers];
         for (int i = 0; i < numberOfPhilosophers; i++) {
             Semaphore leftChopstick = chopsticks[i];
             Semaphore rightChopstick = chopsticks[(i + 1) % numberOfPhilosophers];
-            philosophers[i] = new Philosopher(i, leftChopstick, rightChopstick);
+            philosophers[i] = new Thread(new Philosopher(i, leftChopstick, rightChopstick), "Philosopher " + i);
             philosophers[i].start();
+        }
+
+        // Wait for all philosophers to finish
+        for (Thread philosopher : philosophers) {
+            philosopher.join();
         }
     }
 }
@@ -1716,8 +1764,6 @@ public int reverse(int x) {
     while (x != 0) {
         int pop = x % 10;
         x /= 10;
-        if (rev > Integer.MAX_VALUE/10 || (rev == Integer.MAX_VALUE / 10 && pop > 7)) return 0;
-        if (rev < Integer.MIN_VALUE/10 || (rev == Integer.MIN_VALUE / 10 && pop < -8)) return 0;
         rev = rev * 10 + pop;
     }
     return rev;
@@ -1748,9 +1794,7 @@ public String longestCommonPrefix(String[] strs) {
 
 ```java
 public int lengthOfLIS(int[] nums) {
-    if (nums.length == 0) {
-        return 0;
-    }
+    if (nums == null ||nums.length == 0) return 0;
     int[] dp = new int[nums.length];
     dp[0] = 1;
     int maxans = 1;
@@ -1771,13 +1815,9 @@ public int lengthOfLIS(int[] nums) {
 
 ```java
 public static int longestContinuousSubsequence(int[] nums) {
-    if (nums == null || nums.length == 0) {
-        return 0;
-    }
-
+    if (nums == null || nums.length == 0)return 0;
     int longest = 1;
     int curLength = 1;
-
     for (int i = 1; i < nums.length; i++) {
         if (nums[i] == nums[i - 1] + 1) {
             curLength++;
@@ -1786,10 +1826,8 @@ public static int longestContinuousSubsequence(int[] nums) {
             curLength = 1;
         }
     }
-
     // 更新最长连续子序列的长度，以防止最后一段最长序列没有更新
     longest = Math.max(longest, curLength);
-
     return longest;
 }
 ```
@@ -1841,6 +1879,44 @@ class Shunzi{
 }
 ```
 
+## 是否是回文串
+
+```java
+public class 判断是否是回文_PalindromeChecker {
+
+    public static boolean isPalindrome(String str) {
+        // 去除空格和非字母数字字符，并转换为小写
+        StringBuilder sb = new StringBuilder();
+        for (char c : str.toCharArray()) {
+            if (Character.isLetterOrDigit(c)) {
+                sb.append(Character.toLowerCase(c));
+            }
+        }
+        str = sb.toString();
+
+        // 使用双指针法进行比较
+        int left = 0;
+        int right = str.length() - 1;
+        while (left < right) {
+            if (str.charAt(left) != str.charAt(right)) {
+                return false;
+            }
+            left++;
+            right--;
+        }
+        return true;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isPalindrome("A man, a plan, a canal: Panama")); // true
+        System.out.println(isPalindrome("race a car")); // false
+        System.out.println(isPalindrome("acbbca")); // true
+        System.out.println(isPalindrome("abcba")); // true
+    }
+
+}
+```
+
 ## 最长回文子串
 
 找到一个字符串中的最长回文子串。
@@ -1862,6 +1938,31 @@ public String longestPalindrome(String s) {
 }
 
 private int expandAroundCenter(String s, int left, int right) {
+    while (left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)) {
+        left--;
+        right++;
+    }
+    return right - left - 1;
+}
+```
+
+## 最长回文子串的长度
+
+```java
+public static int longestPalindromeLength(String s) {
+    if (s == null || s.isEmpty()) {
+        return 0;
+    }
+    int len = 0;
+    for (int i = 0; i < s.length(); i++) {
+        int len1 = expandAroundCenter(s, i, i);
+        int len2 = expandAroundCenter(s, i, i + 1);
+        len = Math.max(len, Math.max(len1, len2));
+    }
+    return len;
+}
+
+private static int expandAroundCenter(String s, int left, int right) {
     while (left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)) {
         left--;
         right++;
@@ -2034,28 +2135,35 @@ class ListNode {
 
 ```java
 public ListNode reverseList(ListNode head) {
-    ListNode prev = null;
-    ListNode curr = head;
-    ListNode temp = null;
+    ListNode prev = null; // 用于指向反转后的前一个节点
+    ListNode curr = head; // 当前节点
+    ListNode next; // 用于暂存当前节点的下一个节点
+
     while (curr != null) {
-        temp = curr.next;
-        curr.next = prev;
-        prev = curr;
-        curr = temp;
+        next = curr.next; // 暂存当前节点的下一个节点
+        curr.next = prev; // 将当前节点的 next 指向前一个节点
+        prev = curr; // 移动 prev 指针
+        curr = next; // 移动 curr 指针
     }
-    return prev;
+    return prev; // 返回反转后的头节点
 }
 ```
 
 ## 合并两个链表
 
-将两个升序链表合并为一个升序链表。
-
 ```java
-public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
-    ListNode current = null;
+/**
+ * 合并两个排序的链表。
+ * @param l1 第一个链表
+ * @param l2 第二个链表
+ * @return 合并后的链表
+ */
+public static ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+    ListNode dummy = new ListNode(0);
+    ListNode current = dummy;
+
     while (l1 != null && l2 != null) {
-        if (l1.val <= l2.val) {
+        if (l1.val < l2.val) {
             current.next = l1;
             l1 = l1.next;
         } else {
@@ -2064,12 +2172,55 @@ public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
         }
         current = current.next;
     }
-    current.next = (l1 != null) ? l1 : l2;
-    return current;
+
+    // 如果其中一个链表已经为空，将另一个链表的剩余部分直接连接到当前节点后面
+    if (l1 != null) {
+        current.next = l1;
+    } else {
+        current.next = l2;
+    }
+
+    return dummy.next;
 }
 ```
 
-## 取前K个的极大值
+## 拆分两个链表
+
+```java
+/**
+ * 拆分链表，将奇数节点和偶数节点拆分成两个链表。
+ * @param head 输入的链表头节点
+ * @return 一个包含两个链表头节点的数组，第一个链表包含所有奇数节点，第二个链表包含所有偶数节点
+ */
+public static ListNode[] splitListToParts(ListNode head) {
+    ListNode oddDummy = new ListNode(0);
+    ListNode evenDummy = new ListNode(0);
+    ListNode oddCurrent = oddDummy;
+    ListNode evenCurrent = evenDummy;
+    ListNode current = head;
+    int index = 1; // 用于区分奇数和偶数节点
+
+    while (current != null) {
+        if (index % 2 == 1) { // 奇数位置
+            oddCurrent.next = current;
+            oddCurrent = oddCurrent.next;
+        } else { // 偶数位置
+            evenCurrent.next = current;
+            evenCurrent = evenCurrent.next;
+        }
+        current = current.next;
+        index++;
+    }
+
+    // 设置链表结尾
+    oddCurrent.next = null;
+    evenCurrent.next = null;
+
+    return new ListNode[]{oddDummy.next, evenDummy.next};
+}
+```
+
+## TopK
 
 ```java
 // 数组法
@@ -2080,11 +2231,9 @@ public static int[] findTopK(int[] nums, int k) {
         .sorted(Comparator.reverseOrder())
         .mapToInt(Integer::intValue)
         .toArray();
-
     int[] result = new int[k];
     // 取前k个最大数
     System.arraycopy(array, 0, result, 0, k);
-
     return result;
 }
 
@@ -2095,22 +2244,17 @@ public static int[] findTopK2(int[] nums, int k) {
     for (int num : nums) {
         pq.add(num);
     }
-
     // 弹出前K大的数
     int[] result = new int[k];
     for (int i = 0; i < k; i++) {
         result[i] = pq.poll();
     }
-
     return result;
 }
 
 public static void main(String[] args) {
-
     int[] nums = new int[]{2, 5, 1, 3, 4};
-
     Arrays.stream(findTopK2(nums, 2)).forEach(System.out::println);
-
 }
 ```
 
@@ -2402,7 +2546,7 @@ public static void SelectSort(int[] R) {
 /**********************交换类排序**********************/
 /*
     冒泡排序：最好O(n)，最坏O(n^2)，平均O(n^2)，空间复杂度O(1)
-    快速排序：最好O(nlog2n)，最坏O(n^2)，平均O(nlog2n)，空间复杂度：O(log2n)
+    快速排序：最好O(nlogn)，最坏O(n^2)，平均O(nlogn)，空间复杂度：O(logn)
         越无序效率越高，越有序效率越低，排序趟数和初始序列有关
 */
 //冒泡排序：大的沉底，小的上升，每一轮必定可以将一个极大关键字沉底
@@ -2474,7 +2618,6 @@ public void quickSort(int[] R, int low, int high) {
 
 /**
  * 将数组分区，并返回分区点的索引
- * 
  * @param arr   需要排序的数组
  * @param low   当前分区部分的左边界
  * @param high  当前分区部分的右边界
@@ -2509,14 +2652,13 @@ private static int partition(int[] arr, int low, int high) {
 ```java
 /**********************归并类排序**********************/
 /*
-    二路归并排序：最好/坏O(nlog2n)，空间复杂度O(n)
+    二路归并排序：最好/坏O(nlogn)，空间复杂度O(n)
 */
 ```
 
 ```java
 /**
  * 主排序方法，递归地将数组分成两部分进行排序
- * 
  * @param array 需要排序的数组
  * @param left  当前排序部分的左边界
  * @param right 当前排序部分的右边界
@@ -2532,7 +2674,6 @@ public void mergeSort(int[] array, int left, int right) {
 
 /**
  * 合并两个已排序的子数组
- * 
  * @param array 需要排序的数组
  * @param left  当前合并部分的左边界
  * @param middle 中间分隔点
@@ -2701,36 +2842,6 @@ public int lengthOfLIS(int[] nums) {
     return len;
 }
 ```
-
-# 特殊题
-
-## 数组中重复的数字
-
-```java
-public int findRepeatNumber(int[] nums) {
-    for (int i = 0; i < nums.length; i++) {
-        while (nums[i] != i) {
-            if (nums[i] == nums[nums[i]]) return nums[i];
-            int temp = nums[i];
-            nums[i] = nums[temp];
-            nums[temp] = temp;
-        }
-    }
-    return -1;
-}
-```
-
-## 替换空格
-
-```java
-public String replaceSpace(String s) {
-    return s.replace(" ", "%20");
-}
-```
-
-
-
-
 
 #操作系统
 
@@ -3538,7 +3649,7 @@ Netty中的Future和Promise是用于处理异步操作的结果和状态的。
 
 接口的设计是**自上而下**的。我们知晓某一行为，于是基于这些**行为约束定义了接口**，一些类需要有这些行为，因此实现对应的接口。
 
-抽象类的设计是**自下而上的**。我们写了很多类，发现它们之间有共性，有很多**代码可以复用**，因此**将公共逻辑封装成一个抽象类**，**减少代码冗余**。
+抽象类的设计是**自下而上的**。我们写了很多类，发现它们之间有共性，**通过代码复用将公共逻辑封装成一个抽象类**，**减少代码冗余**。
 
 所谓的 **自上而下** 指的是先约定接口，再实现。
 
@@ -3554,9 +3665,9 @@ Netty中的Future和Promise是用于处理异步操作的结果和状态的。
 
 2）构造函数和成员变量
 
-接口不能包含构造函数，接口中的成员变量默认为 public static final，即常量。
+接口不能包含构造函数，接口中的成员变量默认为常量。
 
-抽象类可以包含构造函数，成员变量可以有不同的访问修饰符（如 private、protected、public），并且可以不是常量。
+抽象类可以包含构造函数，成员变量可以有不同的访问修饰符。
 
 3）多继承
 
@@ -3822,13 +3933,22 @@ EXPLAIN SELECT 字段列表 FROM 表名 WHERE 条件 ;
 6. **控制索引的数量**
 7. 如果索引列不能存储NULL值，请在创建表时使用NOT NULL约束它
 
-### 失效情况
+### 索引失效情况
 
 1. 违反最左前缀法则
 2. 范围查询右边的列
 3. 在索引列上进行运算操作
 4. 字符串不加单引号
 5. 以%开头的Like模糊查询
+
+### 索引不一定有效的原因
+
+1. **选择性差**：如果索引列包含大量重复值（即选择性差），则查询优化器可能会决定全表扫描比使用索引更高效。
+2. **索引列少**：如果查询涉及到多个条件，而索引只覆盖了部分条件，则可能不会被使用。
+3. **索引列顺序不当**：对于复合索引，如果最左边的列不是查询中最常过滤的列，则索引可能不会被有效地利用。
+4. **数据范围广**：如果查询返回的数据行接近整个表的大小，那么索引可能没有帮助，因为查询优化器可能会认为全表扫描更优。
+5. **未使用合适的访问类型**：如使用 `LIKE` 开头字符匹配或 `IN` 子句等，可能导致 MySQL 无法使用索引。
+6. **统计信息过时**：MySQL 使用统计信息来决定是否使用索引，如果数据分布发生变化，需要更新统计信息。
 
 ### B+树索引
 
@@ -3946,10 +4066,15 @@ EXPLAIN SELECT 字段列表 FROM 表名 WHERE 条件 ;
 ### B+树的增删查改操作
 
 - **查 (Search)**：从根节点开始二分查找，B+树中使用二分查找可能在一个节点中找不到对应的结点，所以需要根据键值去子节点的孩子节点中遍历查找，直到找到叶子节点中对应的key和整行数据。
+
+  <img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/BrfHAAlY_image_mianshiya.png" alt="img" style="zoom: 50%;" />
+
 - **改 (Update)**：先去查询，如果键已存在，更新其值；如果键不存在，则修改失败。
+
 - **删 (Delete)**：先去查询，进行删除，可以用`逻辑删除`或`删除-合并`：
   - `逻辑删除`：只清空整行记录，不清除键，保持B+树的形状。
   - `删除-合并`：删除后如果节点元素过少，需要进行合并。
+  
 - **增 (Insert)**：先去查询，查找插入位置，插入后判断是否需要分裂。分裂算法：new一个新的叶子节点，将当前叶子节点一半的键和键对应的值移动到新的叶子节点，然后将新的叶子节点插入到原本的叶子节点链表中。之后更新父节点的索引，将新的叶子节点中最小 的 key 传递给父节点，父节点插入这个新的 key 作为索引。如果父节点也超出了最大容量，同样会进行分裂并向上传递。当一个非叶子节点分裂时，都需要将分裂产生的新的 key 上移到父节点。如果父节点也满了，继续分裂并将 `key` 递归上传。
 
 ### 主键索引的维护
@@ -4046,6 +4171,45 @@ SET SESSION sort_buffer_size = value;  -- `value` 是以字节为单位的大小
 
 调整 `sort_buffer_size` 可以影响排序操作的性能。如果设置得过小，可能导致频繁地将数据写入磁盘，从而降低性能；如果设置得过大，则可能消耗过多内存资源。
 
+## 锁（InnoDB）
+
+### 表锁
+
+表级锁是最粗粒度的锁，会对**整个表**进行锁定，导致并发性能较差。MyISAM 支持以下两种类型的锁：
+
+1. **读锁（READ LOCK）**：当 SELECT 语句执行时，会自动获得读锁，此时其他事务可以读取数据，但不能修改数据。
+2. **写锁（WRITE LOCK）**：当 INSERT、UPDATE 或 DELETE 语句执行时，会自动获得写锁，此时其他事务既不能读也不能写。
+
+由于 MyISAM 已经不再推荐使用，并且在新版本的 MySQL 中逐渐被淘汰，因此表级锁的使用也逐渐减少。
+
+### 行锁
+
+行级锁对表中的**行**进行锁定，而不是整个表，这样可以大大提高并发性能。InnoDB 支持以下几种类型的锁：
+
+1. **共享锁（Shared Locks, S-Locks）**：当 SELECT 语句带有 FOR SHARE 或者事务处于可重复读隔离级别时，会请求共享锁。共享锁允许其他事务读取数据，但阻止其他事务修改同一行数据。
+2. **排他锁（Exclusive Locks, X-Locks）**：当事务需要写入数据时，会请求排他锁。排他锁不允许其他事务读取或修改同一行数据。
+
+### *其他锁类型*
+
+*除了上述的锁类型外，InnoDB 还有一些特殊的锁机制：*
+
+1. ***意向锁（Intention Locks）**：这是一种元锁，它并不锁住具体的行，而是表明事务打算对表中的行加锁。例如，意向共享锁（IS）表明事务打算对某行加共享锁，意向排他锁（IX）表明事务打算对某行加排他锁。*
+2. ***间隙锁（Gap Locks）**：间隙锁锁定的是索引项之间的“间隙”，防止其他事务插入新的行到这个间隙中。在可重复读RR隔离级别下，InnoDB 默认会使用间隙锁。*
+3. ***Next-Key Locks**：Next-Key 锁是 InnoDB 默认使用的锁类型，它是共享锁或排他锁与间隙锁的组合。它不仅锁住索引项本身，还会锁住索引项之间的间隙，以防止幻读现象。*
+
+### 死锁检测的基本原理
+
+1. **定时检测**：使用定时检测。如果发现**等待队列**（Wait Queue）增长到一定长度时，就会触发一次死锁检测。
+2. **图算法**：使用图算法。它构建了一个**等待图**（Wait-for Graph），在等待图中，**节点代表事务，边表示事务间的等待关系**。如果有环路（Cycle）存在，那么就表示发生了死锁。
+
+### 死锁解决机制
+
+一旦检测到死锁，InnoDB 就会采取措施来解决它。具体做法如下：
+
+1. **选择牺牲者**：当检测到死锁时，InnoDB 会选择一个或多个事务作为“牺牲者”，这些事务将被回滚，以解除死锁。
+2. **选择标准**：InnoDB 根据一定的标准来选择牺牲者。一般情况下，InnoDB 会选取一个最小的事务作为牺牲者。这个最小事务通常是基于事务的开始时间、事务的大小（即所持有的锁的数量）等因素来决定的。
+3. **通知用户**：InnoDB 在回滚了某个事务后，会生成一条错误信息（如 Error 1213 Deadlock found when trying to get lock），并通过客户端 API 返回给应用程序。应用程序可以根据这个错误信息来进行相应的处理。
+
 ## 事务
 
 ### MySQL支持的存储引擎及其区别
@@ -4088,7 +4252,49 @@ SET SESSION sort_buffer_size = value;  -- `value` 是以字节为单位的大小
 | **R**ead **R**epeatable 可重复读 (默认) ：通过MVCC机制确保一个事务内多次执行相同的查询会得到相同的结果 |  √   |     √      |  ×   |
 | Serializable 串行化：加入读锁，阻塞式处理事务                |  √   |     √      |  √   |
 
-### 为了保证数据的可恢复，版本控制器需要保证什么？
+### 长事务可能会导致哪些问题？
+
+会有**性能问题**，具体如下：
+
+1. **锁定资源**：可能会占用大量的锁资源。
+2. **死锁（Deadlock）**：存在两个或更多事务互相等待对方释放资源。
+3. **内存消耗**：长事务占用较多的内存资源，特别是回滚段（undo segment）的空间，从而影响系统的性能。
+4. **日志文件增长**：长事务会导致日志文件快速增长，这需要更多的磁盘空间，并且在恢复时需要更多的时间。
+
+## MVCC
+
+### START TRANSACTION;
+
+当执行 `START TRANSACTION;` 命令时，MySQL 将当前的会话设置为非自动提交模式。这意味着任何随后的 SQL 操作都不会自动持久化到磁盘上，而是保存在事务的内存缓冲区中。在这个阶段，数据库会记录每一步操作的日志到redo log和undo log中，以备提交或回滚。
+
+**底层原理：**
+
+1. **事务开启**：创建一个事务记录，并**初始化事务的状态为活动状态**。
+2. **非自动提交模式**：**设置会话的自动提交标志为 `false`**，这样后续的 SQL 操作不会立即生效。
+3. **记录日志**：对于每一个 SQL 操作，都会**记录对应的重做日志（Redo Log）**，用于事务提交时的数据恢复。
+
+### COMMIT;
+
+执行 `COMMIT;` 命令表示事务已经成功完成，所有的事务操作都应该被永久地保存到数据库中。此时，数据库将确保所有事务中的更改都已正确地应用，并且任何后续的操作都不能影响到这些更改。
+
+**底层原理：**
+
+1. **事务提交**：事务进入提交阶段，数据库系统会将事务中的所有更改标记为永久有效。
+2. **写入磁盘**：**将事务期间记录的所有重做日志（redo Log）写入到磁盘上的日志文件中**，确保即使在系统崩溃的情况下也能恢复数据。
+3. **释放资源**：事务完成后，释放事务期间占用的资源，如锁定的行或表等。
+4. **通知监听器**：事务提交后，可能会通知正在等待该事务完成的其他事务或监听器。
+
+### ROLLBACK;
+
+执行 `ROLLBACK;` 命令表示事务中的所有操作都将被撤销，数据库将回到事务开始前的状态。这意味着事务中所做的任何更改都不会被保存到数据库中。
+
+**底层原理：**
+
+1. **事务回滚**：事务进入回滚阶段，数据库系统会恢复到事务开始前的状态。
+2. **撤销更改**：**通过事务日志（undo Log）来撤销事务期间所做的更改**。
+3. **释放资源**：事务回滚后，同样会释放事务期间占用的资源，如锁定的行或表等。
+
+### MVCC是如何保证数据的可恢复性的？
 
 1. **正在进行的事务**不会读取**未提交的事务**产生的数据。
 
@@ -4100,6 +4306,13 @@ SET SESSION sort_buffer_size = value;  -- `value` 是以字节为单位的大小
 
 - 锁：排他锁（如一个事务获取了一个数据行的排他锁，其他事务就不能再获取该行的其他锁）
 - MVCC: 多版本并发控制
+
+### 事务日志
+
+事务日志（Redo Log 和 Undo Log）是事务管理中的核心组件，它们分别记录了事务的重做操作和撤销操作。
+
+- **Redo Log**：记录了事务中所有**需要重做**的操作，用于在系统崩溃后恢复未提交的数据。
+- **Undo Log**：记录了事务中所有**需要撤销**的操作，用于在事务回滚时恢复数据到事务开始前的状态。
 
 ### 什么是redo log，undo log？
 
@@ -4135,7 +4348,7 @@ redo log保证了事务的持久性，undo log保证了事务的原子性和一�
 
 ### 深入理解MVCC机制对一致性和隔离性的保证
 
-**`MVCC`**：Multi-Version Concurrency Control，**多版本并发控制**，是RC和RR模式下的并发事务控制机制，指维护一个数据的多个版本，使得读写操作没有冲突MVCC的具体实现，主要依赖于数据库记录中的**隐式字段**、**undo log日志**、**ReadView**。
+**`MVCC`**：Multi-Version Concurrency Control，**多版本并发控制**，是RC和RR模式下的并发事务控制机制，指的是一条记录会有多个版本，每次修改记录都会存储这条记录被修改之前的版本。多版本之间串联起来就形成了一条版本链，这样不同时刻启动的事务可以**无锁**地获得不同版本的数据（普通读）。此时读（普通读）写操作不会阻塞，写操作可以继续写，无非就是多加了一个版本，历史版本记录可供已经启动的事务读取。主要依赖于数据库记录中的**隐式字段**、**undo log日志**、**ReadView**。
 
 - 隐式字段
 
@@ -4177,46 +4390,6 @@ redo log保证了事务的持久性，undo log保证了事务的原子性和一�
     | min_trx_id     | 最小活跃事务ID                                       |
     | max_trx_id     | 预分配事务ID，当前最大事务ID+1（因为事务ID是自增的） |
     | creator_trx_id | ReadView创建者的事务ID                               |
-
-## 事务的底层原理
-
-### 事务日志
-
-事务日志（Redo Log 和 Undo Log）是事务管理中的核心组件，它们分别记录了事务的重做操作和撤销操作。
-
-- **Redo Log**：记录了事务中所有**需要重做**的操作，用于在系统崩溃后恢复未提交的数据。
-- **Undo Log**：记录了事务中所有**需要撤销**的操作，用于在事务回滚时恢复数据到事务开始前的状态。
-
-### START TRANSACTION;
-
-当执行 `START TRANSACTION;` 命令时，MySQL 将当前的会话设置为非自动提交模式。这意味着任何随后的 SQL 操作都不会自动持久化到磁盘上，而是保存在事务的内存缓冲区中。在这个阶段，数据库会记录每一步操作的日志到redo log和undo log中，以备提交或回滚。
-
-**底层原理：**
-
-1. **事务开启**：创建一个事务记录，并**初始化事务的状态为活动状态**。
-2. **非自动提交模式**：**设置会话的自动提交标志为 `false`**，这样后续的 SQL 操作不会立即生效。
-3. **记录日志**：对于每一个 SQL 操作，都会**记录对应的重做日志（Redo Log）**，用于事务提交时的数据恢复。
-
-### COMMIT;
-
-执行 `COMMIT;` 命令表示事务已经成功完成，所有的事务操作都应该被永久地保存到数据库中。此时，数据库将确保所有事务中的更改都已正确地应用，并且任何后续的操作都不能影响到这些更改。
-
-**底层原理：**
-
-1. **事务提交**：事务进入提交阶段，数据库系统会将事务中的所有更改标记为永久有效。
-2. **写入磁盘**：**将事务期间记录的所有重做日志（redo Log）写入到磁盘上的日志文件中**，确保即使在系统崩溃的情况下也能恢复数据。
-3. **释放资源**：事务完成后，释放事务期间占用的资源，如锁定的行或表等。
-4. **通知监听器**：事务提交后，可能会通知正在等待该事务完成的其他事务或监听器。
-
-### ROLLBACK;
-
-执行 `ROLLBACK;` 命令表示事务中的所有操作都将被撤销，数据库将回到事务开始前的状态。这意味着事务中所做的任何更改都不会被保存到数据库中。
-
-**底层原理：**
-
-1. **事务回滚**：事务进入回滚阶段，数据库系统会恢复到事务开始前的状态。
-2. **撤销更改**：**通过事务日志（undo Log）来撤销事务期间所做的更改**。
-3. **释放资源**：事务回滚后，同样会释放事务期间占用的资源，如锁定的行或表等。
 
 ## 数据库集群
 
@@ -4473,6 +4646,19 @@ int shardId = userId.hashCode() % numberOfShards;
   | 系统资源占用   | 高，大量CPU和内存消耗                        | 低，主要是磁盘IO资源但AOF重写时会占用大量CPU和内存资源 |
   | 使用场景       | 可以容忍数分钟的数据丢失，追求更快的启动速度 | 对数据安全性要求较高常见                               |
 
+## Redis 的 Pipeline 功能是什么？ 
+
+pipeline（管道）使得客户端可以一次性将要执行的多条命令封装成块一起发送给服务端
+
+**优点**：
+
+1. **减少网络往返次数**：
+   - Pipeline 可以将多次网络往返减少为一次，显著提高了执行效率。
+2. **提高吞吐量**：
+   - 对于批量操作，使用 Pipeline 可以显著提高吞吐量，尤其是在高延迟网络环境中。
+3. **简化代码逻辑**：
+   - 对于批量操作，使用 Pipeline 可以简化客户端代码，避免频繁地打开和关闭连接。
+
 ## 常见问题
 
 ### 缓存穿透
@@ -4521,7 +4707,7 @@ int shardId = userId.hashCode() % numberOfShards;
 - String 类型的值大于 10 KB；
 - Hash、List、Set、ZSet 类型的元素的个数超过 5000个；
 
-> 大 key 的影响
+> 大 key 带来的问题
 
 - **客户端超时阻塞**。由于 Redis 执行命令是单线程处理，然后在操作大 key 时会比较耗时，那么就会阻塞 Redis，从客户端这一视角看，就是很久很久都没有响应。
 - **引发网络阻塞**。每次获取大 key 产生的网络流量较大，如果一个 key 的大小是 1 MB，每秒访问量为 1000，那么每秒会产生 1000MB 的流量，这对于普通千兆网卡的服务器来说是灾难性的。
@@ -4530,7 +4716,7 @@ int shardId = userId.hashCode() % numberOfShards;
 
 > *如何找到大 key ？*
 
-***1、redis-cli --bigkeys 查找大key***
+***1、--bigkeys 查找大key***
 
 可以通过 redis-cli --bigkeys 命令查找大 key：
 
@@ -4614,18 +4800,18 @@ rdb dump.rdb -c memory --bytes 10240 -f redis.csv
 
 <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202408261246944.png" alt="image-20240826124629849" style="zoom:40%;" />
 
-### Redis数据删除策略
+### 数据删除策略
 
 - **惰性删除**，在设置该key过期时间后，我们不去管它，当需要该key时，我们在检查其是否过期，如果过期，我们就删掉它，反之返回该key。
 
-- **定期删除**，就是说每隔一段时间，我们就对一些key进行检查，删除里面过期的key
+- **定期删除**，就是说每隔一段时间，我们就对一些key进行检查，删除里面过期的key。
 
   定期清理的两种模式：
 
-  - SLOW模式是定时任务，执行频率默认为10hz，每次不超过25ms，以通过修改配置文件redis.conf 的 **hz** 选项来调整这个次数
-  - FAST模式执行频率不固定，每次事件循环会尝试执行，但两次间隔不低于2ms，每次耗时不超过1ms
+  - SLOW模式是定时任务，执行频率默认为10hz，每次不超过25ms，以通过修改配置文件redis.conf 的 **hz** 选项来调整这个次数。
+  - FAST模式执行频率不固定，每次事件循环会尝试执行，但两次间隔不低于2ms，每次耗时不超过1ms。
 
-### Redis中的数据淘汰策略？如何保证热点数据？
+### 数据淘汰策略
 
 - noeviction(默认)： 不淘汰任何key，但是内存满时不允许写入新数据。
 - volatile-ttl： 对设置了TTL的key，比较key的剩余TTL值，TTL越小越先被淘汰。
@@ -4640,7 +4826,7 @@ LRU(Least Recently Used)：最少最近使用，用当前时间减去最后一�
 
 LFU(Least Frequently Used)：最少频率使用。会统计每个key的访问频率，值越小淘汰优先级越高
 
-数据淘汰策略-使用建议：
+**数据淘汰策略-使用建议：**
 
 1. 优先使用 **allkeys-lru** 策略。充分利用 LRU 算法的优势，把最近最常访问的数据留在缓存中。如果业务有明显的冷热数据区分，建议使用。
 2. 如果业务中数据访问频率差别不大，没有明显冷热数据区分，建议使用 **allkeys-random** ，随机选择淘汰。
@@ -4649,7 +4835,7 @@ LFU(Least Frequently Used)：最少频率使用。会统计每个key的访问频
 
 **保证热点数据**可以使用 **allkeys-lru** （挑选最近最少使用的数据淘汰）淘汰策略，那留下来的都是经常访问的热点数据
 
-### 常见的缓存更新策略？
+### 常见的缓存更新策略
 
 - **Cache Aside（旁路缓存）策略**；
 - *Read/Write Through（读穿 / 写穿）策略；*（仅存在于理论中）
@@ -4740,17 +4926,59 @@ Write Back 是计算机体系结构中的设计，比如 CPU 的缓存、操作�
 
 <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404101325704.png" alt="image-20240410132556603" style="zoom:50%;" />
 
-### Redis分布式锁的实现原理
+### 分布式锁的实现原理
 
 1. 加锁：使用SETNX命令设置一个键值对，如果键不存在则设置成功并获得锁
-2. 解锁：删除该键值对
-3. 超时：设置键的过期时间,防止死锁
+
+   ```
+   SET lock_key "lock_value" NX EX 30
+   ```
+
+2. 获取锁
+
+   ```
+   WATCH lock_key
+   MULTI
+   SET lock_key "lock_value" NX EX 30
+   EXEC
+   ```
+
+3. 释放锁：删除该键值对
+
+   ```
+   EVAL "
+   if redis.call('get', KEYS[1]) == ARGV[1] then
+       return redis.call('del', KEYS[1])
+   else
+       return 0
+   end
+   " SHA 1 lock_key lock_value
+   ```
 
 > **实现细节**
 >
-> 1. 使用Lua脚本保证加锁操作的原子性
-> 2. 使用唯一标识符(如UUID)作为值，防止误删其他客户端的锁
-> 3. 考虑Redis主从复制的延迟问题，使用Redlock算法
+> 1. **超时时间**：设置一个合理的超时时间很重要，过长会导致资源浪费，过短可能导致锁的丢失。
+> 2. **重试机制**：如果获取锁失败，客户端应该实现一个重试机制，并且在重试之间加入适当的延时，以避免争用。
+> 3. **公平性**：上述实现并没有保证锁的获取公平性。如果需要公平锁，可以考虑在获取锁时加入时间戳或其他机制。
+> 4. 使用唯一标识符(如UUID)作为值，防止误删其他客户端的锁
+> 3. *考虑Redis主从复制的延迟问题，使用Redlock算法*
+
+### 实现分布式锁时可能遇到的问题有哪些？
+
+#### 锁超时
+
+1. 锁未能正确释放、锁长时间不被释放，合理设置锁的超时时间；
+2. 锁频繁续期，合理设置锁的超时时间。
+
+#### 锁重试
+
+1. 锁被争用，导致性能下降，可以适当延长重试间隔时间。
+2. 锁因网络延迟等原因，无法及时获取或释放锁，可以在超时前多次尝试获取锁。
+
+#### 锁验证
+
+1. 锁被争用，是不公平的，使用时间戳机制实现公平锁。
+2. 锁被删除时验证锁的所有者，使用 Lua 脚本或UUID检查并删除锁。
 
 ### Redisson的看门狗机制
 
@@ -4760,43 +4988,13 @@ Write Back 是计算机体系结构中的设计，比如 CPU 的缓存、操作�
 
 ## Redis集群
 
-### 主从同步
+### Raft选举算法
 
-主从同步：单节点Redis的并发能力是有上限的，要进一步提高Redis的并发能力，可以搭建主从集群，实现读写分离。一般都是一主多从，主节点负责写数据，从节点负责读数据，主节点写入数据之后，需要把数据同步到从节点中
+Raft算法是一种流行的分布式一致性算法，它旨在简化 Paxos 算法的理解和实现。
 
-主从同步数据的流程：
+Raft 的优势：易于理解、分布式强一致性
 
-- 全量同步：全量同步是指从节点第一次与主节点建立连接的时候使用全量同步
-
-  > 1. 从节点请求主节点同步数据，其中从节点会携带自己的replication id和offset偏移量。
-  > 2. 主节点判断是否是第一次请求，主要判断的依据就是，主节点与从节点是否是同一个replication id，如果不是，就说明是第一次同步，那主节点就会把自己的replication id和offset发送给从节点，让从节点与主节点的信息保持一致。
-  > 3. 在同时主节点会执行bgsave，生成rdb文件后，发送给从节点去执行，从节点先把自己的数据清空，然后执行主节点发送过来的rdb文件，这样就保持了一致
-  >
-  > 当然，如果在rdb生成执行期间，依然有请求到了主节点，而主节点会以命令的方式记录到缓冲区，缓冲区是一个日志文件，最后把这个日志文件发送给从节点，这样就能保证主节点与从节点完全一致了，后期再同步数据的时候，都是依赖于这个日志文件，这个就是全量同步
-
-增量同步：当从节点服务重启之后，数据就不一致了，所以这个时候，从节点会请求主节点同步数据，主节点还是判断不是第一次请求，不是第一次就获取从节点的offset值，然后主节点从命令日志中获取offset值之后的数据，发送给从节点进行数据同步
-
-### 哨兵模式
-
-TODO
-
-### 分片集群
-
-**分片集群有什么作用？分片集群中数据是怎么存储和读取的？**
-
-分片集群主要解决的是**海量数据存储**的问题，集群中有多个master，每个master保存不同数据，并且还可以给每个master设置多个slave节点，就可以继续增大集群的高并发能力。同时每个master之间通过ping监测彼此健康状态，类似于哨兵模式。客户端请求可以访问集群任意节点，最终都会被转发到正确节点、
-
-Redis 集群引入了哈希槽的概念，有 16384 个哈希槽，集群中每个主节点绑定了一定范围的哈希槽范围， key通过 CRC16 校验后对 16384 取模来决定放置哪个槽，通过槽找到对应的节点进行存储。
-
-### 脑裂是什么，如何解决？
-
-由于网络等原因可能会出现脑裂的情况，master节点与sentinel处于不同的网络分区，使得sentinel没有能够心跳感知到master，所以通过选举的方式提升了一个salve为master，这样就存在了两个master，就像大脑分裂了一样，这样会导致客户端还在old master那里写入数据，新节点无法同步数据，当网络恢复后，sentinel会将old master降为salve，这时再从新master同步数据，这会导致old master中的大量数据丢失。
-
-解决方案：在redis的配置中可以设置：第一可以设置最少的salve节点个数，比如设置至少要有一个从节点才能同步数据，第二个可以设置主从同步的延迟时间，达不到要求就拒绝请求，就可以避免大量的数据丢失。
-
-### Raft 选举算法
-
-**Raft** 是一种流行的分布式一致性算法，它旨在简化 Paxos 算法的理解和实现。Raft 算法将节点分为三种状态：跟随者（Follower）、候选人（Candidate）和领导者（Leader）。
+Raft算法将节点分为三种状态：**跟随者（Follower）、候选人（Candidate）和领导者（Leader）**。
 
 **Raft 算法的主要步骤**：
 
@@ -4812,7 +5010,67 @@ Redis 集群引入了哈希槽的概念，有 16384 个哈希槽，集群中每�
    - 领导者定期向所有节点发送心跳消息（AppendEntries RPC），以维持领导者的地位。
    - 如果跟随者长时间未收到心跳消息，它会再次变成候选人并重新发起选举。
 
-**Raft 的优势：**易于理解、分布式强一致性
+### 主从同步
+
+<img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/jJA9JNgt_image_mianshiya.png" alt="image.png" style="zoom:30%;" />
+
+主从同步：单节点Redis的并发能力是有上限的，要进一步提高Redis的并发能力，可以搭建主从集群，实现读写分离。一般都是一主多从，主节点负责写数据，从节点负责读数据，主节点写入数据之后，需要把数据同步到从节点中
+
+主从同步数据的流程：
+
+- 全量同步：从节点第一次与主节点建立连接的时候会使用全量同步
+
+  <img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/zQyotf09_image_mianshiya.png" alt="image.png" style="zoom: 25%;" />
+  
+  1. 从节点请求主节点同步数据，其中从节点会携带自己的replication id和offset偏移量。
+  2. 主节点判断是否是第一次请求，主要判断的依据就是，主节点与从节点是否是同一个replication id，如果不是，就说明是第一次同步，那主节点就会把自己的replication id和offset发送给从节点，让从节点与主节点的信息保持一致。
+  3. 在同时主节点会执行bgsave，生成rdb文件后，发送给从节点去执行，从节点先把自己的数据清空，然后执行主节点发送过来的rdb文件，这样就保持了一致
+  
+  当然，如果在rdb生成执行期间，依然有请求到了主节点，而主节点会以命令的方式记录到缓冲区，缓冲区是一个日志文件，最后把这个日志文件发送给从节点，这样就能保证主节点与从节点完全一致了，后期再同步数据的时候，都是依赖于这个日志文件，这个就是全量同步
+
+- 增量同步：当从节点服务重启之后，数据就不一致了，所以这个时候，从节点会请求主节点同步数据，主节点还是判断不是第一次请求，不是第一次就获取从节点的offset值，然后主节点从命令日志中获取offset值之后的数据，发送给从节点进行数据同步
+
+  <img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/9GIJIcHv_image_mianshiya.png" alt="img" style="zoom: 25%;" />
+
+### 哨兵模式
+
+通过一组哨兵（通常是几个 Redis 实例）来监控多个 Redis 主从实例的运行状态，并在主实例发生故障时，自动完成故障转移。
+
+**哨兵机制的主要功能包括：**
+
+1. **监控（Monitoring）**：哨兵会定期检查主节点（Master）和从节点（Slave），以及其他哨兵的状态。每个哨兵节点会定时向所有的 Master、Slave 以及其他的 Sentinel 发送 PING 命令来检查它们的健康状况。此外，哨兵也可以监控任意给定的函数，并在条件满足时触发动作。
+
+2. **故障转移（Failure Detection and Automatic Failover）**：当主节点失效时，哨兵能够自动将其中一个从节点升级为主节点，从而实现自动故障转移。这一过程涉及到哨兵之间的协商，确保只有一个哨兵进行实际的故障转移操作。哨兵之间使用 Raft 或类似的协议来达成一致，以防止脑裂（split-brain）情况的发生。
+
+3. **通知（Notification）**：在故障转移之后，哨兵会通知客户端新的主节点的位置。此外，哨兵还可以通过订阅与发布（PUB/SUB）机制来发送其他通知信息。
+
+4. **配置中心（Configuration Provider）**：哨兵充当了 Redis 集群的配置中心的角色。客户端可以通过哨兵获取当前集群的状态，包括主节点的位置等信息。
+
+**哨兵机制的关键概念**
+
+- **主观下线（Subjective Down）**：当一个哨兵认为一个主节点或从节点已经下线时，它会标记该节点为主观下线状态。
+- **客观下线（Objective Down）**：当足够数量的哨兵（根据配置文件中的多数原则）同意一个节点已经下线时，该节点就会被标记为客观下线状态。此时，哨兵就可以开始故障转移的过程。
+
+**哨兵的工作流程**
+
+1. **哨兵检测**：每个哨兵节点独立地监控 Redis 主节点和从节点的健康状况。
+2. **共识形成**：当多个哨兵确认主节点已经失效后，它们会通过共识算法（如 Raft）选出一个领导哨兵来进行故障转移。
+3. **故障转移**：领导哨兵将从节点转换为主节点，并更新相关的从节点和客户端的配置信息。
+4. **通知客户端**：哨兵通知客户端新的主节点的位置，使客户端可以继续正常工作。
+
+### 分片集群
+
+**分片集群有什么作用？分片集群中数据是怎么存储和读取的？**
+
+分片集群主要解决的是**海量数据存储**的问题，集群中有多个master，每个master保存不同数据，并且还可以给每个master设置多个slave节点，就可以继续增大集群的高并发能力。同时每个master之间通过ping监测彼此健康状态，类似于哨兵模式。客户端请求可以访问集群任意节点，最终都会被转发到正确节点、
+
+Redis 集群引入了哈希槽的概念，有 16384 个哈希槽，集群中每个主节点绑定了一定范围的哈希槽范围， key通过 CRC16 校验后对 16384 取模来决定放置哪个槽，通过槽找到对应的节点进行存储。
+
+### 脑裂
+
+由于网络等原因可能会出现脑裂的情况，master节点与sentinel处于不同的网络分区，使得sentinel没有能够心跳感知到master，所以通过选举的方式提升了一个salve为master，这样就存在了两个master，就像大脑分裂了一样，这样会导致客户端还在old master那里写入数据，新节点无法同步数据，当网络恢复后，sentinel会将old master降为salve，这时再从新master同步数据，这会导致old master中的大量数据丢失。
+
+解决方案：在redis的配置中可以设置：第一可以设置最少的salve节点个数，比如设置至少要有一个从节点才能同步数据，第二个可以设置主从同步的延迟时间，达不到要求就拒绝请求，就可以避免大量的数据丢失。
 
 # ---------------------------------------
 
@@ -4848,9 +5106,9 @@ Spring Boot 是 Spring 社区提供的一个快速应用开发框架，旨在简
 
 **开启方式**：开启方式由具体的框架决定。
 
-## Spring常见注解
+## 常见注解
 
-- Spring
+### Spring注解
 
 | **注解**                                       | **说明**                                                     |
 | ---------------------------------------------- | ------------------------------------------------------------ |
@@ -4864,7 +5122,7 @@ Spring Boot 是 Spring 社区提供的一个快速应用开发框架，旨在简
 | @Import                                        | 使用@Import导入的类会被Spring加载到IOC容器中                 |
 | @Aspect、@Before、@After、@Around、@Pointcut   | 用于切面编程（AOP）                                          |
 
-- SpringMVC
+### SpringMVC注解
 
 | **注解**        | **说明**                                                     |
 | --------------- | ------------------------------------------------------------ |
@@ -4876,7 +5134,7 @@ Spring Boot 是 Spring 社区提供的一个快速应用开发框架，旨在简
 | @RequestHeader  | 获取指定的请求头数据                                         |
 | @RestController | @Controller + @ResponseBody                                  |
 
-- Springboot
+### Springboot注解
 
 | **注解**                 | **说明**                                       |
 | ------------------------ | ---------------------------------------------- |
@@ -4884,7 +5142,16 @@ Spring Boot 是 Spring 社区提供的一个快速应用开发框架，旨在简
 | @EnableAutoConfiguration | 打开自动配置的功能，也可以关闭某个自动配置的选 |
 | @ComponentScan           | Spring组件扫描                                 |
 
-## IoC
+## Bean
+
+### Bean的生命周期
+
+Spring 中 Bean 的生命周期大致分为四个阶段：
+
+- 实例化（Instantiation）
+- 属性赋值（Populate）
+- 初始化（Initialization）
+- 销毁（Destruction）
 
 ### Bean是线程安全的吗？不安全的话如何解决？
 
@@ -4932,17 +5199,6 @@ ji各级缓存的作用：
 
 <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404121917842.png" alt="image-20240412191748709" style="zoom:40%;" />
 
-### IOC容器装配Bean的详细流程
-
-- **加载配置信息**：创建 `BeanFactory` 实例，加载配置文件创建 `BeanDefination` 对象，并将其注册到 `BeanFactory` ；
-
-- **实例化Bean**：`BeanFactory`根据 `BeanDefination` 的信息，  得到一个实例化的 `Bean`；
-
-- **初始化Bean**：填充 `Bean` 属性，处理 `@Autowired` 、`@Value` 等注解，得到一个初始化的 `Bean`；
-
-- **检查依赖关系**：检查 `Bean` 之间的依赖关系，确保依赖关系已满足；
-- **注入容器中**：将 `Bean` 添加到单例池，对外提供使用。
-
 ### 讲一下Bean的生命周期
 
 Bean 生命周期大致分为 Bean 定义、Bean 的初始化、Bean的生存期和 Bean 的销毁4个部分。具体步骤如下：
@@ -4964,6 +5220,35 @@ Bean的生命周期是由Spring容器自动管理的，其中有两个环节我�
 
 1. 可以自定义**初始化**方法，增加`@PostConstruct`注解，会在**调用SetBeanFactory方法之后**调用该方法。
 2. 可以自定义**销毁**方法，增加`@PreDestroy`注解，会在**自身销毁前调用**这个方法。
+
+## IOC
+
+### Spring框架IOC容器启动过程
+
+Spring框架的IOC容器启动过程主要包括以下几个阶段：
+
+1. 加载配置文件：Spring容器会读取并解析应用程序中的配置文件，一般是XML格式的Spring配置文件(如applicationContext.xml） 或基于注解的配置类。
+2. 创建容器：Spring根据配置文件中定义的Bean信息，实例化并管理各个Bean对象。在容器启动过程中，Spring会创建一个BeanFactory或
+  ApplicationContext容器对象。
+3. 注册Bean定义：Spring容器会根据配置文件中的Bean定义信息，将Bean对象注册到容器中，并配置Bean之间的依赖关系。
+4. 实例化Bean：容器启动后，会根据Bean定义信息实例化各个Bean对象，并根据需要填充Bean的属性。
+5. 注册BeanPostProcessor： Spring容器会注册BeanPostProcessor接口的实现类，这些类可以在Bean实例化之后、初始化之前和初始化之后对Bean进行处
+  理。
+6. 初始化Bean：容器会调用Bean的初始化方法（如@PostConstruct注解标注的方法或实现initializingBean接口的方法）对Bean进行初始化。
+7. 完成容器启动：容器启动完成后，可以通过ApplicationContext接口提供的各种方法来获取和操作Bean对象。
+
+总的来说，Spring的IOC容器启动过程就是将Bean注册到容器中、实例化Bean、初始化Bean、以及处理Bean之间的依赖关系等一系列操作。通过IOC容器，Spring实现了对象的创建、管理和协调，实现了松散耦合和可维护性，使得业务逻辑和对象的创建、销毁、依赖等不再紧密耦合在一起。
+
+### IOC容器装配Bean的详细流程
+
+- **加载配置信息**：创建 `BeanFactory` 实例，加载配置文件创建 `BeanDefination` 对象，并将其注册到 `BeanFactory` ；
+
+- **实例化Bean**：`BeanFactory`根据 `BeanDefination` 的信息，  得到一个实例化的 `Bean`；
+
+- **初始化Bean**：填充 `Bean` 属性，处理 `@Autowired` 、`@Value` 等注解，得到一个初始化的 `Bean`；
+
+- **检查依赖关系**：检查 `Bean` 之间的依赖关系，确保依赖关系已满足；
+- **注入容器中**：将 `Bean` 添加到单例池，对外提供使用。
 
 ## AOP
 
@@ -5030,7 +5315,7 @@ Spring 事务管理具有以下特点：
 
 传播行为定义了当一个方法被另一个事务性的方法调用时，应该如何处理事务。常见的传播行为包括：
 
-- `PROPAGATION_REQUIRED`：如果有事务活动，就加入当前事务；如果没有，就创建一个新的事务。
+- **`PROPAGATION_REQUIRED`**：如果有事务活动，就加入当前事务；如果没有，就创建一个新的事务。
 - `PROPAGATION_SUPPORTS`：如果有事务活动，就加入当前事务；如果没有，就以非事务方式运行。
 - `PROPAGATION_MANDATORY`：必须在现有的事务上下文中执行；如果没有事务，则抛出异常。
 - `PROPAGATION_REQUIRES_NEW`：总是创建一个新的事务，无论当前是否存在事务。
@@ -5051,6 +5336,22 @@ Spring 事务管理具有以下特点：
 #### 只读事务（Read-Only Transactions）
 
 只读事务是指那些只读取数据而不进行任何写操作的事务。标记为只读的事务可以带来性能上的好处，因为数据库可以优化只读事务的执行。
+
+### 分布式事务 和 传统的事务 的相同点和不同点
+
+相同点：
+
+1. **ACID特性**：分布式事务和传统事务都遵循ACID（原子性、一致性、隔离性、持久性）特性，保证事务的正确性和完整性。
+2. **保证数据一致性**：无论是分布式事务还是传统事务，都致力于确保事务操作在执行完毕后数据的一致性。
+3. **提供事务管理**：分布式事务和传统事务都提供了事务管理机制，可以控制事务的提交、回滚和隔离级别。
+
+不同：
+
+1. **分布式环境**：分布式事务通常在多个独立的节点或系统之间进行操作，而传统事务通常在单个数据库或系统中进行操作。
+2. **事务管理协议**：传统事务通常使用本地事务管理机制（如JDBC事务、Spring事务管理），而分布式事务需要使用分布式事务管理协议（如XA协议、TCC协议）来实现跨多个系统的事务一致性。
+3. **性能开销**：由于涉及多个系统的通信和协调，分布式事务通常比传统事务具有更高的性能开销和复杂度。
+4. **故障处理**：在分布式环境下，出现故障或网络问题可能会导致事务的不确定状态，需要额外的机制来保证事务的正确性。
+5. **可伸缩性**：传统事务在面对大规模的并发请求时可能会成为性能瓶颈，而分布式事务可以通过拆分事务、分布式锁等措施来提高可伸缩性。
 
 ## SpringBoot
 
@@ -5337,6 +5638,34 @@ skywalking的监控流程：
 4. **计数器算法（Tomcat）**：基于时间窗口的请求数统计，设置最大连接数。
 5. **滑动窗口**：将计数器细分成多个更小的时间窗口。
 
+### *例：京东商城应对大流量、大并发的三类策略*
+
+#### 分流
+
+主要是将流量分散到不同的系统和服务上，以减轻单个服务的压力。常见的方法有水平扩展、业务分区、分片和动静分离。
+
+- 水平扩展：通过增加服务器数量来提高访问量和读写能力，如商品读库和商品写库。
+- 业务分区：根据业务领域划分成不同的子系统，如商品库和交易库。
+- 分片：根据不同业务类型进行分片，如秒杀系统从交易系统中分离；非核心业务分离。
+- 动静分离：将动态页面降级为静态页面，整体降级到其他页面，以及部分页面内容降级。
+
+#### 降级
+
+当系统压力过大时，采取一些措施降低服务质量，以保障关键功能的正常运行。
+
+- 页面降级：对页面进行降级处理，如整体降级到其他页面，或者只保留部分内容。
+- 业务功能降级：放弃一些非关键业务，如购物车库存状态。
+- 应用系统降级：对下游系统进行降级处理，如一次拆分暂停。
+- 数据降级：远程服务降级到本地缓存，如运费。
+
+#### 限流
+
+限制请求的数量，以保护系统资源和稳定性。
+
+- Nginx前端限流：京东研发的业务路由，规则包括账户、IP、系统调用逻辑等。
+- 应用系统限流：客户端限流和服务端限流。
+- 数据库限流：红线区，力保数据库。
+
 ## 分布式事务
 
 ### 有哪些分布式事务解决方案？
@@ -5575,12 +5904,13 @@ docker run --cpus=1 --memory=512m [container_name]
 ## RabbitMQ名词解释
 
 1. **Exchange（交换器）**：
+  
    - **定义**：交换器是RabbitMQ中的消息路由中心。它接收来自生产者的消息，并根据一定的规则将消息发送到一个或多个队列中。
-   - **类型**：主要有四种类型：Direct（直接）、Fanout（扇形广播）、Topic（主题）和Headers（头信息）。
+   - **类型**：主要有四种类型：Direct（直接）、Fanout（广播）、Topic（主题）和System（系统）。
      - **Direct**：根据路由键（routing key）匹配队列。
      - **Fanout**：无路由键概念，将消息发送给所有绑定到该交换器的队列。
      - **Topic**：根据通配符模式匹配路由键。
-     - **Headers**：较少使用，根据消息头属性进行路由。
+     - **System**：较少使用，根据消息头属性进行路由。
 2. **Queue（队列）**：
    - **定义**：队列是消息的实际存储位置，是消息的最终目的地。
    - **特性**：可以设置持久化、独占、自动删除等属性。
@@ -5654,10 +5984,10 @@ docker run --cpus=1 --memory=512m [container_name]
    - **特性**：通常以组的形式存在，同一组内的消费者可以实现负载均衡。
 6. **Consumer Group（消费者组）**：
    - **定义**：一组消费者，通常用于实现负载均衡。
-   - **特性**：组内的消费者可以共享消息，一个分区在同一时刻只能被组内的一个消费者消费。
+   - **特性**：组内的消费者可以共享消息，**一个分区在同一时刻只能被组内的一个消费者消费**。
 7. **Offset（偏移量）**：
    - **定义**：记录消费者在主题中的消费进度。
-   - **用途**：用于恢复消费状态，确保消息不会被重复消费。
+   - **用途**：用于恢复消费状态，**确保消息不会被重复消费**。
 8. **Leader（领导者）**：
    - **定义**：负责处理客户端读写请求的Broker。
    - **用途**：确保数据的一致性和高可用性。
@@ -5665,88 +5995,7 @@ docker run --cpus=1 --memory=512m [container_name]
    - **定义**：分区的备份，用于提高系统的可靠性和可用性。
    - **用途**：当Leader失效时，可以切换到其他Replica继续提供服务。
 
-
-
-## 消息不丢失
-
-**RabbitMQ**
-
-- 生产者确认（publisher confirm）机制：消息发送到RabbitMQ以后，会返回一个结果给发送者，表示消息是否处理成功。
-
-- 消息持久化：RabbitMQ的消息默认是存储在内存，开启持久化功能将消息缓存在磁盘，可以确保消息不丢失，但会受IO性能影响。
-
-  - 交换机持久化
-
-  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122049298.png" alt="image-20240412204947267" style="zoom: 67%;" />
-
-  - 队列持久化
-
-  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122049650.png" alt="image-20240412204956621" style="zoom:67%;" />
-
-  - 消息持久化，SpringAMQP中的的消息默认是持久的，可以通过MessageProperties中的DeliveryMode来指定的：
-
-  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122050214.png" alt="image-20240412205003184" style="zoom:67%;" />
-
-- 消费者确认：消费者处理消息后可以向RabbitMQ发送ack回执，RabbitMQ收到ack回执后才会删除该消息。
-
-  - SpringAMQP则允许配置三种确认模式：
-
-    - **manual**：手动ack，需要在业务代码结束后，调用api发送ack。
-
-    - **auto**：自动ack，由spring监测listener代码是否出现异常，没有异常则返回ack；抛出异常则返回nack
-
-    - **none**：关闭ack，MQ假定消费者获取消息后会成功处理，因此消息投递后立即被删除
-
-- 消费者失败重试机制：在消费者出现异常时利用本地重试，设置重试次数，当次数达到了以后，如果消息依然失败，将消息投递到异常交换机，交由人工处理
-
-<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122051452.png" alt="image-20240412205111394" style="zoom: 50%;" />
-
-**Kafka**
-
-从三个方面考虑消息丢失：
-
-- 生产者发送消息到Brocker丢失：
-
-  - ·设置异步发送，发送失败使用回调进行记录或重发
-
-  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122042582.png" alt="image-20240412204234529" style="zoom:50%;" />
-
-  - 失败重试，参数配置，可以设置重试次数
-
-  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122042205.png" alt="image-20240412204243173" style="zoom:50%;" />
-
-- 消息在Brocker中存储丢失：
-
-  -  发送确认acks，选择all，让所有的副本都参与保存数据后确认
-
-  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122043471.png" alt="image-20240412204309426" style="zoom: 50%;" />
-
-  | **确认机制**     | **说明**                                                     |
-  | ---------------- | ------------------------------------------------------------ |
-  | acks=0           | 生产者在成功写入消息之前不会等待任何来自服务器的响应,消息有丢失的风险，但是速度最快 |
-  | acks=1（默认值） | 只要集群首领节点收到消息，生产者就会收到一个来自服务器的成功响应 |
-  | acks=all         | 只有当所有参与赋值的节点全部收到消息时，生产者才会收到一个来自服务器的成功响应 |
-
-- 消费者从Brocker接收消息丢失（重平衡）：
-
-  - 禁用自动提交偏移量，改为手动提交偏移量
-  - 提交方式，最好是异步（优先）+同步提交
-
-## 避免重复消费
-
-**RabbitMQ**：
-
-- 每条消息设置一个唯一的标识id：*eg.在处理支付业务时，可以先拿着业务的唯一标识到数据库查询一下，如果这个数据不存在，说明没有处理过，这个时候就可以正常处理这个消息了。如果已经存在这个数据了，就说明消息重复消费了，我们就不需要再消费了。*
-- 幂等方案：redis分布式锁、数据库锁（悲观锁、乐观锁）
-
-**Kafka**：
-
-- 禁用自动提交偏移量，改为手动提交偏移量
-- 提交方式，异步提交 + 同步提交
-
-- 幂等方案：redis分布式锁、数据库锁（悲观锁、乐观锁）
-
-## 高可用机制
+## 高可用设计
 
 **RabbitMQ**：
 
@@ -5760,11 +6009,11 @@ docker run --cpus=1 --memory=512m [container_name]
 
 - **镜像集群**（本质是主从模式）
 
-  - 交换机、队列、队列中的消息会在各个mq的镜像节点之间同步备份。
+  - 交换机、队列、队列中的消息会在各个镜像节点之间同步备份。
   - 创建队列的节点被称为该队列的主节点，备份到的其它节点叫做该队列的镜像节点。
   - 一个队列的主节点可能是另一个队列的镜像节点
   - 所有操作都是主节点完成，然后同步给镜像节点
-  - 主宕机后，镜像节点会替代成新的主
+  - 主宕机后，镜像节点会替代成新的主节点
 
 - 仲裁队列（优化镜像集群）
 
@@ -5793,14 +6042,14 @@ docker run --cpus=1 --memory=512m [container_name]
   <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404151659488.png" alt="image-20240415165935408" style="zoom:45%;" />
 
 
-- 分区备份机制
+- **分区备份机制**
 
   - 一个topic有多个分区，每个分区有多个副本，其中有一个leader，其余的是follower，副本存储在不同的broker中
   - 所有的分区副本的内容是都是相同的，如果leader发生故障时，会自动将其中一个follower提升为leader
 
   <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404151700526.png" alt="image-20240415170035456" style="zoom:45%;" />
 
-- 分区副本复制机制
+- **分区副本复制机制**
 
   - ISR（in-sync replica）分区是Leader分区**同步**复制保存的一个队列，普通分区是Leader分区**异步**复制保存的一个队列
   - 如果leader失效后，需要选出新的leader，选举的原则如下：
@@ -5808,6 +6057,85 @@ docker run --cpus=1 --memory=512m [container_name]
     - 第二：如果ISR列表中的follower都不行了，就只能从其他follower中选取
 
   <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404151707886.png" alt="image-20240415170718823" style="zoom:50%;" />
+
+## 保证消息不丢失
+
+**RabbitMQ**
+
+- **消息持久化**：RabbitMQ的消息默认是存储在内存，开启持久化功能将消息缓存在磁盘，可以确保消息不丢失，但会受IO性能影响。
+
+  - 交换机持久化
+
+  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122049298.png" alt="image-20240412204947267" style="zoom: 67%;" />
+
+  - 队列持久化
+
+  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122049650.png" alt="image-20240412204956621" style="zoom:67%;" />
+
+  - 消息持久化，SpringAMQP中的的消息默认是持久的，可以通过MessageProperties中的DeliveryMode来指定的：
+
+  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122050214.png" alt="image-20240412205003184" style="zoom:67%;" />
+
+- **消费确认机制**：消费者处理消息后可以向RabbitMQ发送ack回执，RabbitMQ收到ack回执后才会删除该消息。
+
+  - SpringAMQP则允许配置三种确认模式：
+
+    - **manual**：手动ack，需要在业务代码结束后，调用api发送ack。
+
+    - **auto**：自动ack，由spring监测listener代码是否出现异常，没有异常则返回ack；抛出异常则返回nack
+
+    - **none**：关闭ack，MQ假定消费者获取消息后会成功处理，因此消息投递后立即被删除
+
+- **失败重试机制**：在消费者出现异常时利用本地重试，设置重试次数，当次数达到了以后，如果消息依然失败，将消息投递到异常交换机，交由人工处理。
+
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122051452.png" alt="image-20240412205111394" style="zoom: 50%;" />
+
+**Kafka**
+
+从三个方面考虑消息丢失：
+
+- 生产者发送消息到Brocker丢失：
+
+  - 设置**异步发送**，发送失败使用回调进行记录或重发
+
+  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122042582.png" alt="image-20240412204234529" style="zoom:50%;" />
+
+  - **失败重试**，参数配置，可以设置重试次数
+
+  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122042205.png" alt="image-20240412204243173" style="zoom:50%;" />
+
+- 消息在Brocker中存储丢失：
+
+  -  发送**确认acks**，选择all，让所有的副本都参与保存数据后确认
+
+  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122043471.png" alt="image-20240412204309426" style="zoom: 50%;" />
+
+  | **确认机制**     | **说明**                                                     |
+  | ---------------- | ------------------------------------------------------------ |
+  | acks=0           | 生产者在成功写入消息之前不会等待任何来自服务器的响应，消息有丢失的风险，但是速度最快 |
+  | acks=1（默认值） | 只要集群主节点收到消息，生产者就会收到一个来自服务器的成功响应 |
+  | acks=all         | 只有当所有参与赋值的节点全部收到消息时，生产者才会收到一个来自服务器的成功响应 |
+
+- 消费者从Brocker**接收消息丢失**（重平衡）：
+
+  - 禁用自动提交偏移量，改为手动提交偏移量
+  - 提交方式，最好是异步（优先）+同步提交
+
+## 避免重复消费
+
+> 这依赖于外部设计，MQ和Kafka不做防范
+
+**RabbitMQ**：
+
+- 每条消息设置一个唯一的标识id：*eg.在处理支付业务时，可以先拿着业务的唯一标识到数据库查询一下，如果这个数据不存在，说明没有处理过，这个时候就可以正常处理这个消息了。如果已经存在这个数据了，就说明消息重复消费了，我们就不需要再消费了。*
+- 幂等方案：redis分布式锁、数据库锁（悲观锁、乐观锁）
+
+**Kafka**：
+
+- 禁用自动提交偏移量，改为手动提交偏移量
+- 提交方式，异步提交 + 同步提交
+
+- 幂等方案：redis分布式锁、数据库锁（悲观锁、乐观锁）
 
 ## 解决消息堆积问题
 
@@ -5830,7 +6158,7 @@ docker run --cpus=1 --memory=512m [container_name]
 
 **RabbitMQ**：
 
-1. 单个消费者
+1. **单个消费者**
 
 最简单也是最直接的方法是使用单个消费者来消费队列中的消息。这样可以保证消息按照入队顺序被消费，因为不会有其他消费者干扰这一过程。
 
@@ -5852,7 +6180,7 @@ DeliverCallback deliverCallback = (consumerTag, delivery) -> {
 channel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -> {});
 ```
 
-2. 公平调度（Fair Dispatch）
+2. **公平调度（Fair Dispatch）**
 
 即使在使用单个消费者的情况下，也可以通过设置 `basicQos` 来限制消费者在同一时间处理的消息数量，从而避免因处理速度差异而导致的顺序错乱。
 
@@ -5871,10 +6199,11 @@ topic分区中消息只能由消费者组中的唯一消费者处理，想要顺
 
 **解决方案**：
 
-- 发送消息时指定同一个topic的分区号
-- 发送消息时按照相同的业务设置相同的key（分区默认通过key的hashcode值来选择分区，hash值一致，分区也一致）
+1. **发送消息时指定同一个topic的分区号**
 
-**代码实现**：
+2. **发送消息时按照相同的业务设置相同的key（分区默认通过key的hashcode值来选择分区，hash值一致，分区也一致）**
+
+​	**代码实现**：
 
 <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122102814.png" alt="image-20240412210253778" style="zoom:67%;" />
 
@@ -6110,9 +6439,11 @@ HashMap的数据结构： 底层使用hash表数据结构，即数组和链表�
 
 **线程安全的原因**
 
-- JDK1.7采用Segment分段锁，底层使用的是ReentrantLock
-
-- JDK1.8采用CAS添加新节点，采用synchronized锁定链表或红黑二叉树的头节点，相对Segment分段锁粒度更细，性能更好
+- **分段锁**：JDK1.7采用Segment分段锁，通过将数据分割成多个段，底层使用的是ReentrantLock。当需要修改某个段内的数据时，只需要锁定该段即可，而不需要锁定整个哈希表。
+- **CAS + synchronized**：JDK1.8改用 `volatile` 去同步每个桶上的数据。在 `put` 操作时，如果桶上的元素数量小于等于 1，那么就直接用 `CAS 操作`来替换旧元素或者增加新元素；如果桶上的元素数量大于 1，则转为使用 `synchronized` 锁来保证线程安全。。采用synchronized锁定链表或红黑二叉树的头节点，相对Segment分段锁粒度更细，性能更好
+- **非阻塞迭代算法**：`ConcurrentHashMap` 的迭代器在读取数据时不会持有锁，因此不会影响其他线程的写操作。这得益于其内部实现，它允许读取操作与写入操作并发执行。
+- **懒惰扩容**：当需要进行扩容时，`ConcurrentHashMap` 并不会一次性锁定整个表，而是只锁定需要迁移的部分桶，从而减少了锁的竞争。
+- **链表树化**：为了进一步提升性能，Java 8 中的 `ConcurrentHashMap` 还引入了链表树化的机制。当链表长度达到一定阈值时，链表会被转换为红黑树，从而提高查找效率。这种转换是局部的，只针对那些过长的链表。
 
 **插入过程：**
 
@@ -6283,7 +6614,7 @@ public static void main(String[] args) {
 | 继承Thread类     | 继承Thread类编程比较简单，可以直接使用Thread类中的方法       | 不能再继承其他的类扩展性较差，             |
 | 实现Runnable接口 | 扩展性强，实现该接口的同时还可以继承其他的类                 | 编程相对复杂，不能直接使用Thread类中的方法 |
 | 实现Callable接口 | 可以获取多线程运行过程中的结果；扩展性强，实现该接口的同时还可以继承其他的类 | 编程相对复杂，不能直接使用Thread类中的方法 |
-| 线程池创建       |                                                              |                                            |
+| 线程池创建       | 易于管理                                                     |                                            |
 
 ### 线程的生命周期和状态
 
@@ -6841,14 +7172,14 @@ jstack 可以看当前栈的情况，jmap 查看内存，jhat 进行 dump 堆的
 
 <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202405181542311.png" alt="image-20240518154206180" style="zoom:55%;" />
 
-<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404152105989.png" alt="1359e67d-c872-4a59-87bf-224d31a36b1c" style="zoom:85%;" />
-
 ### JVM的组成
 
 - **类加载子系统（Class Loader）**：核心组件类加载器，负责将字节码文件中的内容加载到内存中。
 - **运行时数据区（Runtime Data Area）**：JVM管理的内存，创建出来的对象、类的信息等等内容都会放在这块区域中。
 - **执行引擎（Execution Engine）**：包含了即时编译器、解释器、垃圾回收器，执行引擎使用解释器将字节码指令解释成机器码，使用即时编译器优化性能，使用垃圾回收器回收不再使用的对象。
-- **本地接口（Native Interface）**：调用本地使用C/C++编译好的方法，本地方法在Java中声明时，都会带上native关键字，如下图所示。
+- **本地接口（Native Interface）**：调用本地使用C/C++编译好的方法，本地方法在Java中声明时，都会带上native关键字。
+
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404152105989.png" alt="1359e67d-c872-4a59-87bf-224d31a36b1c" style="zoom:85%;" />
 
 ### JVM的内存结构
 
@@ -6859,17 +7190,12 @@ JVM 分为堆区和栈区，还有方法区，初始化的对象放在堆里面�
   - **年轻代**(Young Generation)
     - Eden区
     - Survivor区(From和To)
-
   - **老年代**(Old Generation)
-
-- **方法区**(Method Area)：主要是存储类信息，常量池（static 常量和 static 变量），编译后的代码（字节码）等数据。方法区是被所有线程共享，所有字段和方法字节码，以及一些特殊方法如构造器，接口代码也在此定义。简单说，所有定义的方法的信息都保存在该区域，此区属于共享区间。静态变量+常量+类信息+运行时常量池存在方法区中，实例变量存在堆内存中
+  - **字符串常量池**
+- **方法区**(Method Area) / **元空间**(Meta Space)：主要是存储类信息，常量池（static 常量和 static 变量），编译后的代码（字节码）等数据。方法区是被所有线程共享，所有字段和方法字节码，以及一些特殊方法如构造器，接口代码也在此定义。简单说，所有定义的方法的信息都保存在该区域，此区属于共享区间。静态变量+常量+类信息+运行时常量池存在方法区中，实例变量存在堆内存中
   - **运行时常量池**(Runtime Constant Pool): 方法区内的一部分，存放了编译期生成的各种字面量和符号引用。
-  - **永久代**(JDK 8之前) / **元空间**(JDK 8及以后)
-
 - **程序计数器**(Program Counter Register)：每个线程都有一个程序计数器。是一块较小的内存空间，记录当前线程执行的行号，本质是一个指针，指向方法区中的方法字节码（下一个将要执行的指令代码），由执行引擎读取下一条指令。
-
 - **虚拟机栈**(VM Stack)：由栈帧组成，调用一个方法就会压入一帧，栈帧上面存储**局部变量表**，**操作数栈**，**方法出口**等方法从调用直至执行完成的过程中的**所有数据**，局部变量表存放的是 8 大基础类型加上一个应用类型，所以还是一个指向地址的指针。栈也叫栈内存，主管Java程序的运行，是在线程创建时创建，它的生命周期是跟随线程的生命周期，线程结束栈内存也就释放，对于栈来说不存在垃圾回收问题，只要线程一结束该栈就Over，生命周期和线程一致，是线程私有的。
-
 - **本地方法栈**(Native Method Stack)：与虚拟机栈功能类似，为 Native 方法服务。它的具体做法是 Native Method Stack中登记native方法，在Execution Engine 执行时加载native libraries。
 
 ### JVM的版本变化（JDK 7~8）
@@ -6884,7 +7210,7 @@ JVM 分为堆区和栈区，还有方法区，初始化的对象放在堆里面�
 
 在JDK8中，存放元数据中的永久内存从堆内存中移到了本地内存（native memory）中，因此不再占用堆内存。这一改变有助于避免由于永久内存不足而导致的内存溢出错误。同时，JDK8中方法区的实现也发生了变化，它现在存在于元空间（Metaspace）中，且元空间与堆内存不再连续，而是存在于本地内存中。
 
-### [Java内存模型](#Return_JavaMemoryModel)<a id="JavaMemoryModel"></a>
+### [Java内存模型（JMM）](#Return_JavaMemoryModel)<a id="JavaMemoryModel"></a>
 
 Java内存模型（`JMM`，Java Memory Model）主要关注的是线程之间如何通信，以及如何确保线程之间共享数据的一致性。
 
@@ -6894,7 +7220,7 @@ Java内存模型（`JMM`，Java Memory Model）主要关注的是线程之间如
 
 `JMM` 把内存分为两块，一块是私有线程的**工作区域**（工作内存），一块是所有线程的**共享区域**（主内存）线程跟线程之间是相互隔离，线程跟线程交互需要通过主内存。
 
-### Java内存模型的特性
+### JMM的特性
 
 为了保证下述特性，Java内存模型采用了一些机制，如happens-before原则，它是一组必须遵守的规则，确保了多线程环境下变量更新的可见性。当一个线程的某个操作发生在另一个线程的操作之前时，就意味着前者对后者有发生的影响。
 
@@ -6914,7 +7240,7 @@ Java内存模型（`JMM`，Java Memory Model）主要关注的是线程之间如
 
 指令重排序是为了优化程序执行效率，编译器和处理器可能会改变语句的执行顺序，只要最终结果与按照原顺序执行的结果相同。虽然大多数情况下这种重排序不会影响单线程程序的正确性，但对于多线程程序来说，就可能会影响程序的正确性。
 
-### Java内存中哪些部分会内存溢出?
+### JMM中哪些部分会内存溢出?
 
 1. **栈内存溢出**：如果请求栈的深度过大而超出了栈所能承受的范围，就会抛出**StackOverflowError**错误。这通常发生在有大量递归调用的情况下。
 2. **堆内存溢出**：当堆内存不足以存放更多的对象时，会发生堆内存溢出。错误信息通常显示为：java.lang.**OutOfMemoryError**: Java heap space。
@@ -6936,7 +7262,7 @@ Java内存模型（`JMM`，Java Memory Model）主要关注的是线程之间如
 
 ## 类加载器
 
-**含义**：通过类的权限定名获取该类的二进制字节流的代码块叫做类加载器。 负责加载class文件，class文件在文件开头有特定的文件标示，并且ClassLoader只负责class文件的加载，至于它是否可以运行，则由Execution Engine决定
+**含义**：通过类的权限定名获取该类的二进制字节流的代码块叫做类加载器。 负责加载class文件，class文件在文件开头有特定的文件标示，并且ClassLoader只负责class文件的加载，至于它是否可以运行，则由Execution Engine决定。
 
 **作用**：在类加载过程中，获取并加载字节码（.class文件），放到内存中，转换成二进制文件（byte[]），并调用虚拟机底层方法将二进制文件转换成方法区和堆中的数据。
 
@@ -7099,7 +7425,7 @@ Java内存模型（`JMM`，Java Memory Model）主要关注的是线程之间如
 
 - **定义**：永久代（PermGen）用于存储类的元数据、常量池等信息。
 - **作用**：在 JDK 6 和 7 中，永久代是用于存储类的元数据的区域。
-- **特性**：永久代的垃圾回收主要是针对常量池中的常量。在 JDK 8 中，永久代被移除了，类的元数据被存储在元空间（Metaspace）中。
+- **特性**：永久代的垃圾回收主要是针对常量池中的常量。在 JDK 8 中，永久代被移除了，类的元数据被存储在元空间中。
 
 **元空间（Metaspace） [JDK 8]**
 
@@ -7142,8 +7468,6 @@ Java内存模型（`JMM`，Java Memory Model）主要关注的是线程之间如
 - **控制晋升到老年代的对象**：通过 `-XX:PretenureSizeThreshold` 控制对象直接晋升到老年代的大小阈值。
 - **设置幸存者区大小**：通过 `-XX:SurvivorRatio` 设置 Eden 区与幸存者区的比例。
 
-
-
 堆分为三部分：
 
 - Young Generation Space  新生代  Young
@@ -7179,7 +7503,6 @@ Java内存模型（`JMM`，Java Memory Model）主要关注的是线程之间如
   Jdk1.8及之后在元空间
   ```
 
-  
 
 判断一个对象是否存活有两种方法:
 
@@ -7194,10 +7517,6 @@ Java内存模型（`JMM`，Java Memory Model）主要关注的是线程之间如
 ```
 该算法的思想是：从一个被称为 GC Roots 的对象开始向下搜索，如果一个对象到 GC Roots 没有任何引用链相连时，则说明此对象不可用。
 ```
-
-
-
-
 
 ## 垃圾回收
 
@@ -7215,7 +7534,7 @@ Java内存模型（`JMM`，Java Memory Model）主要关注的是线程之间如
 
   - **软引用：如果对象被软引用关联，当程序内存不足时会回收。**
 
-    > 在JDK1.2版之后提供了SoftReference类来实现软引l用，软引用常用于缓存中
+    > 在JDK1.2版之后提供了SoftReference类来实现软引用，软引用常用于缓存中。
 
   - **弱引用：和软引用基本一致，区别在于弱引用在垃圾回收时，会被直接回收。**
 
@@ -7295,7 +7614,8 @@ Java内存模型（`JMM`，Java Memory Model）主要关注的是线程之间如
   >
   > 缺点：内存使用效率低。每次只能让一半的内存空间来为创建对象使用。
 
-- 分代垃圾回收（分代GC）
+- **分代垃圾回收（分代GC）**
+  
   1. 将整个内存区域划分为**年轻代**和**老年代**。
   2. 分代回收时，创建出来的对象，首先会被放入Eden伊甸园区。
   3. 随着对象在Eden区越来越多，Eden区满了就会触发年轻代的GC（Minor GC / Young GC），将不需要回收的对象放到To区，新创建的对象继续放到Eden区。
@@ -7487,6 +7807,10 @@ G1的整个堆会被划分成多个大小相等的区域，称之为区Region，
 
 ## 架构设计
 
+###  扫码登录设计原理?
+
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409241739150.png" alt="image-20240924173953948" style="zoom: 60%;" />
+
 ### 在积分模块的设计中是否使用了设计模式？如果有，请具体说明。
 
 ### 你是如何设计积分模块的数据模型的？请分享一下你的设计思路。
@@ -7497,12 +7821,6 @@ G1的整个堆会被划分成多个大小相等的区域，称之为区Region，
 为了使积分规则的定义和修改更加灵活，我设计了一个基于策略模式的规则引擎。具体而言，每个积分规则被封装成一个独立的策略类，继承统一的接口或抽象类，并实现具体的规则逻辑。在系统初始化时，将这些规则策略类注册到规则引擎中。这样，在执行积分结算时，可以根据用户的行为动态选择并应用相应的规则策略。如果后期需要新增或修改规则，只需添加或修改相应的策略类，无需对现有代码进行大规模改动。
 
 此外，如果系统对规则的复杂性要求更高，我会考虑引入Drools等第三方规则引擎，以实现更复杂的条件判断和规则配置，提升系统的灵活性和可扩展性。
-
-### 
-
-
-
-
 
 ### 你提到在项目中使用了异步消息队列，为什么选择这种方式？如何保证消息的可靠传递？
 
@@ -7552,6 +7870,115 @@ G1的整个堆会被划分成多个大小相等的区域，称之为区Region，
 **权限审计**：记录权限分配的历史，便于审核和追踪。
 
 **接口安全**：使用token鉴权来验证请求的合法性。
+
+### 在积分模块与其他模块集成时，如何保证数据的一致性和完整性？
+
+**1. 事务处理**
+
+**本地事务**：
+
+对于单一数据库操作，确保每个操作都在一个事务中完成，以保证原子性、一致性、隔离性和持久性（ACID）。
+
+**分布式事务**：
+
+对于跨数据库或服务的操作，可以使用以下几种分布式事务解决方案：
+
+- **两阶段提交（2PC）**：协调者协调参与者（如数据库）完成事务，分为准备阶段和提交阶段。
+- **三阶段提交（3PC）**：在两阶段提交的基础上增加了预提交阶段，减少了阻塞时间。
+- **TCC（Try-Confirm-Cancel）**：预先预留资源，确认后提交，取消则回滚。
+- **SAGA**：长事务模式，通过一系列短事务来实现长事务的效果，每个短事务都是可补偿的。
+
+**2. 幂等性处理**
+
+**2.1 请求幂等性**
+
+​		确保同一个请求多次执行的结果相同，不会重复执行某些操作，如：
+
+- **唯一标识**：为每个请求分配一个唯一的标识符（如订单号），在处理请求时先检查该标识符是否存在。
+- **状态码**：使用 HTTP 状态码来表示请求的幂等性，如 `201 Created` 表示资源已被创建，后续请求可以直接返回 `200 OK` 而不需要再次创建。
+
+**2.2 消息幂等性**
+
+在消息队列中，确保消息被多次消费时不会重复处理：
+
+- **消息去重**：在消费端记录已处理的消息标识符，避免重复处理。
+- **消息确认机制**：确保消息在处理完成后才确认接收，否则重新投递。
+
+**3. 异步处理与补偿机制**
+
+**3.1 异步处理**
+
+使用消息队列（如 RabbitMQ、Kafka）来异步处理积分模块与其他模块之间的交互，可以提高系统的吞吐量和响应速度。
+
+**3.2 补偿机制**
+
+对于无法保证一致性的操作，设计补偿机制来处理异常情况：
+
+- **补偿事务**：在 SAGA 模式中，每个短事务都有对应的补偿操作。
+- **重试机制**：对于可重试的操作，设置重试策略，并记录重试次数和状态。
+- **死信队列**：对于无法处理的消息，可以发送到死信队列中，后续手动处理或重试。
+
+**4. 数据校验与对账**
+
+**4.1 数据校验**
+
+在操作前后进行数据校验，确保数据的一致性：
+
+- **预检查**：在执行操作前先进行预检查，如检查账户余额是否足够。
+- **后验证**：操作完成后再次验证数据状态，如检查积分是否正确更新。
+
+**4.2 对账机制**
+
+定期对账，确保各个模块之间的数据一致性：
+
+- **定期对账**：设置固定的对账周期，如每日对账。
+- **差异处理**：对账发现差异时，记录差异详情，并进行手动或自动处理。
+
+**5. 事件驱动架构**
+
+**5.1 事件发布与订阅**
+
+采用事件驱动架构，通过发布和订阅机制来实现模块间的解耦：
+
+- **事件发布**：当积分模块发生变动时，发布事件。
+- **事件订阅**：其他模块订阅相关事件，并根据事件内容进行相应处理。
+
+假设你有一个积分模块，需要在用户下单时扣减积分，并通知库存模块扣减库存。以下是一个使用 Spring Boot 和 Spring Data JPA 实现的简单示例：
+
+```java
+@Service
+public class PointsService {
+
+    @Autowired
+    private PointsRepository pointsRepository;
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deductPoints(Long userId, Integer points) {
+        // 1. 查询用户积分
+        Points pointsEntity = pointsRepository.findByUserId(userId);
+
+        // 2. 扣减积分
+        if (pointsEntity.getPoints() >= points) {
+            pointsEntity.setPoints(pointsEntity.getPoints() - points);
+            pointsRepository.save(pointsEntity);
+
+            // 3. 发布事件通知库存模块扣减库存
+            publishInventoryDeductionEvent(userId, points);
+        } else {
+            throw new InsufficientPointsException("Insufficient points.");
+        }
+    }
+
+    private void publishInventoryDeductionEvent(Long userId, Integer points) {
+        // 使用消息队列发布事件
+        InventoryDeductionEvent event = new InventoryDeductionEvent(userId, points);
+        // 假设使用 Spring 的 ApplicationEventPublisher
+        applicationEventPublisher.publishEvent(event);
+    }
+}
+```
+
+在这个示例中，`deductPoints` 方法是一个事务性的方法，确保扣减积分的操作在一个事务中完成。如果积分足够，则扣减积分并发布一个 `InventoryDeductionEvent` 事件，通知库存模块扣减库存。如果积分不足，则抛出异常。
 
 ## 性能优化
 
@@ -7725,11 +8152,97 @@ TODO
 
 # 项目经历：动态线程池组件
 
-## 如何通过Redis进行订阅发布？
+## 项目背景
+
+### 动态线程池组件的核心功能和应用场景？
+
+**核心功能**
+
+1. **动态调整线程数量**：根据当前系统的负载情况，自动增加或减少线程池中的工作线程数量。
+2. **负载监控**：持续监控系统的负载，如CPU利用率、线程池中待处理的任务数量等。
+3. **资源优化**：在低负载时减少线程数量，节约系统资源；在高负载时增加线程数量，提升处理能力。
+4. **异常处理**：当线程池中的线程发生异常时，能够自动恢复或替换线程。
+5. **策略配置**：支持不同的调整策略，如基于时间窗口的平均负载、固定间隔的调整等。
+
+**应用场景**
+
+1. **Web 服务器**：处理来自用户的HTTP请求，特别是在流量波动较大的场景下。
+2. **批处理系统**：在数据处理过程中，根据数据量的大小动态调整处理线程的数量。
+3. **分布式系统**：在分布式环境中，根据节点的状态和负载情况动态调整线程数量。
+4. **微服务架构**：在微服务之间相互调用时，根据服务调用量的变化动态调整线程池大小。
+5. **实时数据分析**：处理实时数据流时，根据数据流的密度动态调整处理能力。
+
+### 为什么需要动态调整线程池的大小？
+
+1. **资源利用率最大化**：在负载较低时减少线程数量，避免资源浪费；在负载较高时增加线程数量，充分利用系统资源。
+2. **提高响应速度**：通过增加线程数量来减少任务队列的等待时间，提高系统的响应速度。
+3. **适应负载变化**：应对不可预测的工作负载变化，使系统能够在不同的负载条件下都能保持较高的性能。
+4. **增强系统稳定性**：在系统面临突发流量时，通过增加线程数量来分散压力，减少系统崩溃的风险。
+
+### 在实现动态线程池的过程中是否使用了设计模式？如果有，请举例说明。
+
+> 本项目中通过Redis实现了观察者模式，所有没有用设计模式，但可以这样说
+
+在实现动态线程池的过程中，可能会使用到以下几种设计模式：
+
+1. **观察者模式（Observer Pattern）**：用于监控系统的负载情况，当负载发生变化时，通知线程池调整线程数量。
+   - **示例**：系统中有一个负载监控器，它可以观察系统负载的变化，并注册为线程池的观察者。当负载变化时，负载监控器会通知线程池调整线程数量。
+2. **工厂模式（Factory Pattern）**：用于创建线程池对象，可以支持多种不同的线程池配置和策略。
+   - **示例**：可以定义一个 `ThreadPoolFactory` 类，根据传入的不同参数（如线程数量、队列大小等）创建不同类型的线程池。
+3. **策略模式（Strategy Pattern）**：用于实现不同的线程池调整策略，可以根据实际需要更换不同的策略。
+   - **示例**：可以定义一个接口 `AdjustmentStrategy`，不同的实现类分别代表不同的调整策略，如基于时间窗口的平均负载策略、基于任务队列长度的策略等。线程池可以根据需要选择不同的策略。
+4. **装饰器模式（Decorator Pattern）**：用于在不改变现有类结构的情况下，动态地给线程池添加新的功能。
+   - **示例**：可以定义一个 `DynamicThreadPoolDecorator` 类，它包裹现有的线程池对象，并在其基础上添加动态调整线程数量的功能。
+
+## 项目实现
+
+### Redis 在该项目中是如何被使用的？它解决了什么问题？
+
+1. Redis作为消息队列，实现了主题的订阅发布，通过这个功能实现了线程池的配置修改。
+2. Redis保证了线程池的故障恢复。项目启动时，组件初始化服务类会去redis里读取线程池的配置，如果redis里没有就注册进去。
+
+### 如何通过Redis进行订阅发布？
 
 项目启动时发布一个主题，通过`RTopic`的`addListener`方法和`publish`方法实现主题的订阅和发布。
 
-## 为什么线程池可以动态调整参数
+### 线程池的实时调整策略是如何实现的？
+
+为了实现线程池的动态调整，我通过Redis的主题订阅功能实现的，也就是让Redis作为一个消息队列。
+
+具体步骤如下：
+
+1. 启动服务时，读取yml文件中的配置消息，得到`RedissonClient`的配置信息，构造一个`RedissonClient`对象；
+
+2. 构造一个topicKey，也就是主题的键，通过`Redisson`的`getTopic`方法的得到一个主题`RTopic`；
+
+3. 通过`RTopic`的`addListener`方法注册监听消息的类型和监听类，监听消息的类型就是线程池的配置参数类；
+
+   ```java
+   @Bean
+   public RTopic threadPoolConfigAdjustListener() {
+       String topicKey = key;
+       RTopic topic = redissonClient.getTopic(topicKey);
+       topic.addListener(ThreadPoolConfigEntity.class, threadPoolConfigAdjustListener);
+       return topic;
+   }
+   ```
+
+4. 在监听类里通过线程池的服务类去修改线程池。
+
+### 组件服务类是如何拿到当前正在运行中的线程池的？
+
+好的，这个组件首先需要其他引入。一个外部项目如果需要使用这个组件，需要使用组件提供的`ThreadPoolConfigEntity`对象，这个对象是我组件所提供的管理线程池的一个类，它可以创建好一个线程池，或者项目也可以自己创建线程池。
+
+1. 外部项目如果需要使用组件来管理线程池，则需要通过在项目启动时通过 `@Bean` 注入线程池，
+
+2. 组件通过Spring的依赖注入在项目启动时，获得通过一个Map对象获得所有通过 `@Bean` 注入的所有线程池。
+3. 构造一个键，将获取的线程池参数写入到Redis中，其中我将`ThreadPoolConfigEntity`类作为每个本地线程池的配置类，这一步是因为从`Redisson`的 `Bucket` 中获取的数据类型时可以通过泛型来保障安全和提高规范化；
+4. 最后，将线程池的Map集合作为参数设到服务类`DynamicThreadPoolService`中去，这样的话，我通过控制层或其他触发器，传递修改参数请求，就可以去修改Redis查询当前线程池的情况。如果我去修改时，可以通过`RTopic`的`publish`方法发布`ThreadPoolConfigEntity`类型的消息，而由于我在组件中之前发布了监听主题，所以这个消息类型会触发对应的监听器，然后就会去运行监听器中的方法，通过组件的服务类去修改线程池的参数。因为组件服务类在服务启动时通过依赖注入已经拿到了外部项目的线程池，所以组件服务类就可以去修改本地的线程池了。
+5. 最后，通过JS代码构建了一个简单的网页控制台，通过刷新查询实时获取线程池的数据，通过表单提交查看线程池参数和修改线程池。
+
+## 动态线程池的原理
+
+### 为什么线程池可以动态调整参数
 
 因为 `ThreadPoolExecutor` 提供了调整线程数量和其他配置的能力。具体来说：
 
@@ -7759,7 +8272,135 @@ protected volatile int maximumPoolSize;
 - **减少核心线程数**：如果新的 `corePoolSize` 小于当前活动线程数，多余的线程将在空闲一段时间后被终止。
 - **调整最大线程数**：当 `maximumPoolSize` 改变时，线程池会根据新的最大值来调整线程的数量。如果当前线程数超过了新的 `maximumPoolSize`，多余的线程会被逐步终止。
 
-## 线程池的扩展逻辑是什么？
+### 在线程池的动态调整过程中，你是如何保证线程安全的？
+
+**使用 `volatile` 修饰符**
+
+`corePoolSize` 和 `maximumPoolSize` 在 `ThreadPoolExecutor` 类中是用 `volatile` 修饰的，这确保了多线程环境下的可见性和有序性。
+
+```java
+protected volatile int corePoolSize;
+protected volatile int maximumPoolSize;
+```
+
+`volatile` 修饰符保证了当这些字段被修改时，其他线程能够看到最新的值，而且不会发生指令重排序。
+
+**使用原子操作**
+
+`ThreadPoolExecutor` 使用了 `ctl` 字段来保存线程池的一些关键状态信息，包括当前活跃线程数、线程池的状态等。这个字段是一个 `long` 类型，通过位操作来保存不同的状态信息。在修改线程池状态时，`ThreadPoolExecutor` 使用了 CAS（Compare and Swap）操作来保证原子性。
+
+```java
+private volatile long ctl;
+```
+
+例如，在创建新线程时，`addWorker` 方法会使用 `compareAndSetWorkerCount` 来更新线程池的当前线程数，这个操作是原子的。
+
+java深色版本
+
+```java
+protected boolean compareAndSetWorkerCount(int expect, int update) {
+    return ctl.compareAndSet(ctlOf(expect), ctlOf(update));
+}
+```
+
+**使用锁**
+
+在一些需要更复杂同步的地方，`ThreadPoolExecutor` 使用了锁来保护共享资源的访问。例如，在 `interruptIdleWorkers` 方法中，当需要中断空闲线程时，会获取 `mainLock` 来保护对 `workers` 集合的操作。
+
+```java
+private void interruptIdleWorkers(boolean onlyOne) {
+    final ReentrantLock mainLock = this.mainLock;
+    mainLock.lock();
+    try {
+        // ...
+    } finally {
+        mainLock.unlock();
+    }
+}
+```
+
+**使用并发集合**
+
+`ThreadPoolExecutor` 使用了 `ConcurrentHashMap` 来管理 `Worker` 对象，这些对象代表了正在工作的线程。通过使用并发集合，`ThreadPoolExecutor` 可以在多线程环境下安全地管理这些线程。
+
+```java
+private final HashMap<Integer, Worker> workers = new HashMap<>();
+```
+
+### 底层原理：核心线程数的动态修改原理
+
+```java
+ public void setCorePoolSize(int corePoolSize) {
+     // 对传入的 corePoolSize 进行校验
+     if (corePoolSize < 0 || maximumPoolSize < corePoolSize)
+         throw new IllegalArgumentException();
+     // 更新当前的核心线程数
+     int delta = corePoolSize - this.corePoolSize;
+     this.corePoolSize = corePoolSize;
+     // 如果新的 corePoolSize 小于当前的核心线程数，那么需要中断那些处于空闲状态的线程
+     if (workerCountOf(ctl.get()) > corePoolSize)
+         interruptIdleWorkers();
+     // 如果新的 corePoolSize 大于当前的核心线程数，并且任务队列中有任务等待执行，那么需要预启动一些新的线程来处理这些任务
+     else if (delta > 0) {
+         int k = Math.min(delta, workQueue.size());
+         while (k-- > 0 && addWorker(null, true)) {
+             if (workQueue.isEmpty())
+                 break;
+         }
+     }
+ }
+```
+
+### 底层原理：最大线程数的动态修改原理
+
+```java
+public void setMaximumPoolSize(int maximumPoolSize) {
+    // 对传入的 maximumPoolSize 进行校验
+    if (maximumPoolSize <= 0 || maximumPoolSize < corePoolSize)
+        throw new IllegalArgumentException();
+    // 更新当前的最大线程数
+    this.maximumPoolSize = maximumPoolSize;
+    // 如果新的 maximumPoolSize 小于当前的最大线程数，并且当前活动线程数大于新的 maximumPoolSize，则需要中断那些处于空闲状态的线程
+    if (workerCountOf(ctl.get()) > maximumPoolSize)
+        interruptIdleWorkers();
+}
+```
+
+### 底层原理：线程池状态`ctl`
+
+```java
+private final AtomicInteger ctl = new AtomicInteger(ctlOf(RUNNING, 0));
+private static final int COUNT_BITS = Integer.SIZE - 3;
+private static final int COUNT_MASK = (1 << COUNT_BITS) - 1;
+
+// runState存储在高位
+private static final int RUNNING    = -1 << COUNT_BITS;
+private static final int SHUTDOWN   =  0 << COUNT_BITS;
+private static final int STOP       =  1 << COUNT_BITS;
+private static final int TIDYING    =  2 << COUNT_BITS;
+private static final int TERMINATED =  3 << COUNT_BITS;
+
+// 打包和解包ctl
+private static int runStateOf(int c)     { return c & ~COUNT_MASK; }
+private static int workerCountOf(int c)  { return c & COUNT_MASK; }
+private static int ctlOf(int rs, int wc) { return rs | wc; }
+```
+
+#### `workerCountOf` 方法
+
+`workerCountOf` 方法是从 `ctl` 字段中提取当前活动线程的数量。`ctl` 字段是一个 `volatile long` 类型的变量，包含了线程池的一些状态信息，包括当前活动线程的数量。
+
+`ctl` 的高几位表示线程池的状态信息，而低几位表示当前活动线程的数量。具体来说，`ctl` 的低 3 位（0-2）表示当前活动线程的数量。
+
+#### `interruptIdleWorkers` 方法
+
+`interruptIdleWorkers` 方法用来中断那些处于空闲状态的线程。该方法遍历所有工作线程，并中断那些处于空闲状态的线程。如果当前活动线程数仍然大于新的最大线程数，则会再次检查并中断空闲线程。
+
+## JMX
+
+### 线程池的监控指标体系是如何设计的？如何确保这些指标的准确性和及时性？
+
+### 你是如何使用 JMX 进行线程池监控的？具体有哪些指标？
 
 我希望通过获取系统当前的运行情况来判断，是否需要修改线程池。
 
@@ -7767,145 +8408,265 @@ protected volatile int maximumPoolSize;
 
 我利用CPU占用率、堆的使用情况，来调整线程池的核心线程数和最大线程数
 
-监控部分我是这样做的：
+### 线程池的动态扩展逻辑是如何实现的？
+
+监控功能的实现我是这样做的：
+
+**使用一个 SystemMonitor 类实现 Runnable 接口重写run方法，让它在死循环里每个10秒获取一次系统运行信息，如果出现例如CPU飙高或堆占用过高，则实施线程池调整策略，把核心线程数和最大线程数调高；反之，如果系统资源占用较低，则调低线程池的配置**
+
+### 在开发过程中，是否进行了性能测试？如何模拟真实场景进行测试？
+
+我通过一个Runnable的实现类模拟了一个线程的任务执行流程，然后在Applicaion启动类中通过`applicationRunner`方法返回参数args，在Application类启动时执行这个方法中的死循环来模拟不停地提交任务。
 
 ```java
-使用一个 SystemMonitor 类实现 Runnable 接口重写run方法，让它在死循环里每个10秒获取一次系统运行信息，如果出现例如CPU飙高或堆占用过高，则实施线程池调整策略，把核心线程数和最大线程数调高；反之，如果系统资源占用较低，则调低线程池的配置
+@Bean
+public ApplicationRunner applicationRunner() {
+    return args -> {
+        // 启动系统监控线程，只需要启动一次
+        Thread monitorThread = new Thread(new SystemMonitor(25,10));
+        monitorThread.setDaemon(true); // 设置为守护线程，主程序退出时监控线程自动结束
+        monitorThread.start();
+
+        // 创建并运行线程池任务，不需要每次循环重新启动监控线程
+        while (true) {
+            ThreadPoolSimulation threadPoolSimulation = new ThreadPoolSimulation(taskId.getAndIncrement());
+            tpe_01.submit(threadPoolSimulation);
+            try {
+                Thread.sleep(new Random().nextInt(500) + 1); // 模拟提交任务的时间间隔
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("主线程中断！");
+            }
+        }
+    };
+}
 ```
 
-## 那你是如何实施线程池调整策略的呢？
+其中，主线程是在死循环中不停地去向线程池提交任务，还有一个子线程我是将其设置为了守护线程去检测系统状态。过程中，子线程通过JMX可以实时地获取的系统信息，并通过系统的信息来动态调整线程池的配置。
 
-为了实现线程池的动态调整，我通过Redis的主题订阅功能实现的，也就是让Redis作为一个消息队列。
+### 如何设计日志记录机制，确保在出现问题时能够快速定位原因？
 
-具体步骤如下：
+> 这不是本项目应该去做的，但是如果问到了可以这样回答
 
-1. 启动服务时，读取yml文件中的配置消息，得到`RedissonClient`的配置信息，构造一个`RedissonClient`对象；
+**1. 日志格式**
 
-2. 构造一个topicKey，也就是主题的键，通过`Redisson`的`getTopic`方法的得到一个主题`RTopic`；
+统一的日志格式有助于快速解析和分析日志：
 
-3. 通过`RTopic`的`addListener`方法注册监听消息的类型和监听类，监听消息的类型就是线程池的配置参数类；
+- **时间戳**：记录日志产生的精确时间。
+- **日志级别**：明确指出该条日志的重要性。
+- **线程 ID**：帮助追踪特定线程的行为。
+- **消息**：描述发生了什么，以及任何必要的上下文信息。
+- **异常堆栈跟踪**：如果有的话，记录完整的异常堆栈跟踪信息。
 
-   ```java
-   @Bean
-   public RTopic threadPoolConfigAdjustListener() {
-       String topicKey = key;
-       RTopic topic = redissonClient.getTopic(topicKey);
-       topic.addListener(ThreadPoolConfigEntity.class, threadPoolConfigAdjustListener);
-       return topic;
-   }
-   ```
+示例日志格式：
 
-4. 在监听类里通过线程池的服务类去修改线程池。
+```
+2024-09-21 17:30:00 [INFO] [Thread-1] - Request received for /api/v1/users
+2024-09-21 17:30:01 [ERROR] [Thread-2] - Exception occurred while processing request /api/v1/data: java.lang.NullPointerException
+```
 
-## 那你的组件服务类是如何拿到当前正在运行中的线程池的呢？
+**2. 日志聚合与索引**
 
-好的，这个组件首先需要其他引入。一个外部项目如果需要使用这个组件，需要使用组件提供的`ThreadPoolConfigEntity`对象，这个对象是我组件所提供的管理线程池的一个类，它可以创建好一个线程池，或者项目也可以自己创建线程池。
+使用日志聚合工具（如 ELK Stack、Graylog、Splunk 等）来集中管理所有日志信息，并建立索引以便快速搜索：
 
-1. 外部项目如果需要使用组件来管理线程池，则需要通过在项目启动时通过 `@Bean` 注入线程池，
+- **集中存储**：所有日志信息存储在一个地方，便于统一管理。
+- **全文搜索**：支持全文搜索功能，帮助快速找到相关信息。
+- **图表展示**：提供图表展示功能，可以直观地了解日志趋势。
 
-2. 组件通过Spring的依赖注入在项目启动时，获得通过一个Map对象获得所有通过 `@Bean` 注入的所有线程池。
-3. 构造一个键，将获取的线程池参数写入到Redis中，其中我将`ThreadPoolConfigEntity`类作为每个本地线程池的配置类，这一步是因为从`Redisson`的 `Bucket` 中获取的数据类型时可以通过泛型来保障安全和提高规范化；
-4. 最后，将线程池的Map集合作为参数设到服务类`DynamicThreadPoolService`中去，这样的话，我通过控制层或其他触发器，传递修改参数请求，就可以去修改Redis查询当前线程池的情况。如果我去修改时，可以通过`RTopic`的`publish`方法发布`ThreadPoolConfigEntity`类型的消息，而由于我在组件中之前发布了监听主题，所以这个消息类型会触发对应的监听器，然后就会去运行监听器中的方法，通过组件的服务类去修改线程池的参数。因为组件服务类在服务启动时通过依赖注入已经拿到了外部项目的线程池，所以组件服务类就可以去修改本地的线程池了。
-5. 最后，通过JS代码构建了一个简单的控制台，通过刷新查询实时获取线程池的数据，通过表单提交查看线程池参数和修改线程池。
+**3. 日志分析**
 
+利用日志分析工具（如 Kibana、Grafana 等）进行日志分析，发现潜在的问题：
 
+- **趋势分析**：查看日志随时间的趋势变化。
+- **异常检测**：自动检测异常行为，并产生告警。
+- **性能分析**：分析性能瓶颈，找出影响系统性能的因素。
 
+### 如何设计监控系统，确保线程池的健康状况能够实时监控并及时告警？
 
+**1. 收集监控数据**
 
+首先，需要确定要收集哪些监控数据。对于线程池来说，以下是一些关键的监控指标：
 
+- **活动线程数 (activeCount)**：当前正在执行任务的线程数量。
+- **线程池大小 (poolSize)**：当前线程池中的线程总数。
+- **队列长度 (queueLength)**：等待处理的任务队列长度。
+- **任务完成数 (completedTaskCount)**：已完成的任务数量。
+- **拒绝策略执行次数**：当任务被拒绝时的次数。
+- **线程存活时间 (keepAliveTime)**：非核心线程在空闲状态下存活的时间。
+- **线程池状态 (threadPoolState)**：线程池的当前状态（如运行中、关闭中等）。
 
-1. **基础问题**
-   - 请描述一下动态线程池组件的核心功能和应用场景？
-   - 为什么需要动态调整线程池的大小？
-2. **技术实现**
-   - 你是如何实现实时调整线程池配置的？
-   - 在线程池的动态调整过程中，你是如何保证线程安全的？
-3. **设计模式**
-   - 在实现动态线程池的过程中是否使用了设计模式？如果有，请举例说明。
-4. **性能优化**
-   - 在高并发环境下，动态线程池是如何保证系统的稳定性的？
-   - 是否有进行性能测试？如果有，可以分享一下测试结果和优化过程吗？
-5. **故障排除**
-   - 在开发过程中，有没有遇到过因线程池配置不当导致的问题？如果有，是如何解决的？
-6. **工具使用**
-   - 在项目中，你是如何使用 JMX 进行线程池监控的？具体有哪些指标？
-   - Redis 在该项目中是如何被使用的？它解决了什么问题？
+**2. 选择监控工具和技术**
 
-#### 进阶问题
+Java Management Extensions (JMX)
 
-1. **系统设计**
-   - 你是如何设计线程池的监控指标体系的？如何确保这些指标的准确性和及时性？
-2. **安全性**
-   - 在线程池组件中是否存在潜在的安全隐患？你是如何防范的？
-3. **扩展性**
-   - 如果系统负载变化很大，动态线程池组件需要做哪些改进来保证可扩展性？
-4. **第三方服务**
-   - 在使用 Redis 作为注册中心时，你是如何设计订阅发布机制的？
-5. **部署与运维**
-   - 在部署过程中，你是如何确保线程池组件的平滑迁移和无中断升级？
-6. **性能瓶颈**
-   - 在开发过程中，是否有发现性能瓶颈？你是如何识别并解决这些问题的？
+- **MBeans**：使用 `ThreadPoolExecutor` 的 MBeans 来暴露上述监控指标。
+- **JMX 客户端**：可以使用 JConsole 或 VisualVM 这样的工具来查看这些指标。
 
-#### 极端案例
+日志记录
 
-1. **极端情况**
-   - 如果在生产环境中突然出现大量的请求导致线程池崩溃，你会如何快速定位问题并恢复服务？
-2. **容错机制**
-   - 线程池组件是否有容错机制？如何在出现故障时保证服务的连续性和数据一致性？
+- **日志级别**：通过设置不同的日志级别（如 INFO、WARN、ERROR），记录线程池的关键事件。
+- **日志框架**：使用如 Logback、Log4j 等日志框架来记录线程池的日志。
 
-#### 极端情况与容错机制
+应用性能监控 (APM)
 
-1. **系统压力**
-   - 在极端情况下，当系统压力过大导致线程池无法正常工作时，你将如何快速诊断并解决问题？
-2. **监控与报警**
-   - 如何设置有效的监控和报警机制来预防潜在的系统问题？
-3. **系统重启**
-   - 如果系统需要重启，线程池的状态如何保存和恢复？
+- **APM 工具**：如 New Relic、Datadog、Prometheus 等，可以用来监控应用程序的整体性能，包括线程池的运行状况。
 
-#### 架构设计
+**3. 设置告警规则**
 
-1. **高可用性**
-   - 如何设计线程池组件以提高其高可用性？考虑多机房部署和容灾切换。
-2. **云原生**
-   - 如果将此线程池组件部署在云原生环境下（如 Kubernetes），你将如何调整其设计？
-3. **设计模式**
-   - 在积分模块的设计过程中，是否使用了诸如观察者模式、工厂模式等设计模式？请举例说明。
-4. **服务接口设计**
-   - 在设计积分模块的服务接口时，如何确保接口的安全性和易用性？是否使用了 Swagger 进行 API 文档化？
-5. **事务管理**
-   - 积分模块涉及到数据库操作时，如何管理和保证事务的一致性？
-6. **系统集成**
-   - 在积分模块与其他模块集成时，如何保证数据的一致性和完整性？
-7. **可插拔性**
-   - 如何设计线程池组件，使其能够支持多种不同的线程池策略？
-8. **模块化**
-   - 如果需要将线程池组件作为独立的模块，如何设计其接口，确保其他服务可以方便地集成？
-9. **可维护性**
-   - 在设计动态线程池组件时，如何提高代码的可维护性和可读性？
+根据业务需求和系统容量，设置合理的阈值来触发告警。例如：
 
-#### 性能与优化
+- 当活动线程数超过某个阈值时。
+- 当任务队列长度超过一定长度时。
+- 当线程池拒绝任务的频率上升时。
 
-1. **性能测试**
-   - 在开发过程中，是否进行了性能测试？如何模拟真实场景进行测试？
-2. **缓存策略**
-   - 如何利用 Redis 进行缓存策略设计，提高系统的响应速度？
-3. **异步处理**
-   - 在积分结算等场景中，是否采用了异步处理机制？如果采用了 RabbitMQ，具体是如何设计消息队列的？
-4. **性能瓶颈**
-   - 在开发过程中，如何发现和解决性能瓶颈？
-5. **负载均衡**
-   - 在高并发场景下，如何实现负载均衡来优化资源使用？
-6. **资源管理**
-   - 如何管理线程池中的资源，避免资源耗尽导致系统崩溃？
+**4. 实现告警逻辑**
 
-#### 安全与隐私
+告警发送
 
-1. **安全性**
-   - 如何确保线程池组件的安全性，防止恶意攻击或滥用？
-2. **监控与告警**
-   - 如何设计监控系统，确保线程池的健康状况能够实时监控并及时告警？
-3. **日志记录**
-   - 如何设计日志记录机制，确保在出现问题时能够快速定位原因？
+- **邮件/短信通知**：当达到预设的阈值时，通过邮件或短信的方式通知相关人员。
+- **Webhook**：可以设置 Webhook 与第三方服务（如 PagerDuty、Opsgenie）集成，自动触发告警流程。
+
+自动化响应
+
+- **自动化脚本**：编写自动化脚本来响应告警，例如自动扩容、重启服务等。
+- **CI/CD 流水线**：集成到 CI/CD 流水线中，当检测到问题时自动触发修复流程。
+
+**5. 可视化仪表板**
+
+使用可视化工具（如 Grafana、Kibana）来展示监控数据，帮助运维人员更容易地理解系统的运行状态。
+
+**6. 定期审核与优化**
+
+定期审查监控数据，根据实际运行情况调整监控阈值和告警策略，持续优化监控系统。
+
+### 如果系统需要重启，线程池的状态如何保存和恢复？
+
+用redis来保证。项目启动时，组件会去redis里读取线程池的配置，如果redis里没有就注册进去
+
+## 性能优化
+
+### 如果系统负载变化很大，动态线程池组件需要做哪些改进来保证可扩展性？
+
+> 这不是本项目应该去做的，但是如果问到了可以这样回答
+
+**异步和非阻塞处理**
+
+- **异步处理**：引入异步处理机制，将一些耗时较长的任务放入异步执行，从而减少主线程的等待时间，提高整体处理能力。
+
+- **非阻塞 I/O**：使用 NIO 或 AIO 等非阻塞 I/O 技术，减少 I/O 操作带来的阻塞时间，使得每个线程能够处理更多的请求。
+
+**弹性伸缩**
+
+- **云服务集成**：利用云平台提供的弹性伸缩服务（如 AWS Auto Scaling、Kubernetes Horizontal Pod Autoscaler），根据实际需求动态增减计算资源。
+
+**缓存机制**
+
+- **缓存策略**：合理使用缓存来减轻后端数据库的压力，减少重复计算，加快响应速度。
+
+**测试与验证**
+
+- **负载测试**：定期进行负载测试，验证线程池的调整策略是否有效，并根据测试结果调整策略。
+
+- **A/B 测试**：在生产环境中使用 A/B 测试来评估新策略的效果，确保新的调整不会带来负面影响。
+
+通过上述改进措施，动态线程池组件可以在面对大范围的负载变化时，保持良好的可扩展性和稳定性。
+
+### 在极端情况下，当系统压力过大导致线程池无法正常工作时，你将如何快速诊断并解决问题？
+
+### 如果在生产环境中突然出现大量的请求导致线程池崩溃，你会如何快速定位问题并恢复服务？
+
+**1. 快速响应与初步诊断**
+
+- **检查告警系统，确认问题**：查看是否有相关的告警信息，如 CPU 使用率过高、内存溢出、线程池拒绝策略被触发等。
+- **查看应用日志**：查找最近的日志条目，特别关注错误级别和警告级别的日志，寻找异常信息。
+
+- **查看系统日志**：查看操作系统日志，了解是否有系统层面的问题，如磁盘空间不足、网络故障等。
+
+**2. 分析问题根源**
+
+- **检查线程池配置**：确认线程池的最大线程数、核心线程数、队列大小等配置是否合理。
+
+- **业务高峰期**：如果是由于业务高峰期导致的，分析是否可以提前准备资源，如增加服务器或扩展线程池大小。
+- **异常请求**：检查是否有异常请求导致了大量的任务积压，如有必要，可以临时禁用或限流这些请求。
+
+- **性能瓶颈**：分析是否存在性能瓶颈，如数据库查询慢、外部服务响应慢等问题。
+- **资源限制**：检查是否存在资源限制，如 JVM 的内存设置不合理导致 OOM。
+
+**3. 采取紧急措施**
+
+- **横向扩展**：增加更多的服务器或实例来分担负载。
+- **纵向扩展**：增加单个服务器的资源，如内存、CPU 等。
+
+- **增加线程数**：根据监控数据和系统资源情况，适当增加线程池的最大线程数。
+- **调整队列大小**：根据业务需求调整队列的大小，确保既能处理大量请求又不至于消耗过多资源。
+
+- **客户端限流**：在客户端实施限流措施，减少请求频率。
+
+- **服务端限流**：在服务端实现限流逻辑，如使用令牌桶算法或漏桶算法。
+
+**4. 长期解决方案**
+
+- **优化性能**：针对性能瓶颈进行代码优化，如减少不必要的数据库查询、优化数据结构等。
+- **异常处理**：加强异常处理逻辑，避免异常导致的资源泄露或无限循环等问题。
+
+- **自动化监控**：建立更完善的监控体系，自动监控系统各项指标。
+- **告警策略**：完善告警策略，确保在出现问题时能够及时通知相关人员。
+
+- **定期审查**：定期审查系统配置和性能指标，确保系统处于最佳状态。
+- **负载测试**：定期进行负载测试，模拟高峰时期的流量，验证系统的稳定性和可扩展性。
+
+### 线程池组件是否有容错机制？如何在出现故障时保证服务的连续性和数据一致性？
+
+**1. 容错机制**
+
+- 拒绝策略：在线程池满员时决定如何处理新的任务请求。
+
+- 重试机制：对于一些可以重试的任务，可以在任务执行失败时进行重试。
+
+- 超时处理：当任务执行时间超过预设的超时时长，可以采取相应的措施，如终止任务、记录日志或抛出异常。
+
+**2. 服务连续性**
+
+- 水平扩展：增加更多的实例来分散请求，减轻单个实例的负载压力
+
+- 异步处理：采用异步处理一些耗时较长的任务，将其放入MQ中处理。
+
+**3. 数据一致性**
+
+- 事务管理：使用事务管理来保证数据的一致性。要么全部成功，要么全部回滚。
+
+- 数据库连接池：使用DB连接池来管理数据库连接。
+
+- 分布式事务：对于跨服务的操作，可以使用分布式事务（如两阶段提交、三阶段提交）来保证数据一致性。
+
+- 消息队列保证：使用 RabbitMQ 的持久化消息、确认机制等来保证消息不丢失。
+
+### 在高并发场景下，如何实现负载均衡来优化资源使用？
+
+> 考察的是对负载均衡算法的理解
+
+**优化负载均衡算法**
+
+负载均衡器可以根据不同的算法来分配请求到后端服务器：
+
+- **轮询 (Round Robin)**：按顺序将请求分发给后端服务器。
+- **最少连接 (Least Connections)**：将请求分发给当前连接数最少的服务器。
+- **IP 哈希 (IP Hash)**：根据客户端 IP 地址哈希值来分发请求，使得来自同一个客户端的请求尽量分配到同一台服务器。
+- **URL 哈希 (URL Hash)**：根据请求 URL 的哈希值来分发请求。
+- **加权轮询 (Weighted Round Robin)**：根据服务器的能力赋予不同的权重，权重高的服务器获得更多的请求。
+
+**异步处理**
+
+- **异步任务处理**：对于耗时较长的任务，可以使用消息队列（如 RabbitMQ、Kafka）来异步处理，减轻主服务器的压力。
+
+**数据库读写分离**
+
+- **读写分离**：将数据库的读操作和写操作分离，使用不同的数据库实例来处理，提高数据库的并发处理能力。
+
+**缓存策略**
+
+- **本地缓存**：使用本地缓存（如 Ehcache、Caffeine）来减少对后端数据库的访问。
+- **分布式缓存**：使用分布式缓存系统（如 Redis、Memcached）来存储热点数据，减轻后端服务器的负载。
 
 # ---------------------------------------
 
@@ -7919,22 +8680,22 @@ protected volatile int maximumPoolSize;
 
 1. 服务端使用 `ServerSocket` 监听指定端口,等待客户端连接请求。
 2. 当有新的客户端连接请求到达时,服务端创建一个新的线程来处理该连接。
-3. 每个处理线程使用 `Socket` 对象与客户端进行通信,读取客户端发送的数据并处理。
-4. 为了优化性能,我使用了线程池来管理这些处理线程,避免频繁创建和销毁线程带来的开销。
-5. 处理完成后,线程将结果通过输出流返回给客户端,然后销毁。
+3. 每个处理线程使用 `Socket` 对象与客户端进行通信，读取客户端发送的数据并处理。
+4. 为了优化性能，我使用了线程池来管理这些处理线程，避免频繁创建和销毁线程带来的开销。
+5. 处理完成后，线程将结果通过输出流返回给客户端，然后销毁。
 
-这种一请求一线程的模型虽然简单,但在高并发情况下可能会遇到性能瓶颈,因为每个客户端连接都需要一个独立的线程。在未来的版本中,我计划使用 NIO 或 AIO 模型来提高并发性能。
+这种一请求一线程的模型虽然简单,但在高并发情况下可能会遇到性能瓶颈，因为每个客户端连接都需要一个独立的线程。在未来的版本中,我计划使用 NIO 或 AIO 模型来提高并发性能。
 
 ### 预写日志
 
 预写日志的实现是通过在执行任何数据修改操作之前,先将操作记录到日志文件中。具体实现如下:
 
-1. 使用 `FileOutputStream` 打开日志文件,以追加模式写入。
-2. 在执行插入或更新操作时,先将操作序列化并写入日志。
-3. 只有在日志写入成功后,才执行实际的数据库操作。
-4. 在系统启动时,先读取日志文件中的所有操作,重放到数据库中,以确保数据一致性。
+1. 使用 `FileOutputStream` 打开日志文件，以追加模式写入。
+2. 在执行插入或更新操作时，先将操作序列化并写入日志。
+3. 只有在日志写入成功后，才执行实际的数据库操作。
+4. 在系统启动时，先读取日志文件中的所有操作，重放到数据库中,以确保数据一致性。
 
-这种预写日志的机制确保了即使在系统崩溃时,也可以通过重放日志来恢复到最后一致的状态。
+这种预写日志的机制确保了即使在系统崩溃时，也可以通过重放日志来恢复到最后一致的状态。
 
 ### SQL 解析
 
@@ -7942,22 +8703,22 @@ protected volatile int maximumPoolSize;
 
 1. 定义几个正则表达式来匹配 `SELECT`、`INSERT` 和 `UPDATE` 语句。
 2. 使用正则表达式将 SQL 语句拆分为关键字、表名和字段名。
-3. 将这些信息存储在一个数据结构中,以便后续处理。
-4. 根据解析结果,调用相应的数据库操作方法来执行 SQL 语句。
+3. 将这些信息存储在一个数据结构中，以便后续处理。
+4. 根据解析结果，调用相应的数据库操作方法来执行 SQL 语句。
 
 虽然这个 SQL 解析器功能相对简单,但已经能够处理基本的查询和数据操作。在未来的版本中,我计划扩展它的功能,支持更复杂的 SQL 语句。
 
 ### 事务管理
 
-在事务管理方面,mbdb 实现了两阶段锁协议和 MVCC。具体实现如下:
+在事务管理方面，mbdb 实现了两阶段锁协议和 MVCC。具体实现如下:
 
-1. 在事务开始时,获取所有需要的锁。
-2. 在事务结束时,释放所有获取的锁。
+1. 在事务开始时，获取所有需要的锁。
+2. 在事务结束时，释放所有获取的锁。
 3. 使用 `ConcurrentHashMap` 存储每个数据项的版本信息。
-4. 在读操作时,根据事务开始时间获取最新版本的数据。
-5. 在写操作时,创建一个新的数据版本,并更新版本号。
+4. 在读操作时，根据事务开始时间获取最新版本的数据。
+5. 在写操作时，创建一个新的数据版本,并更新版本号。
 
-这种机制确保了事务的可串行化,并消除了读写操作之间的阻塞。mbdb 提供了两种事务隔离级别:读提交和可重复读。
+这种机制确保了事务的可串行化,并消除了读写操作之间的阻塞。mbdb 提供了两种事务隔离级别：读提交和可重复读。
 
 ### 索引结构
 
@@ -8061,6 +8822,8 @@ B+ 树索引的优点在于它能够保持数据的有序性,并且在查找和�
 
 ​		缓存的基本结构的设计：
 
+​		TODO
+
 ### 执行器、优化器
 
 1. 每条语句会经历三个阶段：
@@ -8077,7 +8840,7 @@ B+ 树索引的优点在于它能够保持数据的有序性,并且在查找和�
 1. **复杂的SQL语法：** 即使是简单的SQL语法，也可能包含嵌套查询、别名、函数等复杂的元素，这些都会增加解析器的复杂性。
 2. **错误处理：** 在解析过程中如何识别并报告语法错误是一个难点，必须设计一个健壮的错误处理机制，以便用户能够及时发现并纠正SQL语句中的错误。
 
-## 数据库记录的设计
+## 记录的设计
 
 数据库中记录的单位是由接口`DataItem`和实现类`DataItemImpl`来实现的。`DataItemImpl`实现了对记录的操作。
 
@@ -8258,21 +9021,32 @@ TODO
      - 如果是插入的数据，则通过数据管理器，将偏移量后面的字节流数据标记为invalid；
      - 如果是更新的数据，则通过数据管理器，将字节流设为修改前的字节流，然后将到字节流写入到偏移量的后面。
 
+### 数据库在故障重启后什么情况下会做重做日志？什么情况下会做回滚日志？
+
+#### 何时使用重做日志？
+
+- **系统崩溃后的恢复**：如果某个事务已经提交，但是它的**修改还没有完全写入磁盘**，那么在系统重启后会通过重做日志来重新执行这些事务的修改操作。
+
+#### 何时使用回滚日志？
+
+- **事务回滚**：当一个事务因为某种原因（如遇到错误、用户手动回滚等）需要回滚时，数据库管理系统会使用回滚日志来撤销该事务所做的修改，将数据库恢复到事务开始前的状态。
+- **多版本并发控制（MVCC）**：在支持多版本并发控制的数据库系统（如MySQL的InnoDB存储引擎）中，回滚日志还可以用于实现读取一致性视图，允许多个事务同时读取同一份数据的不同版本。
+
+> #### 重做日志的例子
+>
+> 假设事务 T1 修改了某一行数据，然后提交。如果在 T1 提交之后但其数据还未完全写入磁盘之前系统崩溃，那么在重启后，数据库管理系统会读取重做日志文件，找到 T1 的记录，并重新执行 T1 的修改操作，以确保事务 T1 的持久性。
+>
+> #### 回滚日志的例子
+>
+> 假设事务 T2 开始后修改了某一行数据，但在提交之前遇到了错误需要回滚。这时，数据库管理系统会读取回滚日志文件，找到 T2 修改前的数据状态，并将数据恢复到修改前的状态。
+
 ### 如何设计数据恢复机制，确保数据在意外中断后仍能正确恢复？
 
 ### 数据库是否有容错机制？如何在出现故障时保证服务的连续性和数据一致性？
 
 TODO
 
-## 版本控制的实现与设计
-
-在介绍 MVCC 之前，首先明确**记录**和**版本**的概念。
-
-DM 层向上层提供了数据项（Data Item）的概念，VM 通过管理所有的数据项，向上层提供了记录（Entry）的概念。
-
-上层模块通过 VM 操作数据的最小单位，就是记录。VM 则在其内部，为每个记录，维护了多个版本（Version）。每当上层模块对某个记录进行修改时，VM 就会为这个记录创建一个新的版本。
-
-### 事务的设计与处理
+## 事务的设计与处理
 
 事务类，由版本控制器调用，每个事务对应一个Transaction对象
 
@@ -8331,19 +9105,57 @@ private RandomAccessFile file;
 private FileChannel fc;
 ```
 
-
-
 ### 在事务处理中，你是如何实现事务的ACID特性的？
 
-TODO
+**原子性（Atomicity）**：通过2PL和MVCC确保原子性，还通过redo log确保事务的修改可以被重做。
 
+**一致性（Consistency）**：在事务开始时检查事务是否满足一致性要求，即是否违反了数据库的完整性约束（如唯一性约束、外键约束等），并在整个事务执行过程中维持这些约束。
 
+**隔离性（Isolation）**：通过多种隔离级别MVCC来实现。
+
+**持久性（Durability）**：通过文件编程写入，如果在写入过程中系统发生崩溃，则通过使用redo log和checkpoint机制。
 
 ### 在实现事务支持时，如何处理事务的提交和回滚？
 
-TODO
+提交（Commit）：当事务成功完成其所有操作并且决定提交时，需要将事务的更改永久地应用到数据库中。
 
-### 实现MVCC
+- 实现方法：
+  - 将事务的状态从 `FIELD_TRAN_ACTIVE` 修改为 `FIELD_TRAN_COMMITTED`。
+  - 更新事务相关的数据结构（如版本链表、锁等）。
+  - 清理不再需要的旧版本。
+  - 如果使用了日志机制，确保所有相关的日志都已经持久化。
+
+回滚（Rollback）：当事务执行过程中发生错误或决定不提交时，需要撤销事务所做的所有更改，使数据库恢复到事务开始前的状态。
+
+- 实现方法：
+  - 将事务的状态从 `FIELD_TRAN_ACTIVE` 修改为 `FIELD_TRAN_ABORTED`。
+  - 释放事务持有的所有锁。
+  - 如果使用了 MVCC，清理事务的快照。
+  - 如果使用了日志机制，确保所有相关的日志都被正确处理。
+  - 清理临时数据结构。
+
+### 数据库故障重启，应该先做redo log还是先做undo log？
+
+先处理重做日志（Redo Log），然后再处理回滚日志（Undo Log）。因为在故障恢复过程中，需要确保已经提交的事务的持久性（Durability），并且回滚未提交的事务。
+
+### 如何避免 Undo Log 覆盖 Redo Log 的操作
+
+1. **区分已提交和未提交的事务**：
+   - 在读取 Redo Log 记录时，会检查事务的状态。**只有已提交的事务才会被重做。**
+   - 在读取 Undo Log 记录时，会检查事务的状态。**只有未提交的事务才会被回滚。**
+2. **事务的版本控制**：
+   - 使用MVCC机制，通过事务的版本号区分不同事务的操作。在 MVCC 中，每个数据项都有一个版本号，记录了创建该版本的事务 ID 和版本的有效时间范围。
+   - 在恢复过程中，通过版本号来确定哪些版本是有效的，哪些版本需要被回滚。
+
+## 版本控制的实现与设计
+
+在介绍 MVCC 之前，首先明确**记录**和**版本**的概念。
+
+DM 层向上层提供了数据项（Data Item）的概念，VM 通过管理所有的数据项，向上层提供了记录（Entry）的概念。
+
+上层模块通过 VM 操作数据的最小单位，就是记录。VM 则在其内部，为每个记录，维护了多个版本（Version）。每当上层模块对某个记录进行修改时，VM 就会为这个记录创建一个新的版本。
+
+### 版本控制器的设计
 
 隔离级别的实现方式是通过**版本控制器**创建**版本**，每个版本根据事务的隔离级别在事务的生命周期中创建。
 
@@ -8355,7 +9167,7 @@ VM向上层抽象出entry，entry结构：
 [data]: 数据
 ```
 
-#### 读已提交
+### 读已提交
 
 事务在读取数据时，只能读取已经提交事务产生的数据。如果一个记录的最新版本被另一个事务加锁，当另一个事务想要读取这条记录时，它将读取该记录的上一个已提交版本。最新的被加锁的版本，对于另一个事务来说，是不可见的。
 
@@ -8368,29 +9180,22 @@ XMAX：删除该版本的事务编号，在版本被删除、有新版本出现�
 
 XMAX 这个变量解释了为什么 DM 层不提供删除操作，当想删除一个版本时，只需要设置 XMAX 就行了，这样的话这个版本对每一个 XMAX 之后的事务都是不可见的，也就等价于删除了。
 
-#### 可重复读
+### 可重复读
 
 不可重复度，如果一个事务在两次读取同一数据项之间，另一个事务对该数据项进行了更新并提交，那么第一次读取和第二次读取可能会得到不同的结果。
 
 为了避免这种情况，我们可以规定：事务只能读取它开始时, 就已经结束的那些事务产生的数据版本，即通过版本管理器，一个事务只能读取到与自己的xid一致的xmin的版本记录。
 
-### 如何解决版本跳跃？
+### 解释一下两阶段锁协议（2PL）和MVCC如何工作？
 
-![image-20240921011219487](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409210112655.png)
-
-### 解释一下两阶段锁协议（2PL）和MVCC如何工作，以及为什么需要这两种机制？
-
-**回答：**
 **两阶段锁协议（2PL）：** 两阶段锁协议是保证事务可串行化的一种方法。它分为两个阶段：
 
 1. **加锁阶段：** 事务开始执行时，需要的所有锁都必须在这个阶段获得。这个阶段允许事务获取新锁，但不能释放已获得的锁。
 2. **解锁阶段：** 一旦事务释放了一把锁，就进入了解锁阶段，在此阶段不能再获得任何新的锁。
 
-这种方式确保了在一个事务中，所有操作都是原子的，避免了多个事务间的写写冲突。
+**多版本并发控制（MVCC）：** MVCC允许数据库在处理读写操作时无需加锁。它通过维护数据的多个版本，实现了对同一数据的并发读写。具体来说，数据库为每个事务创建一个快照，事务只会看到在它开始时已经提交的事务的结果。这样可以避免读写操作的阻塞，提升系统的并发性。
 
-**多版本并发控制（MVCC）：** MVCC允许数据库在处理读写操作时无需加锁。它通过维护数据的多个版本，实现了对同一数据的并发读写。具体来说，数据库为每个事务创建一个快照，事务只会看到在它开始时已经提交的事务的结果。这样，可以避免读写操作的阻塞，提升系统的并发性。
-
-需要这两种机制的原因是：
+### 为什么需要两阶段锁协议（2PL）和MVCC这两种机制？
 
 - **2PL** 确保了写操作的可串行化，避免了数据不一致。
 - **MVCC** 提供了更高的并发性能，尤其是在读操作频繁的情况下。
@@ -8401,7 +9206,40 @@ XMAX 这个变量解释了为什么 DM 层不提供删除操作，当想删除�
 
 TODO
 
-## *死锁检测（hard）*
+### *如何解决版本跳跃？*
+
+版本跳跃指的是一个事务看到的数据版本与另一个事务看到的数据版本不同，即使它们都是合法的版本。
+
+#### *版本跳跃产生的原因*
+
+版本跳跃可能发生在以下几种情况下：
+
+1. **事务开始时间不同**：事务开始的时间不同，因此它们可能看到不同的版本。例如，事务T1在时间戳T开始，事务T2在时间戳T+1开始，它们可能看到不同版本的数据。
+2. **读取操作与数据版本不匹配**：在某些情况下，事务的读取操作可能与当前的数据版本不匹配，导致读取到的数据版本不是最新的或者不是预期的版本。
+3. **并发控制策略不同**：不同的MVCC实现可能有不同的并发控制策略，可能导致事务看到的数据版本不同。
+
+#### *解决版本跳跃的方法*
+
+解决版本跳跃的关键在于确保事务的一致性和隔离性。以下是一些常用的方法：
+
+1. **严格的时间戳分配**：
+   - 确保每个事务有一个严格递增的时间戳或事务ID。这样可以确保每个事务看到的数据版本是一致的。
+2. **使用快照隔离（Snapshot Isolation, SI）**：
+   - 快照隔离是MVCC中最常用的一种隔离级别，它可以防止版本跳跃。每个事务在其开始时创建一个快照，该快照包含了事务开始时的数据版本。事务在其执行期间只能看到该快照中的数据版本，这样可以避免版本跳跃。
+3. **事务开始时创建快照**：
+   - 在事务开始时创建一个快照，该快照包含了事务开始时所有可见的数据版本。事务在其执行期间只能看到该快照中的数据版本。
+4. **版本链管理**：
+   - 对每个数据项维护一个版本链，确保版本链中的每个版本都按照时间顺序排列。这样可以确保事务读取时能够找到正确版本的数据。
+5. **版本有效性检查**：
+   - 在读取数据版本时，检查版本的有效性，确保版本在事务的可见范围内。例如，事务T1只能看到在其开始时间之前提交的版本。
+6. **使用全局版本管理器**：
+   - 可以引入一个全局版本管理器来统一管理所有事务的版本信息，确保版本的一致性。
+
+#### *MYDB的解决方案*
+
+![image-20240921011219487](https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409210112655.png)
+
+### *死锁检测（hard）*
 
 1. **构建等待图（Wait-for Graph）**：
    - 使用一个图结构来表示事务之间的等待关系。每个事务节点（XID）和资源节点（UID）都是图中的顶点。
