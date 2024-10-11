@@ -143,7 +143,14 @@ taskkill /F /PID '进程号'
    sudo mkdir -p /etc/docker
    sudo tee /etc/docker/daemon.json <<-'EOF'
    {
-     "registry-mirrors": ["https://uf5mphyd.mirror.aliyuncs.com"]
+       "registry-mirrors": [
+           "https://uf5mphyd.mirror.aliyuncs.com",
+           "https://dockerproxy.com",
+           "https://mirror.baidubce.com",
+           "https://docker.m.daocloud.io",
+           "https://docker.nju.edu.cn",
+           "https://docker.mirrors.sjtug.sjtu.edu.cn"
+       ]
    }
    EOF
    sudo systemctl daemon-reload
@@ -363,23 +370,27 @@ docker-compose up -d
 
 拉取Portainer镜像
 
-```shell
-docker pull portainer/portainer-ce  # 英文版
-```
+英文版：
 
 ```shell
-docker pull 6053537/portainer-ce   # 汉化版
+docker pull portainer/portainer-ce
+```
+
+汉化版
+
+```shell
+docker pull 6053537/portainer-ce
 ```
 
 创建实例并启动
 
 ```shell
-docker run -d -p 9000:9000 --restart=always -v /var/run/docker.sock:/var/run/docker.sock --name portainer 6053537/portainer-ce
+docker run -d --restart=always --name=portainer -p 9:9000 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data 6053537/portainer-ce
 ```
 
 Portainer的默认账号和密码是：admin/admin，第一次进入需要创建用户，同时会提示你修改密码
 
-## 部署Mysql
+## 部署Mysql 5.7
 
 下载mysql5.7镜像文件
 
@@ -389,35 +400,18 @@ docker pull mysql:5.7
 
 创建实例并启动
 
-（Mysql5.7）
-
-```shell
-docker run -p 3306:3306 --name mysql \
--v /mydata/mysql/log:/var/log/mysql \
--v /mydata/mysql/data:/var/lib/mysql \
--v /mydata/mysql/conf:/etc/mysql \
--e MYSQL_ROOT_PASSWORD=root \
--d mysql:5.7
-```
-
-（Mysql8最新版）**（存在问题，暂未解决）***
+（Mysql5.7）（存在问题，暂未解决）
 
 ```shell
 docker run \
--p 3307:3306 \
---name mysql8 \
---privileged=true \
---restart unless-stopped \
--v /docker/mysql8.0.20/mysql:/etc/mysql \
--v /docker/mysql8.0.20/logs:/logs \
--v /docker/mysql8.0.20/data:/var/lib/mysql \
--v /etc/localtime:/etc/localtime \
+-p 3306:3306 \
+--name mysql \
+--restart=always \
+-v /mydata/mysql/conf:/etc/mysql/conf.d \
+-v /mydata/mysql/data:/var/lib/mysql \
+-v /mydata/mysql/log:/var/log/mysql \
 -e MYSQL_ROOT_PASSWORD=root \
--d mysql:8.0.20
-```
-
-```shell
-docker run -d -v /mydata/mysql8/data:/var/lib/mysql -v /mydata/mysql8/conf:/etc/mysql/conf.d --name mysql8 -e MYSQL_ROOT_PASSWORD=mysql123 -p 3308:3306 -d mysql:8.0.28
+-d mysql:5.7
 ```
 
 
@@ -438,6 +432,7 @@ vi /mydata/mysql/conf/my.cnf
 
 ```shell
 [mysqld]
+skip-grant-tables
 user=mysql
 character-set-server=utf8
 default_authentication_plugin=mysql_native_password
@@ -458,10 +453,53 @@ default-character-set=utf8
 default-character-set=utf8
 ```
 
-适合Mysql8**（存在问题，暂未解决）**
+进入容器的mysql命令行
+
+```shell
+docker exec -it mysql mysql -uroot -proot
+```
+
+设置远程访问
+
+```shell
+grant all privileges on *.* to 'root'@'%' identified by 'root' with grant option;
+flush privileges;
+```
+
+## 部署Mysql 8
+
+```shell
+docker run \
+-p 3306:3306 \
+--privileged=true \
+--name mysql8 \
+--restart=always \
+-v /mydata/mysql8/conf:/etc/mysql/conf.d \
+-v /mydata/mysql8/data:/var/lib/mysql \
+-v /mydata/mysql8/log:/var/log/mysql \
+-e MYSQL_ROOT_PASSWORD=root \
+-d mysql:8.0.32
+```
+
+
+> 参数说明：
+> -p 3306:3306：将容器的 3306 端口映射到主机的 3306 端口
+> -v /mydata/mysql/conf:/etc/mysql：将配置文件夹挂载到主机
+> -v /mydata/mysql/log:/var/log/mysql：将日志文件夹挂载到主机
+> -v /mydata/mysql/data:/var/lib/mysql/：将配置文件夹挂载到主机
+> -e MYSQL_ROOT_PASSWORD=root：初始化 root 用户的密码
+
+配置mysql
+
+```shell
+vi /mydata/mysql/conf/my.cnf
+```
+
+适合Mysql8
 
 ```shell
 [mysqld]
+skip-grant-tables
 user=mysql
 character-set-server=utf8
 default_authentication_plugin=mysql_native_password
@@ -477,8 +515,6 @@ default-character-set=utf8
 default-character-set=utf8
 ```
 
-
-
 进入容器的mysql命令行
 
 ```shell
@@ -491,7 +527,6 @@ docker exec -it mysql mysql -uroot -proot
 grant all privileges on *.* to 'root'@'%' identified by 'root' with grant option;
 flush privileges;
 ```
-
 
 ## 部署Redis
 
