@@ -350,20 +350,19 @@ public class CircularQueue {
 }
 ```
 
-## 验证有效的括号
+## [有效的括号](https://leetcode.cn/problems/valid-parentheses/)
 
 判断字符串中的括号是否有效配对。例如`[]{()()}}`。
 
 ```java
 public boolean isValid(String s) {
-    // 例: s = []{()()}}
     Stack<Character> stack = new Stack<>();
-    for (char c : s.toCharArray()) {
-        if (c == '(') stack.push(')');
-        else if (c == '{') stack.push('}');
-        else if (c == '[') stack.push(']');
-        // 如果栈为空或者栈顶元素与当前字符不匹配，则返回 false
-        else if (stack.isEmpty() || stack.pop() != c) return false;
+
+    for(char ch : s.toCharArray()){
+        if(ch == '(') stack.push(')');
+        else if(ch == '[') stack.push(']');
+        else if(ch == '{') stack.push('}');
+        else if(stack.isEmpty() || stack.pop() != ch) return false;
     }
     return stack.isEmpty();
 }
@@ -643,7 +642,7 @@ private boolean isMirror(TreeNode t1, TreeNode t2) {
 
 ## 哈夫曼编码原理
 
-<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409292235997.png" alt="image-20240929223529827" style="zoom:50%;" />
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409292235997.png" alt="image-20240929223529827" style="zoom: 50%;" />
 
 ## 哈夫曼树结构
 
@@ -2150,7 +2149,7 @@ public int reverseInt(int x) {
 }
 ```
 
-# 字符串、动归
+# 滑动窗口、动归
 
 ## 爬楼梯
 
@@ -2234,7 +2233,7 @@ class Shunzi{
 找到字符串数组中的最长公共前缀。
 
 ```java
-// 解法一：startsWith头部匹配缩减
+// 解法一：startsWith匹配
 public static String getLongestPrefix(String[] strs) {
     if (strs == null || strs.length == 0) return "";
 
@@ -2248,7 +2247,7 @@ public static String getLongestPrefix(String[] strs) {
     return prefix;
 }
 
-// 解法二：indexOf头部匹配缩减
+// 解法二：indexOf匹配
 public static String getLongestPrefix2(String[] strs) {
     if (strs.length == 0) return "";
 
@@ -2264,49 +2263,51 @@ public static String getLongestPrefix2(String[] strs) {
 }
 ```
 
-## 最长递增连续子序列长度
+## 最长递增子串的长度
 
-> 递增：每个相邻的数字之差为1，例如"1,2,3,4,5"
+> 递增子串：每个**相邻**的数字之差为1，例如"1,2,3,4,5"
 
 ```java
-public static int longestContinuousSubsequence(int[] nums) {
+public static int lengthOfCSQ(int[] nums) {
     if (nums == null || nums.length == 0)return 0;
-    int longest = 1;
-    int curLength = 1;
+    
+    int max = 1, cur = 1;
     for (int i = 1; i < nums.length; i++) {
         if (nums[i] == nums[i - 1] + 1) {
-            curLength++;
+            cur++;
         } else {
-            longest = Math.max(longest, curLength);
-            curLength = 1;
+            max = Math.max(max, cur);
+            cur = 1;
         }
     }
-    // 更新最长连续子序列的长度，以防止最后一段最长序列没有更新
-    longest = Math.max(longest, curLength);
-    return longest;
+    max = Math.max(max, cur);
+    
+    return max;
 }
 ```
 
-## 最长递增非连续子序列长度
+## 最长递增子序列的长度
 
-> 非连续递增：不考虑子序列前后数字差值，只要是递增的就行，例如"1,4,9,10,17"
+> 递增子序列：不考虑前后数字是否相邻，只要是递增的就行，例如"1,...,4,9,...,10,...,17"
 
 ```java
-public int lengthOfLIS(int[] nums) {
-    if (nums == null ||nums.length == 0) return 0;
-    int[] dp = new int[nums.length];
-    dp[0] = 1;
-    int maxans = 1;
-    for (int i = 1; i < nums.length; i++) {
-        dp[i] = 1;
+public int lengthOfNCSQ(int[] nums) {
+    if (nums == null || nums.length == 0) return 0;
+
+    int n = nums.length;
+    int[] dp = new int[n];
+    Arrays.fill(dp, 1);
+    int max = 1;
+    for (int i = 1; i < n; i++) {
         for (int j = 0; j < i; j++) {
             if (nums[i] > nums[j]) {
                 dp[i] = Math.max(dp[i], dp[j] + 1);
             }
         }
-        maxans = Math.max(maxans, dp[i]);
+        max = Math.max(max, dp[i]);
     }
-    return maxans;
+
+    return max;
 }
 ```
 
@@ -2427,19 +2428,23 @@ public boolean isPalindrome(int x) {
 }
 ```
 
-## 是否是回文串
+## 回文串判断
 
 ```java
-public static boolean isPalindrome(String str) {
-    // 去除空格和非字母数字字符，并转换为小写
+private static String getString(){
     StringBuilder sb = new StringBuilder();
     for (char c : str.toCharArray()) {
         if (Character.isLetterOrDigit(c)) {
             sb.append(Character.toLowerCase(c));
         }
     }
-    str = sb.toString();
-
+    retrun sb.toString();
+}
+public static boolean isPalindrome(String str) {
+    
+    // 去除空格和非字母数字字符，并转换为小写
+    str = getString(str);
+    
     // 使用双指针法进行比较
     int left = 0;
     int right = str.length() - 1;
@@ -2454,17 +2459,20 @@ public static boolean isPalindrome(String str) {
 }
 ```
 
-## 最长回文子串
+## [最长回文子串]([5. 最长回文子串 - 力扣（LeetCode）](https://leetcode.cn/problems/longest-palindromic-substring/))
 
 ```java
 public static String longestPalindrome(String s) {
-    if (s == null || s.length() < 1) return "";
-    
+    if (s == null || s.isEmpty()) return "";
+
     int start = 0, end = 0;
     for (int i = 0; i < s.length(); i++) {
         int len1 = expandAroundCenter(s, i, i);
         int len2 = expandAroundCenter(s, i, i + 1);
+
         int len = Math.max(len1, len2);
+
+        // 截取回文子序列
         if (end - start < len) {
             start = i - (len - 1) / 2;
             end = i + len / 2;
@@ -2473,7 +2481,7 @@ public static String longestPalindrome(String s) {
     return s.substring(start, end + 1);
 }
 
-private int expandAroundCenter(String s, int left, int right) {
+private static int expandAroundCenter(String s, int left, int right) {
     while (left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)) {
         left--;
         right++;
@@ -2487,14 +2495,15 @@ private int expandAroundCenter(String s, int left, int right) {
 ```java
 public static int longestPalindromeLength(String s) {
     if (s == null || s.isEmpty()) return 0;
-    
-    int len = 0;
+
+    int max = 0;
     for (int i = 0; i < s.length(); i++) {
         int len1 = expandAroundCenter(s, i, i);
         int len2 = expandAroundCenter(s, i, i + 1);
-        len = Math.max(len, Math.max(len1, len2));
+        
+        max = Math.max(max, Math.max(len1, len2));
     }
-    return len;
+    return max;
 }
 
 private static int expandAroundCenter(String s, int left, int right) {
@@ -2505,6 +2514,107 @@ private static int expandAroundCenter(String s, int left, int right) {
     return right - left - 1;
 }
 ```
+
+## *最长回文子序列的长度*
+
+```java
+public static int longestPalindromeSubseqLength(String s) {
+    if (s == null || s.isEmpty()) return 0;
+
+    int n = s.length();
+    int[][] dp = new int[n][n];
+
+    // 初始化对角线上的值
+    for (int i = 0; i < n; i++) {
+        dp[i][i] = 1;
+    }
+
+    // 填充 dp 数组
+    for (int len = 2; len <= n; len++) { // 子序列长度
+        for (int i = 0; i <= n - len; i++) { // 起始索引
+            int j = i + len - 1; // 结束索引
+            if (s.charAt(i) == s.charAt(j)) {
+                dp[i][j] = dp[i + 1][j - 1] + 2;
+            } else {
+                dp[i][j] = Math.max(dp[i + 1][j], dp[i][j - 1]);
+            }
+        }
+    }
+
+    return dp[0][n - 1];
+}
+```
+
+## [无重复字符的最长子串](https://leetcode.cn/problems/longest-substring-without-repeating-characters/)
+
+**示例 1:**
+
+```
+输入: s = "abcabcbb"
+输出: 3 
+解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
+```
+
+**示例 2:**
+
+```
+输入: s = "bbbbb"
+输出: 1
+解释: 因为无重复字符的最长子串是 "b"，所以其长度为 1。
+```
+
+**示例 3:**
+
+```
+输入: s = "pwwkew"
+输出: 3
+解释: 因为无重复字符的最长子串是 "wke"，所以其长度为 3。
+     请注意，你的答案必须是 子串 的长度，"pwke" 是一个子序列，不是子串。
+```
+
+```java
+public int lengthOfLongestSubstring(String s) {
+    if (s.length() == 0 || s == null) return 0;
+
+    Set<Character> set = new HashSet<>();
+    int left = 0, right = 0;
+    int max = 0;
+
+    while (right < s.length()) {
+        char ch = s.charAt(right);
+        if (!set.contains(ch)) {
+            set.add(ch);
+            right++;
+            max = Math.max(max, right - left);
+        } else {
+            set.remove(s.charAt(left));
+            left++;
+        }
+    }
+    return max;
+}
+```
+
+## [寻找两个正序数组的中位数（暴力版）](https://leetcode.cn/problems/median-of-two-sorted-arrays/)
+
+```java
+public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+    
+    int[] arr = IntStream.concat(Arrays.stream(nums1), Arrays.stream(nums2)).toArray();
+    
+    Arrays.sort(arr);
+    
+    if (arr.length % 2 == 0){
+        return (double) (arr[arr.length / 2] + arr[arr.length / 2 - 1]) / 2;
+    } else {
+        return arr[arr.length / 2];
+    }
+}
+```
+
+
+
+
 
 
 
@@ -3223,16 +3333,18 @@ JWT 通常用于身份验证和授权。在用户登录成功后，服务器会�
 
 ```java
 public class Singleton {
-    private static Singleton instance = new Singleton();
+    private static final Singleton instance = new Singleton();
 
     // 构造方法私有，确保外界不能直接实例化
-    private Singleton() {}
+    private Singleton() {
+    }
 
     // 通过公有的静态方法获取对象实例
     public static Singleton getInstance() {
         return instance;
     }
 }
+
 ```
 
 ### 懒汉式单例模式（线程安全）
@@ -3241,16 +3353,17 @@ public class Singleton {
 - **线程安全问题**：如果线程 A 和 B 同时调用此方法，会出现执行 `if (instance == null)` 语句时都为真的情况，导致创建两个对象。为解决这一问题，可以使用 `synchronized` 关键字对静态方法 `getInstance()` 进行同步。
 
 ```java
-public class Singleton {
-    private static Singleton instance = null;
+public class Singleton2 {
+    private static Singleton2 instance = null;
 
     // 私有构造方法，确保外界不能直接实例化。
-    private Singleton() {}
+    private Singleton2() {
+    }
 
     // 通过公有的静态方法获取对象实例
-    public static (synchronized) Singleton getInstance() {
+    public static (synchronized) Singleton2 getInstance() {
         if (instance == null) {
-            instance = new Singleton();
+            instance = new Singleton2();
         }
         return instance;
     }
@@ -3285,8 +3398,10 @@ public class Singleton {
 public interface Shape {
     void draw();
 }
+```
 
-class CircleShape implements Shape {
+```java
+public class CircleShape implements Shape {
     public CircleShape() {
         System.out.println("CircleShape: created");
     }
@@ -3296,8 +3411,10 @@ class CircleShape implements Shape {
         System.out.println("draw: CircleShape");
     }
 }
+```
 
-class RectShape implements Shape {
+```java
+public class RectShape implements Shape {
     public RectShape() {
         System.out.println("RectShape: created");
     }
@@ -3307,8 +3424,10 @@ class RectShape implements Shape {
         System.out.println("draw: RectShape");
     }
 }
+```
 
-class TriangleShape implements Shape {
+```java
+public class TriangleShape implements Shape {
     public TriangleShape() {
         System.out.println("TriangleShape: created");
     }
@@ -3318,8 +3437,10 @@ class TriangleShape implements Shape {
         System.out.println("draw: TriangleShape");
     }
 }
+```
 
-class ShapeFactory {
+```java
+public class ShapeFactory {
     public static Shape getShape(String type) {
         Shape shape = null;
         if ("circle".equalsIgnoreCase(type)) {
@@ -3346,12 +3467,16 @@ public interface Car {
     void speed();
     void price();
 }
+```
 
-interface CarFactory {
+```java
+public interface CarFactory {
     Car factory();
 }
+```
 
-class Audi implements Car {
+```java
+public class Audi implements Car {
     @Override
     public void brand() {
         System.out.println("一台奥迪");
@@ -3367,8 +3492,10 @@ class Audi implements Car {
         System.out.println("贵");
     }
 }
+```
 
-class Auto implements Car {
+```java
+public class Auto implements Car {
     @Override
     public void brand() {
         System.out.println("一台奥拓");
@@ -3384,21 +3511,27 @@ class Auto implements Car {
         System.out.println("便宜");
     }
 }
+```
 
-class AudiFactory implements CarFactory {
+```java
+public class AudiFactory implements CarFactory {
     @Override
     public Car factory() {
         return new Audi();
     }
 }
+```
 
-class AutoFactory implements CarFactory {
+```java
+public class AutoFactory implements CarFactory {
     @Override
     public Car factory() {
         return new Auto();
     }
 }
+```
 
+```java
 public class ClientDemo {
     public static void main(String[] args) {
         CarFactory carFactory = new AudiFactory();
@@ -3522,7 +3655,7 @@ class WpFactory implements SystemFactory {
 策略模式允许在运行时改变算法的行为。它定义了包含算法族的接口，并且将算法的责任委托给一个子类。
 
 ```java
-// 定义策略分类
+// 定义策略类型枚举类
 public enum PointsSuitScenesEnum {
     BOOK_TEST("书籍测试", 1),
     LEVEL_FIGHT("阅读闯关", 2);
@@ -3538,21 +3671,24 @@ public enum PointsSuitScenesEnum {
     public void printInfo() {
         System.out.println("sceneName: " + sceneName);
         System.out.println("sceneId: " + sceneId);
-
     }
 
 }
+```
 
+```java
 // 定义策略接口
 public interface IPointsStrategy {
-    
+    // 获取积分类型
     PointsSuitScenesEnum getPointsSuitScene();
-    
+    // 积分操作
     void operaPoints(String userId, int points);
 }
+```
 
+```java
 // 策略实现类 A
-class BookTestPointsReslove implements IPointsStrategy {
+public class BookTestPointsReslove implements IPointsStrategy {
 
     @Override
     public PointsSuitScenesEnum getPointsSuitScene() {
@@ -3560,13 +3696,17 @@ class BookTestPointsReslove implements IPointsStrategy {
     }
 
     @Override
-    public void operaPoints(String userId, int points) {
-        System.out.println("书籍测试:userId="+userId+" points="+points);
+    public void operaPoints(String userId, int points, int operateType) {
+        if (operateType == 1) {
+            System.out.println("书籍测试加分:userId=" + userId + " points=" + points);
+        } else if (operateType == 0) {
+            System.out.println("书籍测试减分:userId=" + userId + " points=" + points);
+        }
     }
 }
 
 // 策略实现类 B
-class LevelFightPointsReslove implements IPointsStrategy {
+public class LevelFightPointsReslove implements IPointsStrategy {
 
     @Override
     public PointsSuitScenesEnum getPointsSuitScene() {
@@ -3574,12 +3714,18 @@ class LevelFightPointsReslove implements IPointsStrategy {
     }
 
     @Override
-    public void operaPoints(String userId, int points) {
-        System.out.println("阅读闯关:userId="+userId+" points="+points);
+    public void operaPoints(String userId, int points, int operateType) {
+        if (operateType == 1) {
+            System.out.println("阅读闯关加分:userId=" + userId + " points=" + points);
+        } else if (operateType == 0) {
+            System.out.println("阅读闯关扣分:userId=" + userId + " points=" + points);
+        }
     }
 }
+```
 
-// 注入
+```java
+// 配置类，注入Bean
 @Configuration
 public class PointsStrategyConfig {
 
@@ -3609,41 +3755,54 @@ public interface IPointsService {
 @Service
 public class PointsService implements IPointsService, ApplicationContextAware {
 
-
     private final Map<PointsSuitScenesEnum, IPointsStrategy> map = new ConcurrentHashMap<>();
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-
         Map<String, IPointsStrategy> tempMap = applicationContext.getBeansOfType(IPointsStrategy.class);
         tempMap.forEach((k, v) -> {
             map.put(v.getPointsSuitScene(), v);
             System.out.println(k + " " + v);
         });
-
     }
 
+    @Override
+    public void addPoints(Long userId, int points, PointsSuitScenesEnum scene) throws Exception {
+        IPointsStrategy strategy = map.get(scene);
+        if (ObjectUtils.isEmpty(strategy)) {
+            throw new Exception("No strategy found for scene: " + scene);
+        }
+        strategy.operaPoints(userId.toString(), points, 1);
+    }
 
     @Override
-    public void addPoints(Long userId, int points, PointsSuitScenesEnum scene) {
+    public void subtractPoints(Long userId, int points, PointsSuitScenesEnum scene) throws Exception {
         IPointsStrategy strategy = map.get(scene);
-        if (strategy == null) {
-            System.err.println("No strategy found for scene: " + scene);
+        if (ObjectUtils.isEmpty(strategy)) {
+            throw new Exception("No strategy found for scene: " + scene);
         }
-        strategy.operaPoints(userId.toString(), points);
+        strategy.operaPoints(userId.toString(), points, 0);
     }
 }
 
-// 使用策略模式（实际项目中在SpringBootApplication中就做好了，不需要以下代码）
-public class Main {
-    public static void main(String[] args) {
+```
+
+```java
+// 使用策略模式
+public class PointsController {
+    public static void main(String[] args) throws Exception {
+        // （实际项目中在SpringBootApplication中就做好了，不需要手动获取Bean）
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(PointsStrategyConfig.class);
         PointsService pointsService = context.getBean(PointsService.class);
-
+		context.close();
+        
+        // 虽然调用的接口不同，但是实际上运行的是同一套代码
+        // 加分
         pointsService.addPoints(1L, 100, PointsSuitScenesEnum.BOOK_TEST);
-        pointsService.addPoints(2L, 200,PointsSuitScenesEnum.LEVEL_FIGHT);
-
-        context.close();
+        pointsService.addPoints(2L, 200, PointsSuitScenesEnum.LEVEL_FIGHT);
+        // 减分
+        pointsService.subtractPoints(1L, 100, PointsSuitScenesEnum.BOOK_TEST);
+        pointsService.subtractPoints(2L, 200, PointsSuitScenesEnum.LEVEL_FIGHT);
     }
 }
 ```
@@ -4018,6 +4177,27 @@ public class Client {
 
 # Netty
 
+## 网络通信的过程
+
+> 服务端是怎么接收客户端的消息的？服务端是如何感知到数据的？
+
+服务器使用非阻塞I/O（NIO）来接收客户端的消息。具体过程如下：
+
+1. **接收连接**: 服务器通过 `ServerSocketChannel` 监听特定端口，并接受来自客户端的连接请求，创建 `SocketChannel`。
+2. **读取数据**: 服务器在处理客户端连接时，会调用 `SocketChannel.read()` 方法读取客户端发送的数据。此方法会将数据填充到一个 `ByteBuffer` 中。
+3. **感知数据到达**: 服务器在循环中持续读取数据，直到没有更多数据可读。如果 `read()` 方法返回的字节数大于0，说明有数据到达。
+4. **解析数据**: 服务器在读取数据后，将数据进行解码。
+5. **循环处理**: 服务器会继续循环，等待并处理后续消息，直到客户端关闭连接。
+
+这种方式使得服务器能够有效地处理多个客户端的连接和消息，同时能够感知数据的到达。
+
+## 常见的I/O 模型
+
+1. **阻塞I/O（Blocking I/O）**：每个I/O操作都需要等待，效率较低。
+2. **非阻塞I/O（Non-blocking I/O）**：调用I/O操作后立即返回，可以通过轮询来检查操作是否完成。
+3. **多路复用（Multiplexing I/O）**：使用`select`、`poll`、`epoll`等机制，同时监视多个I/O操作，适合高并发场景。
+4. **异步I/O（Asynchronous I/O）**：操作完成时会通知应用程序，避免了轮询。
+
 ## NIO和BIO的区别
 
 NIO（New IO）和BIO（Blocking IO）是Java编程语言中用于处理输入输出（IO）操作的两种不同机制，它们之间存在一些显著的区别。
@@ -4055,12 +4235,20 @@ NIO（New IO）和BIO（Blocking IO）是Java编程语言中用于处理输入�
 4. **优势**
    - NIO相比传统的IO模型更加高效，因为它允许单个线程管理多个Channel连接，从而提高了并发处理能力。
 
-## *讲讲Netty
+## *讲讲Netty，它解决了什么问题？
 
+1. Netty是一个高性能、异步的事件驱动的网络应用框架，主要用于构建快速、可扩展的网络服务器和客户端。它简化了网络编程的复杂性，如处理TCP连接、数据传输、协议解析等，使开发者能够更专注于业务逻辑。
 1. <u>Netty是一个高性能、异步事件驱动的网络应用程序框架，用于快速开发可靠的协议服务器和客户端。它基于Java NIO（非阻塞IO），提供了丰富的API来简化网络编程的复杂性。Netty可以用于开发多种协议的服务端和客户端，如HTTP、WebSocket、SMTP等，也可以用来开发自定义的二进制协议。</u>
 2. Netty是一个基于NIO模型的高性能网络通信框架，它是对NIO网络通信的封装，我们可以利用这样一些封装好的api去快速开发一个网络程序。
 3. Netty在NIO的基础上做了很多优化，比如零拷贝机制、高性能无锁队列、内存池，因此性能比NIO更高。
 4. Netty可以支持多种的通信协议，例如：Http、WebSocket等，并且针对一些通信问题，Netty也内置了一些策略，例如拆包、粘包，所以在使用过程中会比较方便。
+
+## Netty 的应用场景
+
+- 高性能网络服务器（如游戏服务器、即时通讯工具）
+- 微服务架构中的服务通信
+- WebSocket服务器
+- 数据传输层（如RPC框架）
 
 ## *为什么要使用Netty？Netty的特点
 
@@ -4078,7 +4266,7 @@ Netty相比与直接使用JDK自带的api更简单，因为它具有这样一些
 
 我们之所以要使用Netty，核心的点是要去解决服务器如何去承载更多的用户同时访问的问题，传统的BIO模型由于阻塞的特性使得在高并发的环境种很难去支持更高的吞吐量，尽管用NIO的多路复用模型可以在阻塞方面进行优化，但是它的api使用较为复杂，而Netty是基于NIO的封装，提供了成熟简单易用的api，降低了使用成本和学习成本，本质上来说Netty和NIO所扮演的角色是相同的，都是是去为了提升服务端的吞吐量，让用户获得更好的产品体验。
 
-## Netty中有哪些核心组件？他们分别有什么作用？
+## Netty的核心组件
 
 Netty有三层结构构成的，分别是：
 
@@ -4128,21 +4316,27 @@ Netty有三层结构构成的，分别是：
    - `ChannelHandler` 主要是针对10数据的一个处理器，数据接收后，就通过指定的一个上Handler进行处理
    - `ChannelHandlerContext` 是用来去保存ChannelHandler的一个上下文信息的。
 
-## Netty有几种线程模型？分别是怎样的原理？能起到什么作用？
+## Reactor 线程模型、其原理和作用
 
-Netty提供了三种Reactor模型的支持
+Reactor线程模型是基于事件驱动的模型，主要分为三个角色：
 
-1. 第一种是单线程单Reactor模型。单线程单Reactor模型也有缺点：如果其中一个Handler的出现阻塞，就会导致后续的客户端无法被处理，因为它们是同一个线程，所以就导致无法接受新的请求。为了解决这个问题，就提出了使用多线程的方式，也就是说在业务处理的时候加入线程池去异步处理，这样就可以解决handlers阻塞的一个问题。
+1. **Reactor**：负责监视I/O事件并分发事件。
+2. **Handler**：处理具体的业务逻辑。
+3. **Worker**：执行I/O操作。可以使用多个Worker线程处理具体的请求，提高并发性能。
 
-   <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409291709540.png" alt="image-20240929170912316" style="zoom:55%;" />
+Netty提供了三种Reactor模型的支持：
 
-2. 第二种是多线程单Reactor模型。为了解决单线程中handlers阻塞的问题，我们引入了线程池去异步处理，这意味着我们把Reactor和handlers放在不同的线程里面去处理。在多线程单Reactor模型中，所有的IO操作都是由一个Reactor来完成的，这导致单个Reactor会存在一个性能瓶颈，对于小容量的场景影响不是很大，但是对于高并发的一些场景来说，很容易会因为单个Reactor线程的性能瓶颈，导致整个吞吐量会受到影响，所以当这个线程超过负载之后，处理的速度变慢，就会导致大量的客户端连接超时，超时之后往往会进行重发，这反而加重了这个线程的一个负载，最终会导致大量的消息积压和处理的超时，成为整个系统的一个性能瓶颈，所以我们还可以进行进一步的优化，也就是引入多线程多Reactor模型。
+1. **单线程单Reactor模型**。单线程单Reactor模型也有缺点：如果其中一个Handler的出现阻塞，就会导致后续的客户端无法被处理，因为它们是同一个线程，所以就导致无法接受新的请求。为了解决这个问题，就提出了使用多线程的方式，也就是说在业务处理的时候加入线程池去异步处理，这样就可以解决handlers阻塞的一个问题。
 
-   <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409291711995.png" alt="image-20240929171018421" style="zoom:55%;" />
+   <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409291709540.png" alt="image-20240929170912316" style="zoom:60%;" />
 
-3. 第二种是多线程多Reactor模型，也叫主从多线程Reactor模型。Main Reactor负责接收客户的连接请求，然后把接收的请求传递给Sub Reactor，Sub Reactorl我们可以配置多个，这样我们可以去进行灵活的扩容和缩容，具体的业务处理由Sub Reactor去完成，由它最终去绑定给对应的handler。Main Reactor扮演请求接收者，它会把接收的请求转发到Sub Reactor来处理，由Sub Reactor去进行真正意义上的分发。
+2. **多线程单Reactor模型**。为了解决单线程中handlers阻塞的问题，我们引入了线程池去异步处理，这意味着我们把Reactor和handlers放在不同的线程里面去处理。在多线程单Reactor模型中，所有的IO操作都是由一个Reactor来完成的，这导致单个Reactor会存在一个性能瓶颈，对于小容量的场景影响不是很大，但是对于高并发的一些场景来说，很容易会因为单个Reactor线程的性能瓶颈，导致整个吞吐量会受到影响，所以当这个线程超过负载之后，处理的速度变慢，就会导致大量的客户端连接超时，超时之后往往会进行重发，这反而加重了这个线程的一个负载，最终会导致大量的消息积压和处理的超时，成为整个系统的一个性能瓶颈，所以我们还可以进行进一步的优化，也就是引入多线程多Reactor模型。
 
-   <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409291719179.png" alt="image-20240929171910957" style="zoom:55%;" />
+   <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409291711995.png" alt="image-20240929171018421" style="zoom:60%;" />
+
+3. **多线程多Reactor模型**，也叫**主从多线程Reactor模型**。Main Reactor负责接收客户的连接请求，然后把接收的请求传递给Sub Reactor，Sub Reactorl我们可以配置多个，这样我们可以去进行灵活的扩容和缩容，具体的业务处理由Sub Reactor去完成，由它最终去绑定给对应的handler。Main Reactor扮演请求接收者，它会把接收的请求转发到Sub Reactor来处理，由Sub Reactor去进行真正意义上的分发。
+
+   <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409291719179.png" alt="image-20240929171910957" style="zoom:60%;" />
 
 Reactor模型有三个重要的组件：
 
@@ -4150,37 +4344,34 @@ Reactor模型有三个重要的组件：
 - `Acceptor` 处理客户端的连接请求
 - `handlers` 负责执行我们的业务逻辑的读写操作
 
-## Sever是怎么接收Client的消息，它是如何感知到数据的？
-
-服务器使用非阻塞I/O（NIO）来接收客户端的消息。具体过程如下：
-
-1. **接收连接**: 服务器通过 `ServerSocketChannel` 监听特定端口，并接受来自客户端的连接请求，创建 `SocketChannel`。
-2. **读取数据**: 服务器在处理客户端连接时，会调用 `SocketChannel.read()` 方法从客户端读取数据。此方法会将数据填充到一个 `ByteBuffer` 中。
-3. **感知数据到达**: 服务器在循环中持续读取数据，直到没有更多数据可读。如果 `read()` 方法返回的字节数大于0，说明有数据到达。
-4. **解析数据**: 服务器在读取数据后，将数据视为编码后的消息并进行解码。
-5. **循环处理**: 服务器会继续循环，等待并处理后续消息，直到客户端关闭连接。
-
-这种方式使得服务器能够有效地处理多个客户端的连接和消息，同时能够感知数据的到达。
-
-## Netty的高性能设计
-
-Netty之所以能实现高性能，主要有以下几个原因：
+## 高性能设计
 
 1. **非阻塞IO模型**：Netty基于NIO实现，使用非阻塞IO模型，减少了线程的使用，从而减少了上下文切换的开销。
 2. **事件驱动**：Netty采用了事件驱动的设计模式，当有IO事件发生时，才会被处理，这样可以有效地利用CPU资源。
-3. **零拷贝技术**：Netty支持直接缓冲区（DirectByteBuffer），减少了数据的拷贝次数，提高了数据传输的效率。
+3. **零拷贝技术**：Netty支持直接缓冲区（DirectByteBuffer），在数据传输中减少了数据的拷贝次数，提高了数据传输的效率。具体做法是：使用`FileChannel`的`transferTo()`和`transferFrom()`等方法实现文件传输时，避免了将数据从用户空间复制到内核空间的过程，提高了性能。
 4. **线程模型**：Netty提供了高效的线程模型，如Boss/Worker模型，使得任务的分配更加合理，充分利用多核CPU的计算能力。
 
-## Netty中如何处理粘包和拆包问题？
+## Netty 中的设计模式
 
-在Netty中，粘包和拆包的问题通常通过消息编码器和解码器来解决。Netty提供了几种方式来处理这种情况：
+- **单例模式**：如EventLoop。
+- **观察者模式**：事件的注册和触发。
+- **责任链模式**：通过ChannelPipeline处理多个ChannelHandler。
+- **适配器模式**：将不同的Handler统一处理。
+
+## 处理粘包、拆包问题
+
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410092220346.png" style="zoom:100%;" />
+
+在Netty中，粘包和拆包的问题通常通过消息编码器和解码器（如`LengthFieldBasedFrameDecoder`、`DelimiterBasedFrameDecoder`等）来解析数据流。
+
+Netty提供了几种方式来处理这种情况：
 
 1. **定长消息**：如果消息长度固定，可以直接读取固定长度的数据。
-2. **使用Delimiters**：对于文本协议，可以使用特定的分隔符（如'\n'）来分隔消息。
+2. **使用分隔符（Delimiters）**：对于文本协议，可以使用特定的分隔符（如'\n'）来分隔消息。
 3. **自定义协议头**：在消息前加上长度字段，这样接收方可以根据长度字段读取完整的消息。
 4. **使用现成的编解码器**：Netty提供了如LengthFieldBasedFrameDecoder这样的解码器，它可以根据消息长度字段自动处理粘包和拆包的问题。
 
-## Netty中如何实现异步非阻塞的IO操作？
+## 异步非阻塞的IO操作
 
 Netty通过使用Java NIO（非阻塞IO）技术实现了异步非阻塞的IO操作。具体来说：
 
@@ -4215,7 +4406,7 @@ try {
 }
 ```
 
-## Netty中如何实现消息的有序发送？
+## 消息的有序发送
 
 在Netty中实现消息的有序发送，可以通过以下几种方式：
 
@@ -4257,7 +4448,7 @@ public class OrderedMessageHandler extends SimpleChannelInboundHandler<String> {
 }
 ```
 
-## Netty中如何实现异步任务调度？
+## 异步任务的调度
 
 Netty提供了`ScheduledExecutorService`来实现异步任务调度。`ScheduledExecutorService`可以用来安排定时任务，包括一次性任务和周期性任务。
 
@@ -4292,13 +4483,13 @@ public class ScheduledTaskHandler extends SimpleChannelInboundHandler<String> {
 }
 ```
 
-## Netty中的参考计数是什么意思？
+## 参考计数
 
-参考计数（Reference Counting）是Netty为了管理内存而采用的一种机制。它主要用于追踪ByteBuf的引用次数。每个ByteBuf都有一个内部的引用计数器，当ByteBuf被引用时，计数器加一；当引用被释放时，计数器减一。
+Netty中的参考计数（Reference Counting）是Netty为了管理内存而采用的一种机制。它主要用于追踪ByteBuf的引用次数。每个ByteBuf都有一个内部的引用计数器，当ByteBuf被引用时，计数器加一；当引用被释放时，计数器减一。
 
 当ByteBuf的引用计数降到0时，意味着没有引用再指向这个ByteBuf，此时Netty会自动释放这个ByteBuf所占的内存空间。这种方式可以防止内存泄漏，并且在多线程环境下确保内存的安全释放。
 
-## 如何在Netty中处理异常？
+## 异常的处理方案
 
 在Netty中，异常处理通常是通过ChannelFutureListener和ChannelInboundHandler来实现的。
 
@@ -4307,9 +4498,16 @@ public class ScheduledTaskHandler extends SimpleChannelInboundHandler<String> {
 
 此外，Netty还提供了全局异常处理机制，可以注册GlobalChannelInboundHandler来处理所有未捕获的异常。
 
-# ---------------------------------------
+## Netty 如何解决 NIO 中的空轮询 Bug
+
+Netty通过使用`Selector`的`poll`方法，并结合`EventLoop`进行优化，避免了空轮询的情况。它会在没有事件时进行适当的休眠，减少CPU资源的浪费。
 
 # *Netty底层原理*
+
+## Channel、ChannelHandlerContext
+
+- **Channel**：表示一个连接，可以是服务器端或客户端的`SocketChannel`，它负责数据的读写。
+- **ChannelHandlerContext**：表示在ChannelPipeline中每个ChannelHandler的上下文，提供了访问Channel和其他Handler的功能，用于在Handler之间传递事件和数据。
 
 ## ChannelPipeline是什么？它是如何工作的？
 
@@ -4943,7 +5141,7 @@ CREATE INDEX idx_v_requiest_id ON test_json (v_request_id)
 
 # ---------------------------------------
 
-# 数据库索引
+# 数据库-索引
 
 ## 索引
 
@@ -5192,7 +5390,14 @@ SET SESSION sort_buffer_size = value;  -- `value` 是以字节为单位的大小
 
 # ---------------------------------------
 
-# 数据库事务
+# 数据库-事务
+
+## 数据库如何保证事务的隔离性？
+
+采用 **2PL** 和 **MVCC** 等隔离机制：
+
+- 锁：排他锁（如一个事务获取了一个数据行的排他锁，其他事务就不能再获取该行的其他锁）
+- MVCC: 多版本并发控制
 
 ## 锁（InnoDB）
 
@@ -5212,7 +5417,7 @@ SET SESSION sort_buffer_size = value;  -- `value` 是以字节为单位的大小
 1. **共享锁（Shared Locks, S-Locks）**：当 SELECT 语句带有 FOR SHARE 或者事务处于可重复读隔离级别时，会请求共享锁。共享锁允许其他事务读取数据，但阻止其他事务修改同一行数据。
 2. **排他锁（Exclusive Locks, X-Locks）**：当事务需要写入数据时，会请求排他锁。排他锁不允许其他事务读取或修改同一行数据。
 
-### *其他锁类型*
+### *其他类型的锁*
 
 *除了上述的锁类型外，InnoDB 还有一些特殊的锁机制：*
 
@@ -5284,7 +5489,136 @@ SET SESSION sort_buffer_size = value;  -- `value` 是以字节为单位的大小
 3. **内存消耗**：长事务占用较多的内存资源，特别是回滚段（undo segment）的空间，从而影响系统的性能。
 4. **日志文件增长**：长事务会导致日志文件快速增长，这需要更多的磁盘空间，并且在恢复时需要更多的时间。
 
+## WAL
+
+**WAL（预写日志，Write-Ahead Logging）是一种数据保护机制**，它在对数据进行实际写操作之前，先将这些操作记录到日志文件中，确保在数据库对外部变化（如崩溃、电源中断等）进行恢复时，数据的**一致性**和**持久性**。
+
+**WAL 的工作过程**：
+
+1. **日志条目的写入**：当数据库要进行更改时，不是直接更改数据文件，而是先将这些更改记录到 WAL 文件中。只有在这些日志条目已经安全地存储到磁盘之后，数据库才会开始更新实际的数据。这种方法允许数据库在意外崩溃之后，通过查阅 WAL 文件来恢复所有未完成的事务，进而恢复到一致的状态。
+2. **检查点机制**：为了保障 WAL 文件不会无限制地增长，数据库会定期创建检查点。这些检查点允许删除旧的 WAL 文件，并减少恢复所需的时间。
+
+**WAL 的优点**： 
+
+1. **数据恢复**：WAL 是保证数据一致性的重要手段。它提供了一种在出现故障时快速恢复数据库的方法。通过读取 WAL 文件，数据库可以重做（redo）在崩溃前进行的所有操作，从而恢复到崩溃时的状态。
+2. **写性能优化**：由于可以将多个更改合并成一个大块进行写入，WAL 有助于优化磁盘写入性能。这减少了对磁盘的频繁小量写操作。
+3. **异步备份**：WAL 文件可以用于进行异步日志传输，提供了数据库的备份和恢复方案，支持只读副本和灾难恢复。
+
+**WAL 与 MVCC**： 
+
+1. **多版本并发控制（MVCC）**：现代数据库使用 MVCC 机制来管理并发事务，而 WAL 文件则记录了事务的更改历史。在故障恢复时，**先使用 WAL 恢复未提交的事务，然后根据 MVCC 的版本控制进行数据的回滚**。
+
 ## MVCC
+
+### MVCC是如何保证数据的可恢复性的？
+
+MVCC需要保障如下两条原则：
+
+1. **正在进行的事务**不会读取**未提交的事务**产生的数据。
+
+2. **正在进行的事务**不会修改**未提交的事务**修改或产生的数据。
+
+于是，MVCC就通过如下步骤实现了数据回滚：
+
+MVCC通过维护每个事务的开始时间和版本号来判断是否需要回滚。当事务试图读取或修改数据时，系统会比较当前数据版本与事务的开始时间。如果事务尝试访问的版本**在其开始时间之后已被其他事务提交**，那么该事务会被标记为需要回滚，因为它基于过时的数据进行操作。这种机制确保了数据的一致性和隔离性。
+
+### 行的可见性判定
+
+每一行都有两个特殊的字段：
+
+- `xmin` ：创建这个行的事务 ID
+- `xmax`：删除/更新它的事务 ID
+
+当一个事务读取数据时，它会根据 `xmin` 和`xmax` 判断当前事务的可见性。
+
+那么一条记录什么时候是可见的呢？
+
+满足如下两个条件：
+
+1. `xmin` 对应的事务已经提交
+2. `xmax` 对应的事务未提交或未开始
+
+### 什么是事务日志 / redo log，undo log？
+
+总结：
+
+```
+redo log: 记录的是数据页的物理变化，服务宕机可用来同步数据
+undo log ：记录的是逻辑日志，当事务回滚时，通过逆操作恢复原来的数据
+redo log保证了事务的持久性，undo log保证了事务的原子性和一致性
+```
+
+**`redo log`**：重做日志，确保了**已提交的事务**在数据库崩溃重启后，能够保持数据的**持久性**和**一致性**。`redo log`是物理日志，它包含以下两种类型的信息：
+
+1. **物理页的变化**：某些数据库系统（如Oracle）可能直接记录数据页变化后的状态。这意味着在重做日志中，你会看到一个数据页在某次操作之后的样子。
+2. **操作的描述**：另一些数据库系统（如MySQL的InnoDB存储引擎）则记录了如何重做某个特定操作的信息，即记录了需要对哪些页进行什么样的更新才能重现这些页在事务提交后的状态。
+
+**`undo log`**：回滚日志，确保了**未提交的事务**在数据库崩溃重启后，不会对数据库的数据造成影响，实现**隔离性**。此外在可重复读取隔离等级下，undo log 还可以维持读取视图的一致性，即保证同一个查询在事务内多次执行时返回相同的结果。undo log是逻辑日志，它的基本结构特点如下：
+
+1. **版本链（Version Chain）**：
+   - 在 InnoDB 存储引擎中，每个数据页都有一个版本链，其中包含了该页上所有行的多个版本。这些版本信息是由 Undo Log 维护的。
+2. **重做片段（Undo Segments）**：
+   - Undo Log 通常被组织成 Undo Segments，每一个 Undo Segment 包含一个或多个 Undo Records。Undo Segments 可以进一步分为两类：Insert Undo Segments 和 General Undo Segments。
+     - **Insert Undo Segments** 主要用于插入操作的事务，当事务只包含插入操作时，可以使用 Insert Undo Segments。一旦事务提交，这部分 Undo Log 就不再需要，可以被重用。
+     - **General Undo Segments** 用于包含删除、更新等操作的事务，这类事务提交后，Undo Log 需要保留一段时间，直到不再有活跃事务需要访问这些旧版本。
+3. **重做记录（Undo Records）**：
+   - 每个 Undo Record 包含了数据项在某个时间点的值，以及指向其前后版本的指针。这样可以构建出一个版本链，用于追踪数据项的历史版本。
+4. **回滚指针（Rollback Pointer）**：
+   - 每个事务都有一个 Rollback Pointer 指向 Undo Log 中的一个位置，这个位置标识了事务开始时的数据状态。当事务需要回滚时，系统可以根据 Rollback Pointer 从该位置开始恢复数据到事务开始前的状态。
+5. **时间戳（Timestamps）**：
+   - Undo Log 中还包括时间戳信息，这有助于判断版本的有效性，特别是在 MVCC 环境下，用于决定哪个版本对于给定的查询是可见的。
+
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404071627255.png" alt="image-20240407162732189" style="zoom:60%;" />
+
+### *MVCC 实现一致性和隔离性的原理*
+
+MVCC机制下一条记录会有多个版本，每次修改记录都会存储这条记录被修改之前的版本。多版本之间串联起来就形成了一条**版本链**，这样不同时刻启动的事务可以**无锁**地获得不同版本的数据（普通读）。此时读（普通读）写操作不会阻塞，写操作可以继续写，无非就是多加了一个版本，历史版本记录可供已经启动的事务读取。
+
+这一切的实现主要依赖于每条记录中的**隐式字段**、**undo log日志**、**ReadView**。
+
+**1. 隐式字段**
+
+| 隐藏字段    | 含义                                                         |
+| ----------- | ------------------------------------------------------------ |
+| DB_TRX_ID   | 最近修改**事务ID**，记录插入这条记录或最后一次修改该记录的事务ID。 |
+| DB_ROLL_PTR | **回滚指针**，指向这条记录的上一个版本，用于配合undo log，指向上一个版本。 |
+| (DB_ROW_ID) | （**隐藏主键**，如果表结构没有指定主键，将会生成该隐藏字段。） |
+
+**2. undo log**
+
+- 回滚日志，在insert、update、delete的时候产生的便于数据回滚的日志。
+
+- undo log版本链：不同事务或相同事务对同一条记录进行修改，会导致该记录的undo log生成一条**记录版本链表**，链表的头部是最新的旧记录，链表尾部是最早的旧记录
+
+  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404071636491.png" alt="image-20240407163613418" style="zoom:60%;" />
+
+**3. ReadView 读取视图**
+
+ReadView解决了一个事务查询选择版本的问题，根据ReadView的匹配规则和当前的一些事务id判断该访问那个版本的数据。
+
+ReadView是一个事务在开始时可见的数据快照。每当一个事务启动时，系统会创建一个ReadView，记录当前活跃事务的列表和事务的时间戳。通过这个视图，事务可以访问在其开始时已经提交的版本，而忽略后续提交的变更。这确保了事务的隔离性，使得它在执行过程中看到的数据始终保持一致，避免了幻读和脏读问题。
+
+不同的隔离级别快照读：RC(读已提交)：每一次执行快照读时生成ReadView、RR(可重复读)：仅在事务中第一次执行快照读时生成ReadView，后续复用。
+
+- 工作过程：**快照读**SQL执行时MVCC提取数据的依据，记录并维护系统当前活跃的事务（未提交的）id。
+
+- **当前读**：写操作时（update、insert、delete(排他锁)，*select ... lock in share mode(共享锁)，select ... for update*），读取的是记录的**最新版本**，读取时会对读取的记录进行加锁，保证其他并发事务不能修改当前记录。
+
+- **快照读**：**select**时，**非阻塞式**地读取记录数据的可见版本，**有可能是历史数据**。
+
+  - Read Committed：每次执行select，都生成一个**快照读**，这个新生成的快照读可能会造成**不可重复读**。
+  - Repeatable Read（默认）：仅在事务开始时生成ReadView，**后续复用**。
+
+- *ReadView是一个数据结构，包含了四个核心字段：*
+
+  |    **字段**    |             **含义**             |
+  | :------------: | :------------------------------: |
+  |     m_ids      |       当前活跃的事务ID集合       |
+  |   min_trx_id   |          最小活跃事务ID          |
+  |   max_trx_id   | 预分配的事务ID，当前最大事务ID+1 |
+  | creator_trx_id |      ReadView创建者的事务ID      |
+
+## 底层：TRANSACTION语法的意义
 
 ### START TRANSACTION;
 
@@ -5317,106 +5651,9 @@ SET SESSION sort_buffer_size = value;  -- `value` 是以字节为单位的大小
 2. **撤销更改**：**通过事务日志（undo Log）来撤销事务期间所做的更改**。
 3. **释放资源**：事务回滚后，同样会释放事务期间占用的资源，如锁定的行或表等。
 
-### MVCC是如何保证数据的可恢复性的？
-
-1. **正在进行的事务**不会读取**未提交的事务**产生的数据。
-
-2. **正在进行的事务**不会修改**未提交的事务**修改或产生的数据。
-
-### 如何保证事务的隔离性？
-
-采用 **2PL** 和 **MVCC** 等隔离机制：
-
-- 锁：排他锁（如一个事务获取了一个数据行的排他锁，其他事务就不能再获取该行的其他锁）
-- MVCC: 多版本并发控制
-
-### 事务日志
-
-事务日志（Redo Log 和 Undo Log）是事务管理中的核心组件，它们分别记录了事务的重做操作和撤销操作。
-
-- **Redo Log**：记录了事务中所有**需要重做**的操作，用于在系统崩溃后恢复未提交的数据。
-- **Undo Log**：记录了事务中所有**需要撤销**的操作，用于在事务回滚时恢复数据到事务开始前的状态。
-
-### 什么是redo log，undo log？
-
-总结：
-
-```
-redo log: 记录的是数据页的物理变化，服务宕机可用来同步数据
-undo log ：记录的是逻辑日志，当事务回滚时，通过逆操作恢复原来的数据
-redo log保证了事务的持久性，undo log保证了事务的原子性和一致性
-```
-
-**`redo log`**：重做日志，确保了**已提交的事务**在数据库崩溃重启后，能够保持数据的**持久性**和**一致性**。`redo log`是物理日志，它包含以下两种类型的信息：
-
-1. **物理页的变化**：某些数据库系统（如Oracle）可能直接记录数据页变化后的状态。这意味着在重做日志中，你会看到一个数据页在某次操作之后的样子。
-2. **操作的描述**：另一些数据库系统（如MySQL的InnoDB存储引擎）则记录了如何重做某个特定操作的信息，即记录了需要对哪些页进行什么样的更新才能重现这些页在事务提交后的状态。
-
-**`undo log`**：回滚日志，确保了**未提交的事务**在数据库崩溃重启后，不会对数据库的数据造成影响，实现**隔离性**。此外在可重复读取隔离等级下，undo log 还可以维持读取视图的一致性，即保证同一个查询在事务内多次执行时返回相同的结果。undo log是逻辑日志，它的基本结构特点如下：
-
-1. **版本链（Version Chain）**：
-   - 在 InnoDB 存储引擎中，每个数据页都有一个版本链，其中包含了该页上所有行的多个版本。这些版本信息是由 Undo Log 维护的。
-2. **重做片段（Undo Segments）**：
-   - Undo Log 通常被组织成 Undo Segments，每一个 Undo Segment 包含一个或多个 Undo Records。Undo Segments 可以进一步分为两类：Insert Undo Segments 和 General Undo Segments。
-     - **Insert Undo Segments** 主要用于插入操作的事务，当事务只包含插入操作时，可以使用 Insert Undo Segments。一旦事务提交，这部分 Undo Log 就不再需要，可以被重用。
-     - **General Undo Segments** 用于包含删除、更新等操作的事务，这类事务提交后，Undo Log 需要保留一段时间，直到不再有活跃事务需要访问这些旧版本。
-3. **重做记录（Undo Records）**：
-   - 每个 Undo Record 包含了数据项在某个时间点的值，以及指向其前后版本的指针。这样可以构建出一个版本链，用于追踪数据项的历史版本。
-4. **回滚指针（Rollback Pointer）**：
-   - 每个事务都有一个 Rollback Pointer 指向 Undo Log 中的一个位置，这个位置标识了事务开始时的数据状态。当事务需要回滚时，系统可以根据 Rollback Pointer 从该位置开始恢复数据到事务开始前的状态。
-5. **时间戳（Timestamps）**：
-   - Undo Log 中还包括时间戳信息，这有助于判断版本的有效性，特别是在 MVCC 环境下，用于决定哪个版本对于给定的查询是可见的。
-
-<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404071627255.png" alt="image-20240407162732189" style="zoom:67%;" />
-
-### 深入理解MVCC机制对一致性和隔离性的保证
-
-**`MVCC`**：Multi-Version Concurrency Control，**多版本并发控制**，是RC和RR模式下的并发事务控制机制，指的是一条记录会有多个版本，每次修改记录都会存储这条记录被修改之前的版本。多版本之间串联起来就形成了一条版本链，这样不同时刻启动的事务可以**无锁**地获得不同版本的数据（普通读）。此时读（普通读）写操作不会阻塞，写操作可以继续写，无非就是多加了一个版本，历史版本记录可供已经启动的事务读取。主要依赖于数据库记录中的**隐式字段**、**undo log日志**、**ReadView**。
-
-- 隐式字段
-
-| 隐藏字段    | 含义                                                         |
-| ----------- | ------------------------------------------------------------ |
-| DB_TRX_ID   | 最近修改**事务ID**，记录插入这条记录或最后一次修改该记录的事务ID。 |
-| DB_ROLL_PTR | **回滚指针**，指向这条记录的上一个版本，用于配合undo log，指向上一个版本。 |
-| (DB_ROW_ID) | （**隐藏主键**，如果表结构没有指定主键，将会生成该隐藏字段。） |
-
-- undo log
-
-  - 回滚日志，在insert、update、delete的时候产生的便于数据回滚的日志。
-
-  - undo log版本链：不同事务或相同事务对同一条记录进行修改，会导致该记录的undo log生成一条**记录版本链表**，链表的头部是最新的旧记录，链表尾部是最早的旧记录
-
-    <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404071636491.png" alt="image-20240407163613418" style="zoom:67%;" />
-
-- ReadView解决了一个事务查询选择版本的问题
-
-  > - 根据ReadView的匹配规则和当前的一些事务id判断该访问那个版本的数据。
-  > - 不同的隔离级别快照读是不一样的，最终的访问的结果不一样
-  >   - RC （**R**ead **C**ommitted 读已提交）：每一次执行快照读时生成ReadView
-  >   - RR（**R**epeatable **R**ead(默认) 可重复读）：仅在事务中第一次执行快照读时生成ReadView，后续复用
-
-  - 含义：**快照读**SQL执行时MVCC提取数据的依据，记录并维护系统当前活跃的事务（未提交的）id。
-
-  - **当前读**：写操作时（update、insert、delete(排他锁)，*select ... lock in share mode(共享锁)，select ... for update*），读取的是记录的**最新版本**，读取时会对读取的记录进行加锁，保证其他并发事务不能修改当前记录。
-
-  - **快照读**：**select**时，**非阻塞式**地读取记录数据的可见版本，**有可能是历史数据**。
-
-    - Read Committed：每次执行select，都生成一个**快照读**，这个新生成的快照读可能会造成**不可重复读**。
-    - Repeatable Read（默认）：仅在事务开始时生成ReadView，**后续复用**。
-
-  - *ReadView是一个数据结构，包含了四个核心字段：*
-
-    | **字段**       | **含义**                                             |
-    | -------------- | ---------------------------------------------------- |
-    | m_ids          | 当前活跃的事务ID集合                                 |
-    | min_trx_id     | 最小活跃事务ID                                       |
-    | max_trx_id     | 预分配事务ID，当前最大事务ID+1（因为事务ID是自增的） |
-    | creator_trx_id | ReadView创建者的事务ID                               |
-
 # ---------------------------------------
 
-# 分布式数据库
+# 分布式存储
 
 ## 数据库集群
 
@@ -5482,7 +5719,7 @@ todo
 - **提高可用性**：如果一个分片服务器宕机，其他分片服务器仍然可以继续提供服务，提高了系统的可用性。
 - **数据地理分布**：分片还允许将数据存储在不同的地理位置，以减少延迟并满足数据驻留法规要求。
 
-#### 实现方式
+#### 分片的实现方式
 
 1. **哈希分片（Hash-based Sharding）**：
    - 数据根据一个或多个字段的哈希值分配到不同的分片上。
@@ -5895,7 +6132,7 @@ rdb dump.rdb -c memory --bytes 10240 -f redis.csv
   > 1. **降低延迟**：在某些场景中，先删除缓存可以减少缓存与数据库之间的数据不一致时间，因为一旦缓存被删除，后续请求将直接从数据库读取数据。
   > 2. **避免并发问题**（一致性）：在某些高并发的场景下，如果先修改数据库再删除缓存，可能会出现一个请求A修改数据库但还未删除缓存，此时另一个请求B读取到旧的缓存数据并基于旧数据进行了某些操作，然后请求A删除了缓存，此时如果请求B的数据操作依赖于最新的数据库数据，就可能出现问题。
 
-### 保证一致性的组件、设计
+### 实现一致性的组件、设计
 
 **组件**：
 
@@ -5959,7 +6196,7 @@ LFU(Least Frequently Used)：最少频率使用。会统计每个key的访问频
 
 **保证热点数据**可以使用 **allkeys-lru** （挑选最近最少使用的数据淘汰）淘汰策略，那留下来的都是经常访问的热点数据
 
-### 常见的缓存更新策略
+### 缓存更新策略
 
 - **Cache Aside（旁路缓存）策略**；
 - *Read/Write Through（读穿 / 写穿）策略；*（仅存在于理论中）
@@ -6202,17 +6439,7 @@ Redis 集群引入了哈希槽的概念，有 16384 个哈希槽，集群中每�
 
 # ---------------------------------------
 
-# Spring框架
-
-## Spring Boot 2 为啥默认CGlib不再使用JDK代理？
-
-- 不需要实现接口：JDK动态代理要求目标类必须实现一个接口，而CGLib动态代理可以直接代理普通类（非接口）。这意味着CGLib可以对那些没有接口的类进行代理，提供更大的灵活性。
-- 代理对象的创建：JDK动态代理只能代理实现了接口的类，它是通过**Proxy类**和**lnvocationHandler接口**来创建代理对象。而CGLib动态代理可以代理任意类，它是通过**Enhancer类**来创建代理对象，无需接口。
-- 性能：CGLib动态代理比JDK动态代理更快。JDK动态代理是通过反射来实现的，而CGLib动态代理使用字节码生成技术，直接操作字节码。JDK动态代理对代理方法的调用是通过InvocationHandler来转发的，而CGLib动态代理对代理方法的调用是通过FastClass机制来直接调用目标方法的，这也是CGLib性能较高的原因之一。
-
-> **JDK 动态代理**是基于接口的，所以要求代理类一定是有定义接口的。
->
-> **CGLIB** 基于 ASM 字节码生成工具，它是通过继承的方式生成目标类的子类来实现代理类，所以要注意 final 方法。
+# Spring
 
 ## Spring、Spring MVC 和 Spring Boot 有什么区别
 
@@ -6511,58 +6738,240 @@ Bean的生命周期是由Spring容器自动管理的，其中有两个环节我�
 1. 可以自定义**初始化**方法，增加`@PostConstruct`注解，会在**调用SetBeanFactory方法之后**调用该方法。
 2. 可以自定义**销毁**方法，增加`@PreDestroy`注解，会在**自身销毁前调用**这个方法。
 
-### Bean是线程安全的吗？不安全的话如何解决？
+### Bean线程安全吗？如何解决线程不安全的Bean？
 
-不是线程安全的。
+Bean不一定是线程安全的。
 
-如果注入的对象是无状态的（String类），是没有线程安全问题的；
+如果注入的对象是无状态的（String类），不需要线程安全问题的；
 
-**如果在bean中定义了可修改的变量，是要考虑线程安全问题的。**
+如果在bean中定义了**可修改的变量**，**需要考虑线程安全问题。**
 
-**解决方案**：可以使用多例或者加锁来解决，Spring框架中有一个`@Scope`注解，默认为singleton，可以改为prototype保证线程安全。
+**解决方案**：
 
-### Srping Bean 循环依赖
+1. 使用多例。
+2. 使用加锁。
+3. 使用`@Scope`注解，默认为`singleton`，改为`prototype`。
+
+### 循环依赖及其解决办法
 
 **循环依赖**：有多个类被Spring管理，它们在实例化时互相持有对方，最终形成闭环。
 
-Spring无法解决**构造方法**上出现的循环依赖，**解决**：在构造方法的参数上使用`@Lazy`。
+<img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/VagJkJyh_658dafbb-f354-41e0-97e9-896759a20c94_mianshiya.png" alt="img" style="zoom:100%;" />
 
-Spring采用**三级缓存**解决循环依赖：
+示例代码：
 
-<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404121911396.png" alt="image-20240412191107333" style="zoom:50%;" />
+```java
+@Service
+public class A {
+    @Autowired
+    private B b;
+}
 
-| **缓存名称** |     **源码名称**      |        返回结果        | **作用**                                                     |
-| :----------: | :-------------------: | :--------------------: | ------------------------------------------------------------ |
-|   一级缓存   |   singletonObjects    |   完全初始化好的bean   | 单例池，缓存已经经历了完整的生命周期，已经初始化完成的bean对象，只实现了singleton scope，**解决不了循环依赖** |
-|   二级缓存   | earlySingletonObjects | 实例化但未初始化的bean | 缓存早期的bean对象（生命周期还没走完）                       |
-|   三级缓存   |  singletonFactories   | 存放BeanFactory的实例  | 缓存的是ObjectFactory，表示对象工厂，用来创建某个对象的      |
+@Service
+public class B {
+    @Autowired
+    private A a;
+}
 
-**解决流程**:
+//或者自己依赖自己
+@Service
+public class A {
+    @Autowired
+    private A a;
+}
+```
+
+解决做法：先创建 A，此时的 A 是不完整的（没有注入 B），用个 map 保存这个不完整的 A，再创建 B ，B 需要 A，所以从那个 map 得到“不完整”的 A，此时的 B 就完整了，然后 A 就可以注入 B，然后 A 就完整了，B 也完整了，且它们是相互依赖的。
+
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410101052587.png" alt="image.png" style="zoom:90%;" />
+
+关键就是**提前暴露未完全创建完毕的 Bean**。
+
+在 Spring 中，只有同时满足以下两点才能解决循环依赖的问题：
+
+1. 依赖的 Bean 必须都是单例
+2. 依赖注入的方式，必须**不全是**构造器注入，且 beanName 字母序在前的不能是构造器注入
+
+Spring无法解决**构造方法**上出现的循环依赖，**补救措施**：在构造方法的参数上使用`@Lazy`。
+
+非构造方法Spring通过**三级缓存**解决循环依赖：
+
+Spring为单例搞的三个 map，也就是三级依赖：
+
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404121911396.png" alt="image-20240412191107333" style="zoom:45%;" />
+
+| **缓存名称** |     **源码名称**      |                           返回结果                           |                           **作用**                           |
+| :----------: | :-------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
+|   一级缓存   |   singletonObjects    |        存储所有已创建完毕的单例 Bean （完整的 Bean）         | 单例池，缓存已经经历了完整的生命周期，已经初始化完成的bean对象，只实现了singleton scope，**解决不了循环依赖** |
+|   二级缓存   | earlySingletonObjects |   存储所有仅完成实例化，但还未进行属性注入和初始化的 Bean    |            缓存早期的bean对象（生命周期还没走完）            |
+|   三级缓存   |  singletonFactories   | 存储能建立这个 Bean 的一个工厂，通过工厂能获取这个 Bean，延迟化 Bean 的生成，工厂生成的 Bean 会塞入二级缓存 |   缓存的是ObjectFactory，表示对象工厂，用来创建某个对象的    |
+
+**三级缓存的工作过程**:
 
 1. 创建bean实例
 2. 将创建的bean实例放入三级缓存
 3. 填充属性
 4. 如果发现循环依赖,尝试从三级缓存中获取
-5. 没有循环依赖,将bean放入一级缓存
+5. 没有循环依赖，将bean放入一级缓存
+
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404121917148.png" alt="image-20240412191731029" style="zoom:45%;" />
+
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404121917842.png" alt="image-20240412191748709" style="zoom:45%;" />
 
 **二级缓存**和**三级缓存**解决循环依赖的过程：
 
-<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404121917148.png" alt="image-20240412191731029" style="zoom:40%;" />
+1. 首先，获取单例 Bean 的时候会通过 BeanName 先去 singletonObjects（一级缓存） 查找完整的 Bean，如果找到则直接返回，否则进行步骤 2。
+2. 看对应的 Bean 是否在创建中，如果不在创建中直接返回null，如果 Bean 正在创建中，则会去 earlySingletonObjects （二级缓存）查找 Bean，如果找到则返回，否则进行步骤 3
+3. 去 singletonFactories （三级缓存）通过 BeanName 查找到对应的工厂，如果存在 Bean 对应的 Bean工厂，则通过Bean工厂创建 Bean ，并且将 Bean 放置到 earlySingletonObjects （二级缓存）中。
+4. 如果三个缓存都没找到，则返回 null。
 
-<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404121917842.png" alt="image-20240412191748709" style="zoom:40%;" />
+步骤 2 中如果查询发现 Bean 还未创建，就直接返回 null，返回 null 之后，说明这个 Bean 还未创建，这个时候会标记这个 Bean 正在创建中，然后再调用 `createBean` 来创建 Bean，而实际创建是调用方法 `doCreateBean`。doCreateBean 这个方法就会执行上面我们说的三步骤：实例化、属性注入初始化。在实例化 Bean 之后，**会往 三级缓存（singletonFactories）塞入一个工厂，而调用这个工厂的 `getObject` 方法，就能得到这个 Bean**。
+
+<img src="https://pic.code-nav.cn/mianshiya/question_picture/1815995005551374337/SU9AOSuc_image-20240911195840657_mianshiya.png" alt="image-20240911195840657.png" style="zoom:85%;" />
 
 ## IOC
 
-### Spring框架IOC容器启动过程
+### 什么是 IOC？IOC有什么好处
 
-Spring框架的IOC容器启动过程主要包括以下几个阶段：
+Spring 的 IOC（Inversion of Control，控制反转）是一种设计模式，用于减少代码间的耦合度，提高软件系统的可维护性、可扩展性和可测试性。在传统的程序设计中，对象的创建和依赖关系的管理是由对象自身负责的，而在使用 IOC 的情况下，这些职责被转移到了外部容器上，即 Spring 容器。
+
+**IOC 的概念**：控制反转并不是一种具体的实现技术，而是一种设计理念。它描述的是对象的控制权从应用程序代码内部转移到外部容器的过程，即对象的创建和生命周期管理不再由程序员直接控制，而是交给框架来管理。
+
+### IOC容器和Bean的关系
+
+**1. IOC 容器**
+
+IOC 容器是 Spring 框架的核心部分，负责管理应用程序中的所有 Bean 的生命周期和配置。
+
+IOC 容器通过读取配置元数据（通常是 XML 文件、Java 配置类或注解）来了解如何创建和管理 Bean。
+
+IOC 容器的主要职责包括：
+
+- **Bean 的实例化**：根据配置信息创建 Bean 实例。
+- **Bean 的装配**：管理 Bean 之间的依赖关系，即依赖注入（DI）。
+- **Bean 生命周期管理**：控制 Bean 的初始化、销毁等生命周期行为。
+
+Spring 提供了两种主要的 IOC 容器：
+
+- **BeanFactory**：这是一个基础的容器接口，提供了基本的依赖注入支持。它是一个轻量级的容器，适合于简单的应用场景。
+- **ApplicationContext**：它是 `BeanFactory` 的子接口，除了提供依赖注入功能外，还增加了许多企业级功能，如 AOP 支持、事件发布、国际化等。`ApplicationContext` 更适合于复杂的大型企业应用。
+
+**2. Bean**
+
+Bean 是由 IOC 容器管理的对象。这些对象是在应用程序中执行特定任务的 Java 对象，它们的创建、装配和生命周期都由 IOC 容器负责。
+
+Bean 的定义通常包括以下信息：
+
+- **类名**：Bean 所对应的 Java 类。
+- **Bean 名称**：用于在容器中唯一标识 Bean。
+- **作用域**：定义 Bean 的生命周期和范围，如单例（Singleton）、原型（Prototype）等。
+- **依赖关系**：Bean 可能依赖的其他 Bean 或资源。
+- **初始化和销毁方法**：指定在 Bean 创建和销毁时调用的方法。
+
+**3. IOC 容器与 Bean 的关系**
+
+- **Bean 的定义和注册**：开发者通过配置文件（XML、Java 配置类）或注解（如 `@Component`、`@Service`、`@Repository`、`@Controller`）来定义 Bean，并将其注册到 IOC 容器中。
+- **Bean 的实例化**：IOC 容器根据配置信息创建 Bean 实例。
+- **依赖注入**：IOC 容器管理 Bean 之间的依赖关系，通过构造器注入、设值方法注入或字段注入等方式将依赖对象注入到目标 Bean 中。
+- **生命周期管理**：IOC 容器管理 Bean 的生命周期，包括初始化、使用和销毁等阶段。可以通过配置初始化方法和销毁方法来控制 Bean 的生命周期行为。
+
+### 依赖注入
+
+依赖注入（Dependency Injection, DI）是实现 IOC 的具体方式之一。通过**final+构造函数注入**、**set方法注入**或者**接口注入**等方式，将对象的依赖关系注入到对象中，而不是让对象自己创建或查找依赖对象。
+
+### 依赖注入的目的
+
+依赖注入的主要目的是为了减少代码之间的耦合度，提高代码的可复用性和可测试性。通过依赖注入，对象的依赖关系不是由对象自身来创建或查找，而是由外部的容器（如 Spring 容器）在运行时自动注入。
+
+在项目中，一个对象（我们称其为客户端对象）可能需要引用另一个对象（服务对象）来完成某些任务。没有依赖注入的情况下，客户端对象通常会自己创建或查找服务对象的实例，这种方式会导致客户端和服务对象之间存在紧密的耦合。依赖注入通过外部容器来管理这些依赖关系，从而解耦客户端和服务对象。
+
+### 依赖注入的方式
+
+Spring 框架支持三种主要的依赖注入方式：
+
+1. **构造器注入（Constructor Injection）**：
+  
+   在对象创建时通过构造函数传递依赖对象。确保了对象一旦创建后，其依赖项就是不可变的，并且总是处于已初始化状态。
+   
+   ```java
+   public class Client {
+       private final Service service;
+       
+       @Autowired
+       public Client(Service service) {
+           this.service = service;
+       }
+   }
+   ```
+   
+2. **set方法注入（Setter Injection）**：
+  
+   通过对象的 setter 方法来注入依赖对象。灵活，允许在对象创建后修改依赖关系。
+   
+   ```java
+   public class Client {
+       private Service service;
+       
+       @Autowired
+       public void setService(Service service) {
+           this.service = service;
+       }
+   }
+   ```
+   
+3. **字段注入（Field Injection）**：
+  
+   直接在对象的字段上使用 `@Autowired` 注解来注入依赖对象。简单，但灵活性较差，且不利于单元测试。
+   
+   ```java
+   public class Client {
+       @Autowired
+       private Service service;
+   }
+   ```
+
+4. **接口注入（Interface Injection）**：
+
+   类似于set方法注入。通过实现特定的接口来注入依赖对象。这种方式在现代 Spring 应用中较少使用，但仍然是一种可行的注入方式。
+
+   ```java
+   public interface ServiceAware {
+       void setService(Service service);
+   }
+   
+   public class Client implements ServiceAware {
+       private Service service;
+       
+       @Override
+       public void setService(Service service) {
+           this.service = service;
+       }
+   }
+   ```
+
+### 
+
+### IOC / 依赖注入的好处
+
+1. **降低耦合度**：通过依赖注入，对象之间的依赖关系由 Spring 容器来管理，而不是硬编码在对象内部，这大大降低了对象之间的耦合度。
+
+2. **增强灵活性**：由于依赖关系可以在运行时通过配置文件或注解动态设置，因此可以在不修改代码的情况下改变对象的行为，增加了系统的灵活性。
+
+3. **易于测试**：依赖注入使得对象更容易被单元测试，因为可以通过注入模拟对象（mock objects）来测试对象的行为，而不需要关心实际的依赖对象。
+
+4. **简化代码**：对象的创建和管理都被移到了容器中，减少了初始化代码量，使得业务代码更加简洁明了。
+
+5. **集中管理**：所有的依赖关系和对象的生命周期都可以在一个地方进行配置和管理，这有助于团队协作开发，也便于后期维护。
+
+总之，Spring 的 IOC 容器通过提供依赖注入功能，有效地帮助开发者构建松耦合、高内聚的应用程序，提高了代码的质量和开发效率。
+
+### IOC容器启动过程
 
 1. **加载配置文件**：Spring容器会读取并解析配置文件，或基于注解的配置类消息。
 2. **创建容器**：Spring根据配置文件中定义的Bean信息，实例化并管理各个Bean对象。在容器启动过程中，Spring会创建一个BeanFactory或ApplicationContext容器对象。
 3. **注册Bean定义**：Spring容器会根据配置文件中的Bean定义信息，将Bean对象注册到容器中，并配置Bean之间的依赖关系。
 4. **实例化Bean**：容器启动后，会根据Bean定义信息实例化各个Bean对象，并根据需要填充Bean的属性。
-5. **注册BeanPostProcessor**： Spring容器会注册BeanPostProcessor接口的实现类，这些类可以在Bean实例化之后、初始化之前和初始化之后对Bean进行处
-  理。
+5. **注册BeanPostProcessor**： Spring容器会注册BeanPostProcessor接口的实现类，这些类可以在Bean实例化之后、初始化之前和初始化之后对Bean进行处理。
 6. **初始化Bean**：容器会调用Bean的初始化方法（如@PostConstruct注解标注的方法或实现initializingBean接口的方法）对Bean进行初始化。
 7. **完成容器启动**：容器启动完成后，可以通过ApplicationContext接口提供的各种方法来获取和操作Bean对象。
 
@@ -7054,6 +7463,16 @@ SpringBoot的自动配置通过注解 `@SpringBootApplication` 实现，这个�
 
 <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404121934450.png" alt="image-20240412193405294" style="zoom: 60%;" />
 
+### SpringBoot为什么默认使用CGlib？
+
+- 不需要实现接口：JDK动态代理要求目标类必须实现一个接口，而CGLib动态代理可以直接代理普通类（非接口）。这意味着CGLib可以对那些没有接口的类进行代理，提供更大的灵活性。
+- 代理对象的创建：JDK动态代理只能代理实现了接口的类，它是通过**Proxy类**和**lnvocationHandler接口**来创建代理对象。而CGLib动态代理可以代理任意类，它是通过**Enhancer类**来创建代理对象，无需接口。
+- 性能：CGLib动态代理比JDK动态代理更快。JDK动态代理是通过反射来实现的，而CGLib动态代理使用字节码生成技术，直接操作字节码。JDK动态代理对代理方法的调用是通过InvocationHandler来转发的，而CGLib动态代理对代理方法的调用是通过FastClass机制来直接调用目标方法的，这也是CGLib性能较高的原因之一。
+
+> **JDK 动态代理**是基于接口的，所以要求代理类一定是有定义接口的。
+>
+> **CGLIB** 基于 ASM 字节码生成工具，它是通过继承的方式生成目标类的子类来实现代理类，所以要注意 final 方法。
+
 ## SpringMVC
 
 ### SpringMVC的执行流程
@@ -7086,7 +7505,7 @@ Springmvc的执行流程分为老的和新的：
 
 <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404121921353.png" alt="image-20240412192132239" style="zoom:50%;" />
 
-### 过滤器和拦截器
+### 过滤器、拦截器
 
 <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410012125541.png" alt="image-20241001212521342" style="zoom: 100%;" />
 
@@ -7125,7 +7544,7 @@ Springmvc的执行流程分为老的和新的：
 6. 输入参数映射
 7. 输出结果映射
 
-<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404121939016.png" alt="image-20240412193916911" style="zoom:50%;" />
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404121939016.png" alt="image-20240412193916911" style="zoom:40%;" />
 
 MapperStatement对象的结构：
 
@@ -7185,7 +7604,7 @@ MapperStatement对象的结构：
 
 例如 A、B 两张表进行联表查询，表 A 缓存了这次联表查询的结果，则结果存储在表 A 的 namespace 中，此时如果表 B 的数据更新了，是不会同步到表 A namespace 的缓存中，因此就会导致脏读的产生。
 
-![](https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/FvCfm3wH_image_mianshiya.png)
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410081502315.png" style="zoom: 60%;" />
 
 可以看到 mybaits 缓存还是不太安全，**在分布式场景下肯定会出现脏数据**。
 
@@ -7312,40 +7731,42 @@ BASE 是对 CAP 中 AP 选项的一种延伸，它强调的是即使不能保证
 
 **其实**就这么几点：
 
-1. 动态代理（屏蔽底层调用细节）
-2. 序列化（网络数据传输需要扁平的数据）
-3. 协议（规定协议，才能识别数据）
-4. 网络传输（I/O模型相关内容，一般用 Netty 作为底层通信框架即可）
+1. **动态代理**（屏蔽底层调用细节）
+2. **序列化**（网络数据传输需要扁平的数据）
+3. **协议**（规定协议，才能识别数据）
+4. **网络传输**（I/O模型相关内容，一般用 Netty 作为底层通信框架即可）
 
-> 生产级别的框架还需要注册中心作为服务的发现，且还需提供路由分组、负载均衡、异常重试、限流熔断等其他功能。
-
-<img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/QZcneqlN_dc72f0b0-c32d-4902-82f8-b72a968f7eee_mianshiya.png" alt="img" style="zoom:100%;" />
+生产级别的框架还需要注册中心作为服务的发现，且还需提供路由分组、负载均衡、异常重试、限流熔断等其他功能。
 
 说到这就可以停下了，然后等面试官发问，正常情况下他会选一个点进行深入探讨，这时候我们只能见招拆招了。
 
-#### RPC是怎么实现的？
+<img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/QZcneqlN_dc72f0b0-c32d-4902-82f8-b72a968f7eee_mianshiya.png" alt="img" style="zoom:100%;float:left;" />
+
+#### 细节：动态代理 / RPC的实现原理
 
 **通过动态代理实现的。**
+
+> *在 Dubbo 中用的是 Javassist，至于为什么用这个其实梁飞大佬已经写了博客说明了。*
+>
+> *他当时对比了 JDK 自带的、ASM、CGLIB(基于ASM包装)、Javassist。*
+>
+> *经过测试最终选用了 Javassist。*
+>
+> *梁飞：最终决定使用JAVAASSIST的字节码生成代理方式。 虽然ASM稍快，但并没有快一个数量级，而Javassist的字节码生成方式比ASM方便，JAVAASSIST只需用字符串拼接出Java源码，便可生成相应字节码，而ASM需要手工写字节码。*
 
 RPC 会给接口生成一个代理类，我们调用这个接口实际调用的是动态生成的代理类，由代理类来触发远程调用，这样我们调用远程接口就无感知了。
 
 动态代理，最常见的就是 Spring 的 AOP 了，涉及的有 JDK 动态代理和 cglib。
 
-> 在 Dubbo 中用的是 Javassist，至于为什么用这个其实梁飞大佬已经写了博客说明了。
->
-> 他当时对比了 JDK 自带的、ASM、CGLIB(基于ASM包装)、Javassist。
->
-> 经过测试最终选用了 Javassist。
->
-> 梁飞：最终决定使用JAVAASSIST的字节码生成代理方式。 虽然ASM稍快，但并没有快一个数量级，而Javassist的字节码生成方式比ASM方便，JAVAASSIST只需用字符串拼接出Java源码，便可生成相应字节码，而ASM需要手工写字节码。
-
-<img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/0lDq7g3W_e6a5195e-0fcd-4229-820f-8013c3bcb341_mianshiya.png" alt="img" style="zoom:100%;" />
+<img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/0lDq7g3W_e6a5195e-0fcd-4229-820f-8013c3bcb341_mianshiya.png" alt="img" style="zoom:100%;float:left;" />
 
 #### 细节：序列化
 
 **序列化原因：**网络传输的数据是“扁平”的，最终需要转化成“扁平”的二进制数据在网络中传输。
 
 **序列化方案：**有很多序列化选择，一般需要**综合考虑通用性、性能、可读性和兼容性**。
+
+**序列化方案对比：**
 
 - 采用**二进制**的序列化格式数据更加**紧凑**
 - 采用 **JSON** 等文本型序列化格式**可读性更佳**。
@@ -7366,13 +7787,13 @@ RPC 会给接口生成一个代理类，我们调用这个接口实际调用的�
 >
 > 从整体长度和头长度我们就能知道这个请求到底有多少位，前面多少位是头，剩下的都是协议体，这样就能识别出来，扩展位就是留着日后扩展备用。
 
-例如：Dubbo 协议：
+例如Dubbo 协议：
 
-<img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/mYyU0BI5_7c3ca8fb-65c9-45ac-aae6-7739ff58ee52_mianshiya.png" alt="img" style="zoom:120%;" />
+<img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/mYyU0BI5_7c3ca8fb-65c9-45ac-aae6-7739ff58ee52_mianshiya.png" alt="img" style="zoom:120%;float:left;" />
 
 #### 细节：网络传输
 
-<img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/LuV0WzRQ_bc1e2b9d-2d0c-442f-aa06-6b94f0ed64cf_mianshiya.png" alt="img" style="zoom:90%;" />
+<img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/LuV0WzRQ_bc1e2b9d-2d0c-442f-aa06-6b94f0ed64cf_mianshiya.png" alt="img" style="zoom:90%;float:left;" />
 
 一般而言用的都是 **IO 多路复用**，因为大部分 RPC 调用场景都是高并发调用，IO 复用可以利用较少的线程 hold 住很多请求。
 
@@ -7470,7 +7891,7 @@ public class SentinelDashboardApplication {
 
 ### 服务网关（Gateway）
 
-#### 如何实现过滤恶意攻击
+#### 如何实现过滤恶意攻击？
 
 Spring Cloud Gateway 可以通过多种方式来实现对恶意攻击的过滤：
 
@@ -7484,7 +7905,7 @@ Spring Cloud Gateway 可以通过多种方式来实现对恶意攻击的过滤�
 4. **安全过滤器（Security Filters）**：
    - 可以添加自定义的安全过滤器来检测和阻止恶意请求，如 SQL 注入、XSS 攻击等。
 
-#### 如何验证用户身份
+#### 如何验证用户身份？
 
 Spring Cloud Gateway 可以通过多种方式来实现用户身份验证：
 
@@ -7499,7 +7920,7 @@ Spring Cloud Gateway 可以通过多种方式来实现用户身份验证：
    - 可以在请求头或查询参数中传递 API 密钥，并在网关层验证密钥的有效性。
 4. **自定义认证逻辑**：
    - 可以添加自定义的过滤器来实现复杂的认证逻辑。
-   - 例如，可以通过数据库查询用户的凭据，验证用户身份。
+   - 可以通过数据库查询用户的凭据，验证用户身份。
 
 ## 分布式事务
 
@@ -7634,7 +8055,7 @@ Xxl-Job 支持多种任务分配策略，可以根据业务需求选择合适的
 
 - 服务熔断（Hystrix ）：默认关闭，需要手动在引导类上添加注解`@EnableCircuitBreaker`。如果检测到 10 秒内请求的失败率超过 50%，就触发熔断机制。之后每隔 5 秒重新尝试请求微服务，如果微服务不能响应，继续走熔断机制。如果微服务可达，则关闭熔断机制，恢复正常请求
 
-<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122016785.png" alt="image-20240412201605723" style="zoom: 60%;" />
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122016785.png" alt="image-20240412201605723" style="zoom: 50%;" />
 
 - 服务降级（Feign）：服务自我保护的一种方式，或者保护下游服务的一种方式，用于确保服务不会受请求突增影响变得不可用，确保服务不崩溃，一般在实际开发中与feign接口整合，编写降级逻辑
 
@@ -7655,18 +8076,16 @@ public class IArticleClientFallback implements IArticleClient {
 }
 ```
 
-### 怎么监控微服务？有哪些性能检测工具（APM）？
+### 如何监控微服务？有哪些检测工具？
 
-> APM：**A**pplication **P**erformance **M**anagment，应用程序性能监控工具
->
-> 常见APM工具：
->
-> 1. Springboot-admin
-> 2. prometheus+Grafana
-> 3. zipkin
-> 4. skywalking
+常见APM工具：
 
-skywalking的监控流程：
+1. Springboot-admin
+2. Prometheus、Grafana
+3. zipkin
+4. Skywalking
+
+Skywalking的监控流程：
 
 1. 用skywalking监控接口、服务、物理实例的一些状态。特别是在压测的时候了解哪些服务和接口比较慢，可以针对性的分析和优化。
 2. 在skywalking设置告警规则，如果报错可以给相关负责人发短信和发邮件，第一时间知道项目的bug情况，第一时间修复。
@@ -7714,11 +8133,9 @@ skywalking的监控流程：
 
 # ---------------------------------------
 
-# 业务实现
+# 架构设计
 
-## 架构设计
-
-### 例：讲一下分布式 ID 发号器的原理
+## 例：讲一下分布式 ID 发号器的原理
 
 **设计目标**
 
@@ -7728,7 +8145,7 @@ skywalking的监控流程：
 4. **容错性**：即使部分节点失效，系统也应该能够继续正常工作。
 5. **无中心依赖**：减少对单一中心服务的依赖，以提高系统的可用性。
 
-**实现方案：Snowflake**
+**实现原理：Snowflake 算法**
 
 Snowflake 算法生成的 ID 是一个 64 位的整数，格式如下：
 
@@ -7741,18 +8158,11 @@ Snowflake 算法生成的 ID 是一个 64 位的整数，格式如下：
 - **工作机器 ID**：5 位，可以标识不同的机器。
 - **序列号**：12 位，可以支持同一毫秒内生成的多个 ID。
 
-**优点**：
+**优点**： 生成的 ID 是有序的、高性能、适合高并发场景、实现简单。 
 
-- 生成的 ID 是有序的。
-- 高性能，适合高并发场景。
-- 实现简单。
+**缺点**： 需要时间同步、如果机器 ID 分配不当，可能会导致冲突。
 
-**缺点**：
-
-- 需要时间同步。
-- 如果机器 ID 分配不当，可能会导致冲突。
-
-### 例：讲一下扫码登陆的原理
+## 例：讲一下扫码登陆的原理
 
 在验证码登录场景中，服务器生成 token 并与 PC 端通信的流程通常是通过以下步骤完成的：
 
@@ -7779,7 +8189,7 @@ Snowflake 算法生成的 ID 是一个 64 位的整数，格式如下：
 - 一旦服务器确认手机端登录成功，服务器会在轮询或 WebSocket 通信中通知 PC 端该 `sessionId` 已绑定 Token。
 - 服务器将生成的 Token 发送给 PC 端，PC 端收到 Token 后可以将其存储在 Cookie 或 LocalStorage 中，并以此作为用户身份进行后续操作。
 
-**5. PC 端登录成功****
+**5. PC 端登录成功**
 
 - PC 端收到服务器发送的 Token 后，即可认为用户已登录成功。
 - 随后 PC 端可以使用这个 Token 访问服务器的受保护资源，例如个人主页或其他服务。
@@ -7798,7 +8208,7 @@ Snowflake 算法生成的 ID 是一个 64 位的整数，格式如下：
 
 通过这种方式，服务器知道要将 Token 发送给哪个 PC 端，因为 `sessionId`（二维码）在 PC 端和服务器之间建立了唯一的关联。
 
-### 例：购物商城应对大流量、大并发的三类策略
+## 例：购物商城应对大流量、大并发的三类策略
 
 **分流**
 
@@ -7826,7 +8236,7 @@ Snowflake 算法生成的 ID 是一个 64 位的整数，格式如下：
 - 应用系统限流：客户端限流和服务端限流。
 - 数据库限流：红线区，力保数据库。
 
-### 例：如何设计一个秒杀功能？
+## 例：如何设计一个秒杀功能？
 
 **1. 系统架构设计**
 
@@ -7880,11 +8290,10 @@ Snowflake 算法生成的 ID 是一个 64 位的整数，格式如下：
   - **缓存空值**，减少对数据库的无效请求。
 
 - **缓存击穿**
-
   - **预热缓存**：秒杀开始前将所有商品信息加载到缓存中。
-
+  
   - 使用**分布式锁**或 TTL（Time To Live）策略防止缓存击穿。
-
+  
 - **分布式锁**
   - 使用 Redis 的 SETNX 或 Redlock 算法实现分布式锁，防止并发操作导致的数据不一致。
 
@@ -7935,12 +8344,12 @@ public class SeckillController {
 }
 ```
 
-### 例：如何设计一个订单超时取消功能？
+## 例：如何设计一个订单超时取消功能？
 
 1. 定时任务（存在延后取消问题）
 2. **使用MQ的延时任务**
 
-### *例：如何统计某家店铺销量 top 50 的商品？
+## *例：统计某家店铺销量 top 50 的商品?
 
 **1. 数据收集与存储**
 
@@ -8006,7 +8415,7 @@ GET /shops/{shopId}/top-products?limit=50
 - **索引优化**：确保在`sales`销售表上有适当的索引来加速查询。
 - **分页处理**：如果数据量非常大，可以考虑使用分页来减少单次请求的数据量。
 
-### *例：如何设计一个点赞功能？
+## *例：如何设计一个点赞功能？
 
 **1. 前端交互逻辑**
 
@@ -8154,7 +8563,7 @@ public void handleLikeEvent(LikeEvent event) {
 - **缓存**：使用缓存（如 Redis）来存储热点数据，减少数据库访问频率。
 - **异步处理**：点赞操作可以异步处理，提高用户体验。
 
-### *例：如何防止用户重复提交？
+## *例：如何防止用户重复提交？
 
 **出现场景**：
 
@@ -8254,9 +8663,9 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 }
 ```
 
-### *例：设计一个简单的JWT令牌身份检验功能
+## *例：设计一个简单的JWT令牌身份检验功能
 
-#### 配置文件
+**配置文件**
 
 ```yaml
 hzx:
@@ -8269,7 +8678,7 @@ hzx:
     user-token-name: authentication
 ```
 
-#### JWT配置文件类
+**JWT配置文件类**
 
 ```java
 @Component
@@ -8294,7 +8703,7 @@ public class JwtProperties {
 }
 ```
 
-#### JWT工具类
+**JWT工具类**
 
 ```java
 @Component
@@ -8353,7 +8762,9 @@ public class JwtUtil {
 }
 ```
 
-#### 自定义拦截器
+**自定义拦截器**
+
+管理员端
 
 ```java
 @Component
@@ -8415,6 +8826,8 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
 }
 ```
 
+用户端
+
 ```java
 @Component
 @Slf4j
@@ -8472,7 +8885,7 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
 }
 ```
 
-#### 注册拦截器
+**注册拦截器**
 
 ```java
 @Configuration
@@ -8808,7 +9221,7 @@ AMQP 消息通常包含以下几个部分：
 
 # 消息队列的底层设计（RabbitMQ、Kafka）
 
-<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122032227.png" alt="image-20240412203231163" style="zoom: 55%;" />
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122032227.png" alt="image-20240412203231163" style="zoom: 60%;" />
 
 ## 高可用设计
 
@@ -9835,11 +10248,11 @@ Java 中的 `ReadWriteLock` 是通过 `ReentrantReadWriteLock` 实现的，它�
 
 ### synchronized 的锁升级
 
-| synchronized 锁形式 |      使用情况      |           性能           | 描述                                                         |
-| :-----------------: | :----------------: | :----------------------: | :----------------------------------------------------------- |
-|      重量级锁       |    多线程竞争锁    |        性能比较低        | 底层使用的Monitor实现，涉及到了[用户态](#UserMode)和[内核态](#Kernel Mode)的切换、进程的上下文切换，成本较高。 |
-|      轻量级锁       | 不同线程交替持有锁 | 相对重量级锁性能提升很多 | 线程加锁的时间是错开的（也就是没有竞争），可以使用轻量级锁来优化。轻量级修改了对象头的锁标志。通过CAS操作保证原子性。 |
-|       偏向锁        | 锁只被一个线程持有 |         性能最好         | 线程第一次获得锁时进行一次CAS操作，之后该线程再获取锁，只需要判断自己是否持有锁 |
+|  锁形式  |      使用情况      |           性能           |                             描述                             |
+| :------: | :----------------: | :----------------------: | :----------------------------------------------------------: |
+| 重量级锁 |    多线程竞争锁    |        性能比较低        | 底层使用的Monitor实现，涉及到了[用户态](#UserMode)和[内核态](#Kernel Mode)的切换、进程的上下文切换，成本较高。 |
+| 轻量级锁 | 不同线程交替持有锁 | 相对重量级锁性能提升很多 | 线程加锁的时间是错开的（也就是没有竞争），可以使用轻量级锁来优化。轻量级修改了对象头的锁标志。通过CAS操作保证原子性。 |
+|  偏向锁  | 锁只被一个线程持有 |         性能最好         | 线程第一次获得锁时进行一次CAS操作，之后该线程再获取锁，只需要判断自己是否持有锁 |
 
 1. **无锁状态（Unlocked）**：在对象首次被访问时，默认是没有加锁的。此时，多个线程可以并行地访问对象的方法而无需阻塞。
 2. **偏向锁（Biased Locking）**：当第一个线程访问该对象的`synchronized`方法或代码块时，JVM会将对象头中的Mark Word标记为偏向锁的状态，并记录下当前线程的信息。
@@ -10195,7 +10608,7 @@ Timer 可以实现延时任务，也可以实现周期性任务。
 
 如果时间到了先看看这个任务是不是周期性执行的任务，如果是则修改当前任务时间为下次执行的时间，如果不是周期性任务则将任务从优先队列中移除。最后执行任务。如果时间还未到则调用 `wait()` 等待。
 
-<img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/TrqE6H13_f1c9ec68-db02-4cf1-98b5-785fbf526725_mianshiya.png" alt="img" style="zoom:90%;" />
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410081506278.png" style="zoom:90%;" />
 
 ### *Timer 的弊端和替代方案*
 
@@ -10276,12 +10689,12 @@ public static void main(String[] args) throws InterruptedException {
 }
 
 /**
-     * 调度一个任务，在指定时间后关闭订单。
-     * @param orderId 订单ID
-     * @param delay   延迟时间
-     * @param unit    时间单位
-     * @return ScheduledFuture 对象，用于取消任务
-     */
+ * 调度一个任务，在指定时间后关闭订单。
+ * @param orderId 订单ID
+ * @param delay   延迟时间
+ * @param unit    时间单位
+ * @return ScheduledFuture 对象，用于取消任务
+ */
 public static ScheduledFuture<?> scheduleTask(Long orderId, long delay, TimeUnit unit) {
     return executor.schedule(
         () -> {
@@ -10299,9 +10712,9 @@ public static ScheduledFuture<?> scheduleTask(Long orderId, long delay, TimeUnit
 }
 
 /**
-     * 取消关闭订单的任务。
-     * @param closeOrderTask 要取消的任务
-     */
+ * 取消关闭订单的任务。
+ * @param closeOrderTask 要取消的任务
+ */
 public static void cancelCloseOrder(ScheduledFuture<?> closeOrderTask) {
     if (closeOrderTask.cancel(true)) {
         System.out.println("Order closing cancelled successfully.");
@@ -10310,22 +10723,6 @@ public static void cancelCloseOrder(ScheduledFuture<?> closeOrderTask) {
     }
 }
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ### BlockingQueue
 
@@ -10354,20 +10751,17 @@ new Thread(consumer).start();
 
 ### BlockingQueue 的阻塞特性原理
 
-**核心机制**
+**核心机制**：
 
-1. **锁（Lock）**：`BlockingQueue` 的实现中会使用锁来确保线程安全。当多个线程试图访问队列时，锁可以确保同一时刻只有一个线程能够执行某些操作（如 `put` 或 `take`）。
-2. **条件变量（Condition）**：条件变量允许一个或多个线程在一个特定条件得到满足之前等待。在 `BlockingQueue` 的实现中，条件变量用于等待队列变得非空（对于 `take` 操作）或非满（对于 `put` 操作）。
+**1. 锁（Lock）**：`BlockingQueue` 的实现中会使用锁来确保线程安全。当多个线程试图访问队列时，锁可以确保同一时刻只有一个线程能够执行某些操作（如 `put` 或 `take`）。
 
-**如何实现阻塞**
+**2. 条件变量（Condition）**：条件变量允许一个或多个线程在一个特定条件得到满足之前等待。在 `BlockingQueue` 的实现中，条件变量用于等待队列变得非空（对于 `take` 操作）或非满（对于 `put` 操作）。
 
-**1. put 操作**
+**如何实现阻塞**：
 
-当向 `BlockingQueue` 中添加元素时，如果队列已满，则 `put` 方法会阻塞当前线程，并调用 `Condition` 的 `await` 方法，使得当前线程等待，直到队列空出位置后再添加元素。
+**1. put 操作**：当向 `BlockingQueue` 中添加元素时，如果队列已满，则 `put` 方法会阻塞当前线程，并调用 `Condition` 的 `await` 方法，使得当前线程等待，直到队列空出位置后再添加元素。
 
-**2. take 操作**
-
-当从 `BlockingQueue` 中取出元素时，如果队列为空，则 `take` 方法将阻塞当前线程，调用条件变量的 `await` 方法，使得当前线程等待，直到队列中有元素为止。
+**2. take 操作**：当从 `BlockingQueue` 中取出元素时，如果队列为空，则 `take` 方法将阻塞当前线程，调用条件变量的 `await` 方法，使得当前线程等待，直到队列中有元素为止。
 
 具体代码操作：
 
@@ -10677,10 +11071,10 @@ Java 线程在运行的生命周期中的指定时刻只可能处于下面 6 种
 
 ### `CompletableFuture` 的使用
 
-#### `Future` 和 `CompletionStage` 对比
+#### `Future` 和 `CompletableFuture` 对比
 
 1. **Future**：表示异步计算的结果，可以查询结果是否可用，等待结果完成或取消计算。
-2. **CompletionStage**：表示异步计算的一个阶段，可以与其他阶段组合形成复杂的异步流程。
+2. **CompletableFuture**：表示异步计算的一个阶段，可以与其他阶段组合形成复杂的异步流程。
 
 #### 创建任务
 
@@ -11147,11 +11541,72 @@ try {
 
 ### 多次调用 `shutdown()`、`shutdownNow()` 会怎样？
 
-再次调用不会有额外效果,只会在第一次调用时有效果。
+再次调用不会有额外效果，只会在第一次调用时有效果。
 
 而且，即使线程池进入 `SHUTDOWN` 状态，相关资源不会立即释放。必须等待所有线程完成任务，线程池进入 `TERMINATED` 状态后，资源才会释放。
 
 ### Java 线程池内部任务出异常后，如何知道是哪个线程出了异常？ 
+
+在Java中，线程池内部的任务如果抛出未捕获的异常，默认情况下这些异常会被记录到日志中，并且任务会被中断，但不会影响线程池本身继续执行其他任务。
+
+如果你只需要处理个别任务的异常，那么包装任务或者使用`Future.get()`可能是更好的选择。
+
+**1. 使用`Future`和`get()`方法**
+
+任务到线程池后获取一个`Future`对象，调用`Future.get()`方法等待任务完成，并且如果任务执行过程中抛出异常，这个异常会被封装成`ExecutionException`重新抛出。
+
+```java
+ExecutorService executor = Executors.newFixedThreadPool(10);
+Future<?> future = executor.submit(() -> {
+    // 模拟任务
+    Thread.sleep(1000);
+    throw new RuntimeException("任务出错！");
+});
+
+try {
+    future.get(); // 等待任务完成
+} catch (InterruptedException e) {
+    Thread.currentThread().interrupt();
+} catch (ExecutionException e) {
+    System.out.println("捕获到异常：" + e.getCause());
+}
+```
+
+如果你想对所有任务的异常进行统一处理，可以考虑使用自定义`ThreadFactory`或重写`afterExecute`方法。
+
+**2. 自定义`ThreadFactory`**
+
+可以通过自定义`ThreadFactory`来创建线程，并设置异常处理器。
+
+```java
+ExecutorService executor = Executors.newFixedThreadPool(10, new ThreadFactory() {
+    @Override
+    public Thread newThread(Runnable r) {
+        Thread t = new Thread(r);
+        t.setUncaughtExceptionHandler((thread, throwable) -> {
+            System.out.println("线程 " + thread.getName() + " 抛出异常：" + throwable.getMessage());
+        });
+        return t;
+    }
+});
+```
+
+**3. 使用`ThreadPoolExecutor`的`afterExecute`方法**
+
+可以重写`ThreadPoolExecutor.afterExecute()`方法来捕获任务执行后的异常。
+
+```java
+ThreadPoolExecutor executor = new ThreadPoolExecutor(
+    10, 10, 0L, TimeUnit.MILLISECONDS,
+    new LinkedBlockingQueue<Runnable>()
+);
+
+executor.afterExecute = (r, e) -> {
+    if (e != null) {
+        System.out.println("任务抛出异常：" + e.getMessage());
+    }
+};
+```
 
 
 
@@ -12134,10 +12589,6 @@ TODO
 通过这些措施，我不仅解决了高并发带来的性能问题，还确保了系统的稳定性和一致性。
 
 在开发过程中，最大挑战是如何在高并发场景下保证积分结算的实时性和准确性。为解决这个问题，我首先优化了数据库查询和写入的性能，利用索引和缓存减少数据库的压力。同时，通过引入动态线程池组件，灵活调配系统资源应对高并发请求。此外，利用消息队列分离了部分异步任务，将非关键任务延后处理，从而减轻了主流程的压力。最终，这些措施有效提升了系统的性能，确保了积分模块的稳定运行。
-
-### 你是如何使用 Git 来管理分支代码的？可以分享一下你在 Git 中的一些最佳实践吗？
-
-TODO
 
 ### 你提到在项目中使用了GitLab CI/CD和Rancher，这些工具是如何帮助你在项目后期保持高效开发的？
 
