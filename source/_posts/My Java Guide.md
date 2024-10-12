@@ -76,7 +76,9 @@ public ListNode reverseLinkList(ListNode head) {
 
 ```java
 public void merge(int[] nums1, int m, int[] nums2, int n) {
-    int i = m - 1, j = n - 1, k = m + n - 1;
+    int i = m - 1;
+    int j = n - 1;
+    int k = m + n - 1;
     while (i >= 0 && j >= 0) {
         if (nums1[i] > nums2[j]) {
             nums1[k--] = nums1[i--];
@@ -2311,35 +2313,33 @@ public int lengthOfNCSQ(int[] nums) {
 }
 ```
 
-## 最大子数组和
+## 最大子序列的和
 
 ```java
-class MaxSubArray{
-    public static int maxSubArray(int[] nums) {
-        for (int i = 1; i < nums.length; i++) {
-            nums[i] = nums[i] + Math.max(0, nums[i - 1]);
-        }
-        System.out.println("动规结果：" + Arrays.toString(nums));
-        return Arrays.stream(nums).max().getAsInt();
+public static int maxSubArray(int[] nums) {
+    for (int i = 1; i < nums.length; i++) {
+        nums[i] = nums[i] + Math.max(0, nums[i - 1]);
     }
+    System.out.println("动规结果：" + Arrays.toString(nums));
+    return Arrays.stream(nums).max().getAsInt();
+}
 
-    public static int maxSubArray2(int[] nums) {
-        int pre = 0, res = nums[0];
-        for (int num : nums) {
-            pre = Math.max(pre + num, num);
-            res = Math.max(pre, res);
-        }
-        return res;
+public static int maxSubArray2(int[] nums) {
+    int pre = 0, res = nums[0];
+    for (int num : nums) {
+        pre = Math.max(pre + num, num);
+        res = Math.max(pre, res);
     }
+    return res;
+}
 
-    public static void main(String[] args) {
-        int[] nums = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
-        System.out.println(maxSubArray2(nums));
-    }
+public static void main(String[] args) {
+    int[] nums = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
+    System.out.println(maxSubArray2(nums));
 }
 ```
 
-## 最大连续子数组和
+## 最大子串的和
 
 ```java
 class MaxContinuousSubArray {
@@ -6349,7 +6349,7 @@ Write Back 是计算机体系结构中的设计，比如 CPU 的缓存、操作�
 
 **作用**：避免死锁。
 
-**实现原理**：当锁住的一个业务还没有执行完成的时候，Redisson每隔一段时间就检查当前业务是否还持有锁，如果持有就增加加锁的持有时间，当业务执行完成之后需要使用释放锁就可以了。
+**实现原理**：当锁住的一个业务还没有执行完成的时候，Redisson每隔一段时间就检查当前业务是否还持有锁，如果持有就增加锁的持有时间，当业务执行完成之后需要使用释放锁就可以了。
 
 ## Redis缓存
 
