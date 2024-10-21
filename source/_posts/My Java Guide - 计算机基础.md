@@ -11,9 +11,8 @@ keywords:
 - Java
 - 计算机基础
 description: Java, all in one！
-cover: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQChC-EwLOivWgSLpPH3v3bT_le_jAPVZkoKPZ1-go5eA&s
-top_img: https://media.geeksforgeeks.org/wp-content/cdn-uploads/20190718150152/Java-tutorials-by-GeeksForGeeks.png
-top: 1000
+cover: /img/basic_knowledge_logo.png
+top_img: /img/Java-tutorials-by-GeeksForGeeks.png
 ---
 
 #<div align="center">------------------操作系统------------------</div>

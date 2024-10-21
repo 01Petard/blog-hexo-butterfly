@@ -9,6 +9,8 @@ tags:
 keywords:
 - Kafka
 description: Kafka原理
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212144558.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212145761.png
 ---
 # 1.什么是kafka
 

@@ -11,8 +11,8 @@ keywords:
 - Java
 - 多态
 description: 理解Java中的多态
-cover: https://static.oschina.net/uploads/space/2022/0728/084935_Q6Rs_4937141.jpeg
-top_img: https://static.getiot.tech/java-logo.png
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212221954.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212222914.png
 ---
 
 ### 一、“多态”的理解

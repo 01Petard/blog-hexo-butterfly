@@ -13,7 +13,7 @@ keywords:
 - npm
 - nvm
 description: 从0开始部署hexo博客的node、nvm常用命令
-cover: https://miro.medium.com/v2/resize:fit:1400/1*Edi25WBkumBB4IvU9eA5Bw.jpeg
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212202027.png
 top_img: https://www.myfreax.com/content/images/size/w816/2019/07/nvm.webp
 ---
 

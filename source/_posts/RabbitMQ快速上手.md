@@ -12,7 +12,7 @@ keywords:
 - 消息队列
 description: RabbitMQ快速上手
 cover: https://www.meshiq.com/wp-content/uploads/rabbitmq.png
-top_img: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNhBU6Owh4l_NXnGM8UhLpV8IBXzL2_6lSDA&s
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212159254.png
 ---
 
 最简单的消息队列只需要`生产者类`和`消费者类`，如下：

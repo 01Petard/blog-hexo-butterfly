@@ -15,8 +15,8 @@ keywords:
 - 终端美化
 - zsh
 description: 美化你的终端，Z门！
-cover: https://camo.githubusercontent.com/4db3e4069e59f51d03dd3e7fa5e89ab8fb95c9f4acda36cd5bfdf58d95269d92/68747470733a2f2f6f686d797a73682e73332e616d617a6f6e6177732e636f6d2f6f6d7a2d616e73692d6769746875622e706e67
-top_img: https://miro.medium.com/max/800/1*HA7fk0bSg2SUUljsuit0KA.png
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212210367.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212210587.png
 ---
 
 > 前提：安装好**Git**

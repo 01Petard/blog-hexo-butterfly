@@ -11,8 +11,8 @@ keywords:
 - MongoDB
 - MySQL
 description: MongoDB和MySQL的常用语法对比
-cover: 
-top_img: 
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212156404.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212156404.png
 ---
 | 方法 | 说明    | 语法                                                         |
 | ---- | ------- | ------------------------------------------------------------ |

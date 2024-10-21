@@ -9,8 +9,8 @@ tags:
 keywords:
 - Anaconda
 description: 解决Mac下Anaconda安装后的小麻烦
-cover: https://assets.anaconda.com/production/anaconda-meta.jpg?w=1200&h=630&q=82&auto=format&fit=clip&dm=1632326952&s=2b336a00fa13405f84ce2f5b74e21fee
-top_img: https://pic1.zhimg.com/v2-515add66df47795da2f127b801b195e2_720w.jpg?source=172ae18b
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212219583.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212219245.png
 ---
 
 ### 方法一：
