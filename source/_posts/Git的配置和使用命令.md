@@ -1,7 +1,7 @@
 ---
 title: Git的配置和使用命令
 date: 2022-04-26 16:22:15
-updated: 2023-09-05 21:35:00
+updated: 2023-10-21 20:27:00
 categories: 
 - 学习
 tags: 
@@ -98,7 +98,8 @@ Git 支持两类钩子：**客户端钩子**和**服务器端钩子**。
 git config --global user.name "01Petard"
 git config --global user.email "1520394133@qq.com"
 git config --global init.defaultBranch main       # 设置默认分支名为main，而不是master
-# 以下可以不用配置
+
+# 选择题用配置
 git config --global gui.encoding utf-8            # gui界面的编码方式改为utf-8
 git config --global i18n.commitencoding utf-8     # 将commit时信息转为urf-8，默认二进制
 git config --global i18n.logoutputencoding utf-8  # 显示日志时的转为utf-8，默认二进制
@@ -106,6 +107,8 @@ git config --global core.quotepath false          # （推荐：false，不要�
 git config --global core.autocrlf true            # （推荐：true，开启）是否开启crlf自动换行（项目涉及windows时建议开启）
 git config --global core.filemode true            # （推荐：true，忽略）是否忽略文件的权限改变
 git config --global core.safecrlf true            # （推荐：true，检查）是否检查行结束符在提交或检出时被正确转换
+
+git config --global pull.rebase true              # git pull时，不合并，而是将本地更改rebase在最新的远程提交之上，默认false为merge合并
 ```
 
 查看配置信息
