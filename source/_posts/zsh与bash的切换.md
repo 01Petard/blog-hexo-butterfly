@@ -11,7 +11,7 @@ keywords:
 - zsh
 - bash
 description: zsh和bash的切换
-cover: https://miro.medium.com/max/525/1*AVfi2XdKurdblS3d_11hYw.jpeg
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212220854.png
 top_img: https://i.ytimg.com/vi/xzU4I5UO1Qg/maxresdefault.jpg
 ---
 

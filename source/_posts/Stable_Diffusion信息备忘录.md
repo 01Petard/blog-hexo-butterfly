@@ -1,5 +1,5 @@
 ---
-title: 信息备忘录
+title: Stable_Diffusion信息备忘录
 date: 2023-06-27 20:37:15
 updated:
 categories: 
@@ -7,7 +7,6 @@ categories:
 description: 网络拉屎是这样的。
 cover: https://assignmentpoint.com/wp-content/uploads/2022/06/Importance-of-Memorandum.webp
 top_img: https://www.shutterstock.com/image-photo/text-word-memorandum-brown-wooden-260nw-1905010969.jpg
-top: 1
 ---
 
 ### 返回信息的域名

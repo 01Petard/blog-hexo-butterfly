@@ -17,8 +17,8 @@ keywords:
 - 导入
 - 导出
 description: 批量导出zip压缩包和Excel表格
-cover: https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/917f71b743e24a2686ed2d23672b79ef~tplv-k3u1fbpfcp-jj:284:189:0:0:q75.image
-top_img: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-nHE2rmNbUADt20jPnY7MnRcLyWwq5MThxg&s
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212200646.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212201073.png
 ---
 
 ## 批量导出压缩包

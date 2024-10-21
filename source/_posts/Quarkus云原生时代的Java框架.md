@@ -11,6 +11,8 @@ keywords:
 - Quarkus
 - 云原生
 description: Quarkus——云原生时代的Java框架
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212154303.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212153128.png
 ---
 # Quarkus: 云原生时代的Java框架
 

@@ -9,6 +9,8 @@ tags:
 keywords:
 - ThreadLocal
 description: ThreadLocal原理和使用
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212142538.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212143341.png
 ---
 ## 一、ThreadLocal是什么？为什么要使用ThreadLocal？
 

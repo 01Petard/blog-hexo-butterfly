@@ -9,8 +9,8 @@ tags:
 keywords:
 - Tomcat
 description: Mac上Tomcat启动和关闭的命令
-cover: https://blog.judysocute.com/wp-content/uploads/2020/02/Apache_Tomcat_Logo.jpg
-top_img: https://blog.judysocute.com/wp-content/uploads/2020/02/Apache_Tomcat_Logo.jpg
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212223754.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212225858.png
 ---
 
 启动Tomcat

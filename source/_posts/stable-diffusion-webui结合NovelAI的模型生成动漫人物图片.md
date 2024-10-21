@@ -17,8 +17,8 @@ keywords:
 - 深度学习
 - 绘画
 description: 关于使用AI作画的使用简介
-cover: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsamTA9oUrtSu0jRqVN8EAzpdkaB5IFmh6oElWNoinGFfXD68tIRSapSw0kmQKnBdvrHU&usqp=CAU
-top_img: http://img.chuapp.com/wp-content/Picture/2022-09-01/58463106de805856.jpg?imageView2/2/w/700
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212212610.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212212330.png
 ---
 
 # 1、准备

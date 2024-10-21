@@ -9,6 +9,8 @@ tags:
 keywords:
 - 数据库
 description: 参考innoDB引擎，手写关系型数据库
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212141467.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212141876.png
 ---
 
 ## 进入项目路径

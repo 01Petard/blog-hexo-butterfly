@@ -13,8 +13,8 @@ keywords:
 - OSS
 - 内容安全
 description: 阿里云OSS && 内容安全 Java实现参考代码
-cover: https://oss.fzxm.com/fzxmAliyunCenter/20221012105331282.jpg
-top_img: https://lh3.googleusercontent.com/proxy/86RpAAJKDd9CBy6eng4x-y6xLq5eL3E3E-OoVOAa3k7jyMYK11TfdDx7q9El5fL1l9MlP-VoMa3haW6VImLYxzt2CQntuDvmh_BZMNuFTQfZWuOvMhzF7s82
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212051708.jpeg
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212052354.jfif
 ---
 
 ## 内容安全

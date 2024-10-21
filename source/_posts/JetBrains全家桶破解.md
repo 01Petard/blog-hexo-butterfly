@@ -13,8 +13,8 @@ keywords:
 - Idea
 - 破解
 description: Mac上破解Jetbrains全家桶的办法
-cover: https://i0.wp.com/tech-story.net/wp-content/uploads/2022/04/JetBrains-Crack-Activation-Code.png?fit=476%2C329&ssl=1
-top_img: https://pic1.zhimg.com/v2-4c7979e8f94967607bd46f880c480ec7_1440w.jpg?source=172ae18b
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212216079.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212216107.png
 ---
 
 

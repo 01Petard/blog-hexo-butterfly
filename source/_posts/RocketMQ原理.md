@@ -11,8 +11,8 @@ keywords:
 - 消息队列
 - RocketMQ
 description: RocketMQ原理
-cover: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_iyugpn34xDsEQS7V7TLPRkhxoL0RtOnmjw&s
-top_img: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_iyugpn34xDsEQS7V7TLPRkhxoL0RtOnmjw&s
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212158381.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212157755.png
 ---
 
 # 1. 什么是RocketMQ
