@@ -50,8 +50,7 @@ if "%choice%"=="y" (
     git push github china:china
     echo ========================================
 
-    echo 所有操作已完成。
-    echo 切换回 main 分支...
+    echo 所有操作已完成。切换回 main 分支...
     git checkout main
     echo ========================================
 
