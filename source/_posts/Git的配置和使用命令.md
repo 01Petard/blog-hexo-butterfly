@@ -9,8 +9,8 @@ tags:
 keywords:
 - Git
 description: Git的配置、使用，足够个人使用
-cover: https://www.mrfangge.com/img/blog/git.jpg
-top_img: https://www.mrfangge.com/img/blog/git.jpg
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410252000741.jpg
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410252000741.jpg
 top: 999
 ---
 
