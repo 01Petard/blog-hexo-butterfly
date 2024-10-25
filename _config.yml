@@ -121,6 +121,7 @@ limit: 20
 #theme: next
 #theme: matery
 theme: butterfly
+# theme: hexo-theme-butterfly-5.1.0
 # theme: jelly
 
 # Deployment

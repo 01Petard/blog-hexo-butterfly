@@ -339,7 +339,7 @@ disqus:
 # livere (來必力)
 # https://www.livere.com/
 livere:
-  uid:
+  uid: MTAyMC82MDIxMS8zNjY3OQ
 
 # gitalk
 # https://github.com/gitalk/gitalk
@@ -651,7 +651,7 @@ ClickShowText:
     # - I
     # - LOVE
     # - YOU
-  fontSize: 10px
+  fontSize: 14px
   random: true
   mobile: true
 
@@ -669,10 +669,10 @@ beautify:
 # Global font settings
 # Don't modify the following settings unless you know how they work (非必要不要修改)
 font:
-  global-font-size:
-  code-font-size:
-  font-family: lg, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Lato, Roboto, "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", sans-serif
-  code-font-family: lg, PingFang SC, consolas, Menlo, "Microsoft JhengHei", "Microsoft YaHei", sans-serif
+  global-font-size: 14px
+  code-font-size: 14px
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Lato, Roboto, "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", sans-serif
+  code-font-family: PingFang SC, consolas, Menlo, "Microsoft JhengHei", "Microsoft YaHei", sans-serif
     
 # Font settings for the site title and site subtitle
 # 左上角网站名字 主页居中网站名字
