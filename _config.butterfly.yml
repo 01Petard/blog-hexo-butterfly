@@ -584,6 +584,7 @@ tag_ui: # 留空或 index
 # The formal of image: url(http://xxxxxx.com/xxx.jpg)
 # background: url(https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/100152151_p0_1080p.jpg)  # 战双壁纸
 background: url(https://api.kdcc.cn/img/bingimg/dayimg.jpg)
+#background: url(https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410251949796.jpg) # 一张很好看的背景壁纸
 #background: url(https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/20670939_97117174_p0.png)
 #background: url(https://i.postimg.cc/0jyFy2Qn/20670939-97117174-p0-1080.png)
 
@@ -612,18 +613,18 @@ canvas_ribbon:
 
 # Fluttering Ribbon (動態彩帶)
 canvas_fluttering_ribbon:
-  enable: false
-  mobile: false
+  enable: true
+  mobile: true
 
 # canvas_nest
 # https://github.com/hustcc/canvas-nest.js
 canvas_nest:
-  enable: false
+  enable: true
   color: '0,0,255' #color of lines, default: '0,0,0'; RGB values: (R,G,B).(note: use ',' to separate.)
   opacity: 0.7 # the opacity of line (0~1), default: 0.5.
   zIndex: -1 # z-index property of the background, default: -1.
   count: 99 # the number of lines, default: 99.
-  mobile: false
+  mobile: true
 
 # Typewriter Effect (打字效果)
 # https://github.com/disjukr/activate-power-mode
@@ -635,9 +636,9 @@ activate_power_mode:
 
 # Mouse click effects: fireworks (鼠標點擊效果: 煙火特效)
 fireworks:
-  enable: false
+  enable: true
   zIndex: 9999 # -1 or 9999
-  mobile: false
+  mobile: true
 
 # Mouse click effects: Heart symbol (鼠標點擊效果: 愛心)
 click_heart:
@@ -669,10 +670,10 @@ beautify:
 # Global font settings
 # Don't modify the following settings unless you know how they work (非必要不要修改)
 font:
-  global-font-size:
-  code-font-size:
-  font-family: lg, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Lato, Roboto, "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", sans-serif
-  code-font-family: lg, PingFang SC, consolas, Menlo, "Microsoft JhengHei", "Microsoft YaHei", sans-serif
+  global-font-size: 14px
+  code-font-size: 14px
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Lato, Roboto, "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", sans-serif
+  code-font-family: PingFang SC, consolas, Menlo, "Microsoft JhengHei", "Microsoft YaHei", sans-serif
     
 # Font settings for the site title and site subtitle
 # 左上角网站名字 主页居中网站名字
@@ -700,7 +701,7 @@ subtitle:
   # source: 2  調用一句網（簡體） http://yijuzhan.com/
   # source: 3  調用今日詩詞（簡體） https://www.jinrishici.com/
   # subtitle 會先顯示 source , 再顯示 sub 的內容
-  source: 1
+  source: 3
   # 如果關閉打字效果，subtitle 只會顯示 sub 的第一行文字
   sub:
 
@@ -715,7 +716,7 @@ aside:
   hide: false
   button: true
   mobile: true # display on mobile
-  position: left # left or right
+  position: right # left or right
   display:
     archive: true
     tag: true
@@ -733,7 +734,7 @@ aside:
     content: ACG隐者，同人Fans，混沌善良；仓鼠党、“舟”谷人、数码迷；中左光谱。这是我的个人博客，也是我的赛博休息室。希望浏览这些东西能给你一些启示！
   card_recent_post:
     enable: true
-    limit: 6 # if set 0 will show all
+    limit: 5 # if set 0 will show all
     sort: date # date or updated
     sort_order: # Don't modify the setting unless you know how it works
   card_pixiv: true
@@ -760,7 +761,7 @@ aside:
     last_push_date: true
     sort_order: # Don't modify the setting unless you know how it works
   card_newest_comment:
-    enable: true
+    enable: false
   card_ad:
     enable: true
   card_bottom_self:
@@ -783,7 +784,7 @@ runtimeshow:
 
 # Aside widget - Newest Comments
 newest_comments:
-  enable: true
+  enable: false
   sort_order: # Don't modify the setting unless you know how it works
   limit: 5
   storage: 1 # unit: mins, save data to localStorage
@@ -798,8 +799,8 @@ newest_comments:
     enable: false
     repo: 
   disqus:
-    enable: false
-    form: 
+    enable: true
+#    form:
     shortname: Pseudnuos
     api_key: 2V6QCuVoZvljPpGVFWS5jaeGh6PmMLrJtMvLtzfQoyAUuGeqTVvCzfRVrdOzsrNA
 
@@ -960,8 +961,8 @@ inject:
     # - <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.css"/>
     - <link rel="stylesheet" href="/css/double_column.css">
     # 修改全局字体
-    - <link rel="stylesheet" href="/css/font.css">
-    - <link rel="stylesheet" href="/fonts/lg.css">
+#    - <link rel="stylesheet" href="/css/font.css">
+#    - <link rel="stylesheet" href="/fonts/lg.css">
 
     # - <link rel="stylesheet" href="/xxx.css">
 #   - '<style type="text/css">#toggle-sidebar {bottom: 80px}</style>'

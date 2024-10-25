@@ -9,7 +9,7 @@ tags:
 keywords:
 - curl
 description: 一个命令行工具
-cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410221800461.png
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410251942326.png
 top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410221802081.png
 ---
 
