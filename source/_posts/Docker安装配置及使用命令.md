@@ -13,7 +13,7 @@ keywords:
 - 虚拟机
 - Linux
 description: 在Linux上使用Docker部署相关服务
-cover: https://miro.medium.com/v2/resize:fit:1400/0*ddZLS-Gd9GFc71Lc
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410251939819.png
 top_img: https://www.docker.com/wp-content/uploads/2023/06/meta-image-what-is-a-container.png
 top: 998
 ---
