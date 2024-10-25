@@ -521,11 +521,11 @@ microsoft_clarity:
 
 # Google Adsense (谷歌廣告)
 google_adsense:
-  enable: false
-  auto_ads: false
+  enable: true
+  auto_ads: true
   js: https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js
   client:
-  enable_page_level_ads: false
+  enable_page_level_ads: true
 
 # Insert ads manually (手動插入廣告)
 # ad:
@@ -603,41 +603,41 @@ enter_transitions: true
 # canvas_ribbon (靜止彩帶背景)
 # See: https://github.com/hustcc/ribbon.js
 canvas_ribbon:
-  enable: false
+  enable: true
   size: 150
   alpha: 0.6
   zIndex: -1
-  click_to_change: false
-  mobile: false
+  click_to_change: true
+  mobile: true
 
 # Fluttering Ribbon (動態彩帶)
 canvas_fluttering_ribbon:
-  enable: false
-  mobile: false
+  enable: true
+  mobile: true
 
 # canvas_nest
 # https://github.com/hustcc/canvas-nest.js
 canvas_nest:
-  enable: false
+  enable: true
   color: '0,0,255' #color of lines, default: '0,0,0'; RGB values: (R,G,B).(note: use ',' to separate.)
   opacity: 0.7 # the opacity of line (0~1), default: 0.5.
   zIndex: -1 # z-index property of the background, default: -1.
   count: 99 # the number of lines, default: 99.
-  mobile: false
+  mobile: true
 
 # Typewriter Effect (打字效果)
 # https://github.com/disjukr/activate-power-mode
 activate_power_mode:
   enable: true
   colorful: true # open particle animation (冒光特效)
-  shake: false #  open shake (抖動特效)
+  shake: true #  open shake (抖動特效)
   mobile: true
 
 # Mouse click effects: fireworks (鼠標點擊效果: 煙火特效)
 fireworks:
-  enable: false
+  enable: true
   zIndex: 9999 # -1 or 9999
-  mobile: false
+  mobile: true
 
 # Mouse click effects: Heart symbol (鼠標點擊效果: 愛心)
 click_heart:
@@ -646,14 +646,14 @@ click_heart:
 
 # Mouse click effects: words (鼠標點擊效果: 文字)
 ClickShowText:
-  enable: false
+  enable: true
   text:
     # - I
     # - LOVE
     # - YOU
-  fontSize: 15px
-  random: false
-  mobile: false
+  fontSize: 10px
+  random: true
+  mobile: true
 
 # Default display mode (網站默認的顯示模式)
 # light (default) / dark
@@ -789,7 +789,7 @@ newest_comments:
   storage: 1 # unit: mins, save data to localStorage
   avatar: true
   leancloud:
-    enable: true
+    enable: false
     appId: sAvlGefH2K7vjnn3WOzeXXzT-MdYXbMMI # leancloud application app id
     appKey: jJJEYqFVdod0rtX0e7XkRnkv # leancloud application app key
     serverURLs: https://savlgefh.api.lncldglobal.com # This configuration is suitable for domestic custom domain name users, overseas version will be automatically detected (no need to manually fill in)
@@ -798,9 +798,10 @@ newest_comments:
     enable: false
     repo: 
   disqus:
-    enable: false
+    enable: true
     form: 
     shortname: Pseudnuos
+    access_token: cb1ff5321f2b4f8e8d7d4a3cc105d61c
     api_key: 2V6QCuVoZvljPpGVFWS5jaeGh6PmMLrJtMvLtzfQoyAUuGeqTVvCzfRVrdOzsrNA
 
 
@@ -833,7 +834,7 @@ darkmode:
   # autoChangeMode: 1  Following System Settings, if the system doesn't support dark mode, it will switch dark mode between 6 pm to 6 am
   # autoChangeMode: 2  Switch dark mode between 6 pm to 6 am
   # autoChangeMode: false
-  autoChangeMode: false
+  autoChangeMode: true
 
 # Don't modify the following settings unless you know how they work (非必要請不要修改 )
 # Choose: readmode,translate,darkmode,hideAside,toc,chat,comment
