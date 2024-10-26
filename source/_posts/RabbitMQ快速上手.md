@@ -1,7 +1,7 @@
 ---
 title: RabbitMQ快速上手
 date: 2024-06-29 15:24:00
-updated: 2024-08-10 18:45:00
+updated: 2024-10-26 15:39:00
 categories: 
 - 学习
 tags: 
@@ -12,8 +12,14 @@ keywords:
 - 消息队列
 description: RabbitMQ快速上手
 cover: https://www.meshiq.com/wp-content/uploads/rabbitmq.png
-top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212159254.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410212159254.png 
 ---
+
+#### 常见的交换机类型：
+
+- **Direct Exchange**：直连交换机。消息会被路由到所有`路由键`与`绑定队列`。
+- **Fanout Exchange**：广播交换机。消息会被路由到所有`绑定队列`，忽略路由键。
+- **Topic Exchange**：主题交换机。消息会被路由到所有`绑定队列`，支持通配符。
 
 最简单的消息队列只需要`生产者类`和`消费者类`，如下：
 
