@@ -29,6 +29,9 @@
       //最近发布
       !=partial('includes/widget/card_recent_post', {}, {cache: true})
 
+      //最新评论
+      !=partial('includes/widget/card_newest_comment', {}, {cache: true})
+
       //pixiv日榜
       if theme.aside.card_pixiv
         !=partial('includes/widget/card_pixiv', {}, {cache:true})
@@ -42,9 +45,6 @@
       //归档
       !=partial('includes/widget/card_archives', {}, {cache: true})
 
-      //最新评论
-      !=partial('includes/widget/card_newest_comment', {}, {cache: true})
-      
       //网站信息
       !=partial('includes/widget/card_webinfo', {}, {cache: true})
 
