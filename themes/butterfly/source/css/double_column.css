@@ -10,11 +10,11 @@
   margin-top: 1rem; /*最小间距*/
   display: inline-block;
   height:auto; /*高度自动*/
-  width:49%;/*文章容器容器宽度*/
+  width:32.5%;/*文章容器容器宽度*/
 }
 #recent-posts > .recent-post-item .post_cover {
   width: 100%; /*图片封面宽度*/
-  height: 260px;/*图片封面高度*/
+  height: 160px;/*图片封面高度*/
 }
 #recent-posts > .recent-post-item .post_cover img.post_bg {
   width: 100%;/*图片宽度*/
@@ -22,11 +22,11 @@
 }
 
 #recent-posts > .recent-post-item >.recent-post-info {
-  margin-bottom: 15px
+  margin-bottom: 0.5rem
 }
 #recent-posts > .recent-post-item >.recent-post-info > .content {
-  /*display:none;/*隐藏文章详情*/
-  color: gray
+  display:none;/*隐藏文章详情
+/*  color: gray*/
 }
 #recent-posts > .recent-post-item {
   -webkit-flex-direction: column; /*容器内部纵向排列*/

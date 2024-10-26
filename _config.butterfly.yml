@@ -314,7 +314,7 @@ addtoany:
 comments:
   # Up to two comments system, the first will be shown as default
   # Choose: Disqus/Disqusjs/Livere/Gitalk/Valine/Waline/Utterances/Facebook Comments/Twikoo/Giscus/Remark42
-  use: disqus #valine,disqus
+  use: twikoo #disqus #valine,disqus
   text: true # Display the comment name next to the button
   # lazyload: The comment system will be load when comment element enters the browser's viewport.
   # If you set it to true, the comment count will be invalid
@@ -420,9 +420,9 @@ facebook_comments:
 # Twikoo
 # https://github.com/imaegoo/twikoo
 twikoo:
-  envId: 
-  region: 
-  visitor: false
+  envId: http://1.94.147.176:38080/
+  region: ap-shanghai
+  visitor: true
   option:
 
 # Giscus
@@ -761,7 +761,7 @@ aside:
     last_push_date: true
     sort_order: # Don't modify the setting unless you know how it works
   card_newest_comment:
-    enable: false
+    enable: true
   card_ad:
     enable: true
   card_bottom_self:
@@ -784,13 +784,13 @@ runtimeshow:
 
 # Aside widget - Newest Comments
 newest_comments:
-  enable: false
+  enable: true
   sort_order: # Don't modify the setting unless you know how it works
   limit: 5
   storage: 1 # unit: mins, save data to localStorage
   avatar: true
   leancloud:
-    enable: true
+    enable: false
     appId: sAvlGefH2K7vjnn3WOzeXXzT-MdYXbMMI # leancloud application app id
     appKey: jJJEYqFVdod0rtX0e7XkRnkv # leancloud application app key
     serverURLs: https://savlgefh.api.lncldglobal.com # This configuration is suitable for domestic custom domain name users, overseas version will be automatically detected (no need to manually fill in)
@@ -799,7 +799,7 @@ newest_comments:
     enable: false
     repo: 
   disqus:
-    enable: true
+    enable: false
 #    form:
     shortname: Pseudnuos
     api_key: 2V6QCuVoZvljPpGVFWS5jaeGh6PmMLrJtMvLtzfQoyAUuGeqTVvCzfRVrdOzsrNA
