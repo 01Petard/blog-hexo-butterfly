@@ -26,27 +26,11 @@ if "%choice%"=="y" (
     git checkout china
     echo ========================================
 
-    echo 合并 main 分支的更改...
-    git merge main
+    echo 合并 main 的分支更改...
+    git cherry-pick HEAD@{1}
     echo ========================================
 
-    echo 推送更改到 Gitee main 分支...
-    git push gitee main:main
-    echo ========================================
-
-    echo 推送更改到 Gitee china 分支...
-    git push gitee china:china
-    echo ========================================
-
-    echo 推送更改到 GitHub main 分支...
-    git push github main:main
-    echo ========================================
-
-    echo 推送更改到 GitHub china 分支...
-    git push github china:china
-    echo ========================================
-
-    echo 所有操作已完成。切换回 main 分支...
+    echo 合并完成。切换回 main 分支...
     git checkout main
     echo ========================================
 
