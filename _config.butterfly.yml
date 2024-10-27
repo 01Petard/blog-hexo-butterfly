@@ -672,8 +672,8 @@ beautify:
 font:
   global-font-size: 14px
   code-font-size: 14px
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Lato, Roboto, "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", sans-serif
-  code-font-family: PingFang SC, consolas, Menlo, "Microsoft JhengHei", "Microsoft YaHei", sans-serif
+  font-family: Microsoft YaHei, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Lato, Roboto, "PingFang SC", "Microsoft JhengHei", sans-serif
+  code-font-family: Microsoft YaHei, PingFang SC, consolas, Menlo, "Microsoft JhengHei", sans-serif
     
 # Font settings for the site title and site subtitle
 # 左上角网站名字 主页居中网站名字
