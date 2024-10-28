@@ -37,6 +37,30 @@ BASE 是对 CAP 中 AP 选项的一种延伸，它强调的是即使不能保证
 - **软状态（Soft state）**：允许系统内部的状态随着时间变化而变化，而不是始终维持不变。
 - **最终一致性（Eventual Consistency）**：系统在经过一段时间后，会达到一个一致的状态。在这个过程中，系统可能会经历中间状态，这些状态可能不是一致的。
 
+# Raft选举算法（Kafka、etcd）
+
+Raft算法于2014年提出，是一种易于理解、分布式强一致性的算法，它旨在简化 Paxos 算法的理解和实现。
+
+Raft算法将节点分为三种状态：**跟随者（Follower）、候选人（Candidate）和领导者（Leader）**。
+
+**Raft 算法的主要步骤**：
+
+1. **初始化状态**：
+   - 每个节点初始状态都是跟随者（Follower）。
+2. **超时事件**：
+   - 当跟随者没有在一定时间内接收到任何消息时（随机超时时间），它会变成候选人（Candidate）。
+3. **选举过程**：
+   - 候选人发起选举，向其他节点发送投票请求（RequestVote RPC）。
+   - 其他节点接收到投票请求后，如果它们尚未投票给其他候选人，则可以投票给当前候选人。
+   - 如果候选人获得大多数节点的选票，则成为领导者（Leader）。
+4. **领导者的心跳机制**：
+   - 领导者定期向所有节点发送心跳消息（AppendEntries RPC），以维持领导者的地位。
+   - 如果跟随者长时间未收到心跳消息，它会再次变成候选人并重新发起选举。
+
+# Paxos算法
+
+略。
+
 # <div align="center">----------------分布式组件----------------</div>
 
 # 总结
@@ -2282,7 +2306,7 @@ Kafka 处理请求的全流程是一个复杂的多步骤过程，涉及到网�
 
 # <div align="center">--------------------Netty--------------------</div>
 
-## 网络通信的过程
+# 网络通信的过程
 
 > 服务端是怎么接收客户端的消息的？服务端是如何感知到数据的？
 
@@ -2296,14 +2320,14 @@ Kafka 处理请求的全流程是一个复杂的多步骤过程，涉及到网�
 
 这种方式使得服务器能够有效地处理多个客户端的连接和消息，同时能够感知数据的到达。
 
-## 常见的I/O 模型
+# 常见的I/O 模型
 
 1. **阻塞I/O（Blocking I/O）**：每个I/O操作都需要等待，效率较低。
 2. **非阻塞I/O（Non-blocking I/O）**：调用I/O操作后立即返回，可以通过轮询来检查操作是否完成。
 3. **多路复用（Multiplexing I/O）**：使用`select`、`poll`、`epoll`等机制，同时监视多个I/O操作，适合高并发场景。
 4. **异步I/O（Asynchronous I/O）**：操作完成时会通知应用程序，避免了轮询。
 
-## NIO和BIO的区别
+# NIO和BIO的区别
 
 NIO（New IO）和BIO（Blocking IO）是Java编程语言中用于处理输入输出（IO）操作的两种不同机制，它们之间存在一些显著的区别。
 
@@ -2324,7 +2348,7 @@ NIO（New IO）和BIO（Blocking IO）是Java编程语言中用于处理输入�
 
   * NIO：适用于高并发、长连接、大量数据读写的场景，如文件传输、分布式计算等。
 
-## 讲讲Java NIO
+# 讲讲Java NIO
 
 1. **背景与目的**
    - NIO是为了弥补传统同步阻塞IO模型中的不足而设计的。它提供了更快的、基于块的数据处理方式。
@@ -2340,7 +2364,7 @@ NIO（New IO）和BIO（Blocking IO）是Java编程语言中用于处理输入�
 4. **优势**
    - NIO相比传统的IO模型更加高效，因为它允许单个线程管理多个Channel连接，从而提高了并发处理能力。
 
-## *讲讲Netty，它解决了什么问题？
+# *讲讲Netty，它解决了什么问题？
 
 1. Netty是一个高性能、异步的事件驱动的网络应用框架，主要用于构建快速、可扩展的网络服务器和客户端。它简化了网络编程的复杂性，如处理TCP连接、数据传输、协议解析等，使开发者能够更专注于业务逻辑。
 2. <u>Netty是一个高性能、异步事件驱动的网络应用程序框架，用于快速开发可靠的协议服务器和客户端。它基于Java NIO（非阻塞IO），提供了丰富的API来简化网络编程的复杂性。Netty可以用于开发多种协议的服务端和客户端，如HTTP、WebSocket、SMTP等，也可以用来开发自定义的二进制协议。</u>
@@ -2348,14 +2372,14 @@ NIO（New IO）和BIO（Blocking IO）是Java编程语言中用于处理输入�
 4. Netty在NIO的基础上做了很多优化，比如零拷贝机制、高性能无锁队列、内存池，因此性能比NIO更高。
 5. Netty可以支持多种的通信协议，例如：Http、WebSocket等，并且针对一些通信问题，Netty也内置了一些策略，例如拆包、粘包，所以在使用过程中会比较方便。
 
-## Netty 的应用场景
+# Netty 的应用场景
 
 - 高性能网络服务器（如游戏服务器、即时通讯工具）
 - 微服务架构中的服务通信
 - WebSocket服务器
 - 数据传输层（如RPC框架）
 
-## *为什么要使用Netty？Netty的特点
+# *为什么要使用Netty？Netty的特点
 
 Netty相比与直接使用JDK自带的api更简单，因为它具有这样一些特点：
 
@@ -2367,11 +2391,11 @@ Netty相比与直接使用JDK自带的api更简单，因为它具有这样一些
 6. 安全性较好，有完整的 SSL/TLS 的支持
 7. 经历了各种大的项目的考验，社区活跃度高，例如：Dubbo、Zookeeper、RocketMQ
 
-## *Netty可以做什么事情？
+# *Netty可以做什么事情？
 
 我们之所以要使用Netty，核心的点是要去解决服务器如何去承载更多的用户同时访问的问题，传统的BIO模型由于阻塞的特性使得在高并发的环境种很难去支持更高的吞吐量，尽管用NIO的多路复用模型可以在阻塞方面进行优化，但是它的api使用较为复杂，而Netty是基于NIO的封装，提供了成熟简单易用的api，降低了使用成本和学习成本，本质上来说Netty和NIO所扮演的角色是相同的，都是是去为了提升服务端的吞吐量，让用户获得更好的产品体验。
 
-## Netty的核心组件
+# Netty的核心组件
 
 Netty有三层结构构成的，分别是：
 
@@ -2421,7 +2445,7 @@ Netty有三层结构构成的，分别是：
    - `ChannelHandler` 主要是针对10数据的一个处理器，数据接收后，就通过指定的一个上Handler进行处理
    - `ChannelHandlerContext` 是用来去保存ChannelHandler的一个上下文信息的。
 
-## Reactor 线程模型、其原理和作用
+# Reactor 线程模型、其原理和作用
 
 Reactor线程模型是基于事件驱动的模型，主要分为三个角色：
 
@@ -2449,21 +2473,21 @@ Reactor模型有三个重要的组件：
 - `Acceptor` 处理客户端的连接请求
 - `handlers` 负责执行我们的业务逻辑的读写操作
 
-## 高性能设计
+# 高性能设计
 
 1. **非阻塞IO模型**：Netty基于NIO实现，使用非阻塞IO模型，减少了线程的使用，从而减少了上下文切换的开销。
 2. **事件驱动**：Netty采用了事件驱动的设计模式，当有IO事件发生时，才会被处理，这样可以有效地利用CPU资源。
 3. **零拷贝技术**：Netty支持直接缓冲区（DirectByteBuffer），在数据传输中减少了数据的拷贝次数，提高了数据传输的效率。具体做法是：使用`FileChannel`的`transferTo()`和`transferFrom()`等方法实现文件传输时，避免了将数据从用户空间复制到内核空间的过程，提高了性能。
 4. **线程模型**：Netty提供了高效的线程模型，如Boss/Worker模型，使得任务的分配更加合理，充分利用多核CPU的计算能力。
 
-## Netty 中的设计模式
+# Netty 中的设计模式
 
 - **单例模式**：如EventLoop。
 - **观察者模式**：事件的注册和触发。
 - **责任链模式**：通过ChannelPipeline处理多个ChannelHandler。
 - **适配器模式**：将不同的Handler统一处理。
 
-## 处理粘包、拆包问题
+# 处理粘包、拆包问题
 
 <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410092220346.png" style="zoom:100%;" />
 
@@ -2476,7 +2500,7 @@ Netty提供了几种方式来处理这种情况：
 3. **自定义协议头**：在消息前加上长度字段，这样接收方可以根据长度字段读取完整的消息。
 4. **使用现成的编解码器**：Netty提供了如LengthFieldBasedFrameDecoder这样的解码器，它可以根据消息长度字段自动处理粘包和拆包的问题。
 
-## 异步非阻塞的IO操作
+# 异步非阻塞的IO操作
 
 Netty通过使用Java NIO（非阻塞IO）技术实现了异步非阻塞的IO操作。具体来说：
 
@@ -2511,7 +2535,7 @@ try {
 }
 ```
 
-## 消息的有序发送
+# 消息的有序发送
 
 在Netty中实现消息的有序发送，可以通过以下几种方式：
 
@@ -2553,7 +2577,7 @@ public class OrderedMessageHandler extends SimpleChannelInboundHandler<String> {
 }
 ```
 
-## 异步任务的调度
+# 异步任务的调度
 
 Netty提供了`ScheduledExecutorService`来实现异步任务调度。`ScheduledExecutorService`可以用来安排定时任务，包括一次性任务和周期性任务。
 
@@ -2588,13 +2612,13 @@ public class ScheduledTaskHandler extends SimpleChannelInboundHandler<String> {
 }
 ```
 
-## 参考计数
+# 参考计数
 
 Netty中的参考计数（Reference Counting）是Netty为了管理内存而采用的一种机制。它主要用于追踪ByteBuf的引用次数。每个ByteBuf都有一个内部的引用计数器，当ByteBuf被引用时，计数器加一；当引用被释放时，计数器减一。
 
 当ByteBuf的引用计数降到0时，意味着没有引用再指向这个ByteBuf，此时Netty会自动释放这个ByteBuf所占的内存空间。这种方式可以防止内存泄漏，并且在多线程环境下确保内存的安全释放。
 
-## 异常的处理方案
+# 异常的处理方案
 
 在Netty中，异常处理通常是通过ChannelFutureListener和ChannelInboundHandler来实现的。
 
@@ -2603,18 +2627,18 @@ Netty中的参考计数（Reference Counting）是Netty为了管理内存而采�
 
 此外，Netty还提供了全局异常处理机制，可以注册GlobalChannelInboundHandler来处理所有未捕获的异常。
 
-## Netty 如何解决 NIO 中的空轮询 Bug
+# Netty 如何解决 NIO 中的空轮询 Bug
 
 Netty通过使用`Selector`的`poll`方法，并结合`EventLoop`进行优化，避免了空轮询的情况。它会在没有事件时进行适当的休眠，减少CPU资源的浪费。
 
 # <div align="center">---------------*Netty底层原理*---------------</div>
 
-## Channel、ChannelHandlerContext
+# Channel、ChannelHandlerContext
 
 - **Channel**：表示一个连接，可以是服务器端或客户端的`SocketChannel`，它负责数据的读写。
 - **ChannelHandlerContext**：表示在ChannelPipeline中每个ChannelHandler的上下文，提供了访问Channel和其他Handler的功能，用于在Handler之间传递事件和数据。
 
-## ChannelPipeline是什么？它是如何工作的？
+# ChannelPipeline是什么？它是如何工作的？
 
 ChannelPipeline是Netty中的一个重要概念，它是一个责任链模式的具体实现。
 
@@ -2655,7 +2679,7 @@ public class MyHandler extends SimpleChannelInboundHandler<String> {
 }
 ```
 
-## ChannelHandler是什么？它们之间是如何通信的？
+# ChannelHandler是什么？它们之间是如何通信的？
 
 ChannelHandler是一个接口，它定义了处理网络事件的方法，如读取数据、写入数据等。我们通常会实现这个接口或者继承自AbstractChannelHandler来创建自定义的处理器。
 
@@ -2684,7 +2708,7 @@ public class MyHandler extends ChannelInboundHandlerAdapter {
 }
 ```
 
-## ChannelHandlerContext是什么？有什么作用？
+# ChannelHandlerContext是什么？有什么作用？
 
 ChannelHandlerContext则是ChannelHandler的上下文环境，它提供了与处理器相关的上下文信息，比如可以获取当前处理器的前一个和下一个处理器，以及用于发送消息、注册定时器等功能的方法。ChannelHandlerContext在处理器中非常关键，因为它让我们可以方便地与ChannelPipeline交互。
 
@@ -2714,7 +2738,7 @@ public class MyHandler extends SimpleChannelInboundHandler<String> {
 }
 ```
 
-## Channel和ChannelHandlerContext的关系是什么？
+# Channel和ChannelHandlerContext的关系是什么？
 
 在Netty中，Channel代表了网络连接的一个端点，它封装了网络连接的生命周期，包括连接、读取、写入等操。
 
@@ -2722,7 +2746,7 @@ ChannelHandlerContext则是Channel的一个上下文环境，它为ChannelHandle
 
 ChannelHandlerContext包含了当前ChannelHandler的信息，以及对ChannelPipeline的操作方法。通过ChannelHandlerContext，我们可以获取当前ChannelHandler的前后Handler，发送消息给当前Channel或者管道中的其他ChannelHandler，以及访问Channel的各种属性等。
 
-## Channel和ChannelFuture的区别是什么？
+# Channel和ChannelFuture的区别是什么？
 
 Channel`和`ChannelFuture`在Netty中有不同的作用：
 
@@ -2747,20 +2771,20 @@ public class MyServerInitializer extends ChannelInitializer<SocketChannel> {
 }
 ```
 
-## Selector机制是如何工作的？
+# Selector机制是如何工作的？
 
 Netty中的Selector机制主要用于处理网络连接的读写事件。在Java NIO中，Selector允许我们监听多个Channel的事件，如连接、读取、写入等。当有事件发生时，Selector会通知相应的Channel，这样我们就可以处理这些事件。
 
 在Netty中，通常每个EventLoopGroup对应一个Selector，而每个EventLoop负责处理绑定到它的Channel的IO操作。当一个Channel上有事件发生时，EventLoop会轮询Selector，发现有事件就调用相应的Handler来处理。
 
-## EventLoop和EventLoopGroup有什么区别？
+# EventLoop和EventLoopGroup有什么区别？
 
 EventLoop和EventLoopGroup是Netty中用来处理IO操作的关键组件。
 
 - **EventLoop**：它是Netty中的一个线程，负责处理绑定到它的Channel的IO操作，如读取、写入和连接等。每个EventLoop都有一个Selector，用来监听Channel上的事件。
 - **EventLoopGroup**：它是一组EventLoop的集合，用于管理多个EventLoop。EventLoopGroup负责为新创建的Channel分配合适的EventLoop。Netty中有两种类型的EventLoopGroup：BossGroup和WorkerGroup。BossGroup负责接受客户端的连接请求，而WorkerGroup负责处理已经被接受的连接上的读写操作。
 
-## Future和Promise是什么？它们的作用是什么？
+# Future和Promise是什么？它们的作用是什么？
 
 Netty中的Future和Promise是用于处理异步操作的结果和状态的。
 
