@@ -104,18 +104,41 @@ Raft算法将节点分为三种状态：**跟随者（Follower）、候选人（
 
 ## Ribbon的负载均衡策略
 
-- **RoundRobinRule：简单轮询服务列表来选择服务器**
-- **WeightedResponseTimeRule：按照权重来选择服务器，响应时间越长，权重越小**
-- **RandomRule：随机选择一个可用的服务器**
-- BestAvailableRule：忽略那些短路的服务器，并选择并发数较低的服务器
-- RetryRule：重试机制的选择逻辑
-- AvailabilityFilteringRule：可用性敏感策略，先过滤非健康的，再选择连接数较小的实例
-- **ZoneAvoidanceRule：以区域可用的服务器为基础进行服务器的选择。使用Zone对服务器进行分类，这个Zone可以理解为一个机房、一个机架等。而后再对Zone内的多个服务做轮询**
+静态轮询策略：
+
+- RoundRobinRule：简单轮询
+- WeightedResponseTimeRule：权重轮询。权重越小，响应时间越长
+- RandomRule：随机轮询
+- （非Ribbon）Sticky RoundRobin：粘性轮询。相同用户、IP等值的请求会轮询到同一个服务器。
+- （非Ribbon）Hash RoundRobin：哈希轮询。根据IP、URL等值计算出一个哈希值来选择相应的服务器。
+
+动态轮询策略：
+
+- BestAvailableRule：最少连接数
+
+- AvailabilityFilteringRule：先过滤不健康的，再选择最少连接数
+
+- （非Ribbon）Least Time：最短延迟。需要消耗额外资源，监控服务器的响应时间和处理能力。
+
+- ZoneAvoidanceRule：以区域可用的服务器为基础进行服务器的选择。使用Zone对服务器进行分类，这个Zone可以理解为一个机房、一个机架等。而后再对Zone内的多个服务做轮询
+
+- RetryRule：选择自定义的重试逻辑
+
+  ```yaml
+  # application.yml
+  service-name:
+    ribbon:
+      OkToRetryOnAllOperations: true # 是否所有操作都允许重试
+      MaxAutoRetriesNextServer: 2    # 切换到下一个服务实例的最大重试次数
+      MaxAutoRetries: 1              # 对同一服务实例的最大重试次数
+      ConnectTimeout: 1000           # 连接超时时间（毫秒）
+      ReadTimeout: 3000              # 读取超时时间（毫秒）
+  ```
 
 ## Ribbon实现自定义负载均衡策略
 
-1. **全局**：创建类实现IRule接口，可以指定负载均衡策略
-2. **局部**：在客户端的配置文件中，可以配置某一个服务调用的负载均衡策略
+1. **全局**：实现IRule接口，在实现类中指定负载均衡策略
+2. **局部**：在配置文件中，配置每一个服务调用的负载均衡策略
 
 <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202404122010417.png" alt="image-20240412201020336" style="zoom:50%;" />
 
@@ -152,7 +175,7 @@ Raft算法将节点分为三种状态：**跟随者（Follower）、候选人（
 
 RPC 会给接口生成一个代理类，我们调用这个接口实际调用的是动态生成的代理类，由代理类来触发远程调用，这样我们调用远程接口就无感知了。
 
-动态代理，最常见的就是 Spring 的 AOP 了，涉及的有 JDK 动态代理和 cglib。
+动态代理中，最常见的技术就是 Spring AOP 了，涉及的有 JDK 动态代理和 cglib。
 
 <img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/0lDq7g3W_e6a5195e-0fcd-4229-820f-8013c3bcb341_mianshiya.png" alt="img" style="zoom:100%;float:left;" />
 
@@ -173,10 +196,10 @@ RPC 会给接口生成一个代理类，我们调用这个接口实际调用的�
 
 一般 RPC 协议都是**采用协议头+协议体的方式。**
 
-> 协议头放一些元数据，包括：魔法位、协议的版本、消息的类型、序列化方式、整体长度、头长度、扩展位等。
->
-> 协议体就是放请求的数据了。
->
+**协议头**：存放元数据，包括：魔法位、协议的版本、消息的类型、序列化方式、整体长度、头长度、扩展位等。
+
+**协议体**：存放请求的数据。
+
 > 通过魔法位可以得知这是不是咱们约定的协议，比如魔法位固定叫 233 ，一看我们就知道这是 233 协议。
 >
 > 然后协议的版本是为了之后协议的升级。
@@ -193,9 +216,7 @@ RPC 会给接口生成一个代理类，我们调用这个接口实际调用的�
 
 一般而言用的都是 **IO 多路复用**，因为大部分 RPC 调用场景都是高并发调用，IO 复用可以利用较少的线程 hold 住很多请求。
 
-一般 RPC 框架会使用已经造好的轮子来作为底层通信框架。
-
-例如： Java 语言的都会用 Netty ，人家已经封装的很好了，也做了很多优化，拿来即用，便捷高效。
+一般 RPC 框架会使用已经造好的轮子来作为底层通信框架。例如： Java 语言的都会用 Netty ，人家已经封装的很好了，也做了很多优化，拿来即用，便捷高效。
 
 # 网关（Gateway）
 
@@ -240,6 +261,8 @@ Sentinel 是一个流量控制和熔断降级框架，可以在分布式系统�
 
 Sentinel 提供了多种流量控制策略和熔断规则，能够有效防止雪崩效应，保障系统的稳定性和可用性。
 
+## Sentinel 的使用
+
 **1. 引入sentinel依赖的使用**
 
 ```xml
@@ -278,17 +301,6 @@ spring:
 **3. 创建限流规则**
 
 ```java
-import com.alibaba.csp.sentinel.annotation.SentinelResource;
-import com.alibaba.csp.sentinel.slots.block.RuleConstant;
-import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;
-import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-
 @RestController
 public class FlowController {
 
@@ -314,16 +326,6 @@ public class FlowController {
 **4. 创建熔断规则**
 
 ```java
-import com.alibaba.csp.sentinel.annotation.SentinelResource;
-import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
-import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRuleManager;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-
 @RestController
 public class DegradeController {
 
@@ -347,7 +349,7 @@ public class DegradeController {
 }
 ```
 
-# Sentinel 控制台
+## Sentinel 控制台
 
 Sentinel 提供了一个图形化的控制台，可以实时监控和管理流量控制、熔断降级等规则。通过控制台，可以动态调整规则，而不需要重启应用。
 
@@ -355,30 +357,26 @@ Sentinel 提供了一个图形化的控制台，可以实时监控和管理流�
 
 1. 下载 Sentinel 控制台：
 
-   sh深色版本
-
-   ```
+   ```shell
    git clone https://github.com/alibaba/Sentinel.git
    cd Sentinel
    cd sentinel-dashboard
    ```
-
+   
 2. 构建并启动控制台：
 
-   sh深色版本
-
-   ```
+   ```shell
    mvn clean package -Dmaven.test.skip=true
    java -Dserver.port=8080 -Dcsp.sentinel.dashboard.server=localhost:8080 -Dproject.name=sentinel-dashboard -jar target/sentinel-dashboard.jar
    ```
-
-3. 访问控制台： 打开浏览器，访问 `http://localhost:8080`，使用默认用户名和密码 `sentinel` 登录。
+   
+3. 访问控制台： 访问 `http://localhost:8080`，使用默认用户名和密码 `sentinel` 登录。
 
 # <div align="center">------------------服务治理------------------</div>
 
-# 服务雪崩？怎么解决？
+# 服务雪崩（Service Cascading）
 
-**服务雪崩**：就是一个服务失败，导致整条链路的服务都失败的情形。
+**服务雪崩**：一个服务失败导致整条链路的服务都失败的情形。
 
 **解决**：
 
@@ -410,14 +408,17 @@ public class IArticleClientFallback implements IArticleClient {
 常见APM工具：
 
 1. Springboot-admin
+
 2. Prometheus、Grafana
+
 3. zipkin
+
 4. Skywalking
 
-Skywalking的监控流程：
-
-1. 用skywalking监控接口、服务、物理实例的一些状态。特别是在压测的时候了解哪些服务和接口比较慢，可以针对性的分析和优化。
-2. 在skywalking设置告警规则，如果报错可以给相关负责人发短信和发邮件，第一时间知道项目的bug情况，第一时间修复。
+   >Skywalking的监控流程：
+   >
+   >1. 用skywalking监控接口、服务、物理实例的一些状态。特别是在压测的时候了解哪些服务和接口比较慢，可以针对性的分析和优化。
+   >2. 在skywalking设置告警规则，如果报错可以给相关负责人发短信和发邮件，第一时间知道项目的bug情况，第一时间修复。
 
 # 服务熔断（Circuit Breaker）
 
@@ -458,7 +459,7 @@ Skywalking的监控流程：
 
 限制单位时间内请求的数量，防止服务被过多请求压垮。
 
-# 服务限流算法
+# 服务限流算法及实现
 
 ## 总结
 
@@ -469,11 +470,17 @@ Skywalking的监控流程：
 
 ## 令牌桶算法（Token Bucket）
 
-原理：预先分配一定数量的令牌，每次请求消耗一个令牌，当令牌用尽时，拒绝请求。通过一个固定的令牌桶来控制请求的速率。令牌以恒定的速率生成并放入桶中，请求到来时需要消耗一个令牌。如果桶中没有令牌，则拒绝请求。
+原理：
 
-优点：平滑处理突发流量，避免短时间内的请求激增。灵活性高，可以调整令牌生成速率和桶的容量。
+- 预先分配一定数量的令牌，每次请求消耗一个令牌，当令牌用尽时，拒绝请求。通过一个固定的令牌桶来控制请求的速率。令牌以恒定的速率生成并放入桶中，请求到来时需要消耗一个令牌。如果桶中没有令牌，则拒绝请求。
 
-缺点：实现相对复杂，需要管理令牌的生成和消费。
+优点：
+
+- 平滑处理突发流量，避免短时间内的请求激增。灵活性高，可以调整令牌生成速率和桶的容量。
+
+缺点：
+
+- 实现相对复杂，需要管理令牌的生成和消费。
 
 实现：
 
@@ -569,11 +576,17 @@ public class LeakyBucketLimiter {
 
 ## 计数器算法（Counter）
 
-原理：基于时间窗口的请求数统计，设置最大连接数。在一个固定的时间窗口内统计请求的数量，如果超过了设定的阈值，则拒绝后续的请求。
+原理：
 
-优点：简单，容易理解。成本低，性能开销小。
+- 基于时间窗口的请求数统计，设置最大连接数。在一个固定的时间窗口内统计请求的数量，如果超过了设定的阈值，则拒绝后续的请求。
 
-缺点：时间窗口边缘的问题：如果在时间窗口的最后几秒钟有大量的请求，而在下一个时间窗口的开始几秒钟也有大量的请求，可能会导致短时间内超过阈值的情况。
+优点：
+
+- 简单，容易理解。成本低，性能开销小。
+
+缺点：
+
+- 时间窗口边缘的问题：如果在时间窗口的最后几秒钟有大量的请求，而在下一个时间窗口的开始几秒钟也有大量的请求，可能会导致短时间内超过阈值的情况。
 
 实现：
 
@@ -614,7 +627,9 @@ public class CounterLimiter {
 
 ## 滑动窗口算法（Sliding Window）
 
-原理：将计数器细分成多个更小的时间窗口。通过将时间窗口划分为多个小的时间段（桶），每个时间段记录请求的数量。当新的请求到来时，根据当前时间所在的桶来统计请求数量，从而实现更细粒度的限流。
+原理：
+
+- 将计数器细分成多个更小的时间窗口。通过将时间窗口划分为多个小的时间段（桶），每个时间段记录请求的数量。当新的请求到来时，根据当前时间所在的桶来统计请求数量，从而实现更细粒度的限流。
 
 优点：
 
@@ -688,7 +703,7 @@ public class SlidingWindowLimiter {
 2. **保证数据一致性**：无论是分布式事务还是传统事务，都致力于确保事务操作在执行完毕后数据的一致性。
 3. **提供事务管理**：分布式事务和传统事务都提供了事务管理机制，可以控制事务的提交、回滚和隔离级别。
 
-不同：
+不同点：
 
 1. **分布式环境**：分布式事务通常在多个独立的节点或系统之间进行操作，而传统事务通常在单个数据库或系统中进行操作。
 2. **事务管理协议**：传统事务通常使用本地事务管理机制（如JDBC事务、Spring事务管理），而分布式事务需要使用分布式事务管理协议（如XA协议、TCC协议）来实现跨多个系统的事务一致性。
@@ -725,12 +740,12 @@ public class SlidingWindowLimiter {
 
 **幂等性**：两次操作的结果一致。
 
-1. 业务属性保障幂等：利用主键生成器或者唯一性约束确保数据库的数据唯一；
-2. 额外的状态字段与业务逻辑控制：根据状态判断工作流程
+1. **业务属性保障幂等**：利用主键生成器或者唯一性约束确保数据库的数据唯一；
+2. **额外的状态字段与业务逻辑控制**：根据状态判断工作流程
 3. **申请预置令牌**：
-   <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409051933463.png"  style="zoom: 70%;" >
+   <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409051933463.png"  style="zoom: 50%;" >
 4. **本地消息事件表**：
-   <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409051935256.png"  style="zoom: 70%;" >
+   <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202409051935256.png"  style="zoom: 60%;" >
 
 # Xxl-Job 路由策略？任务执行失败了怎么解决？
 
@@ -1054,7 +1069,7 @@ public class SeckillController {
 **SQL 查询**
 
 ```sql
-SELECT product_id, SUM(quantity) AS total_quantity
+SELECT product_id, product_name, SUM(quantity) AS total_quantity
 FROM sales
 WHERE shop_id = ?
 GROUP BY product_id
@@ -1661,7 +1676,6 @@ EXPOSE 80
 
 # 设置容器启动时默认执行的命令
 CMD ["python3", "app.py"]
-
 ```
 
 2. 运行构建命令，将 Dockerfile 构建为镜像：
