@@ -1889,7 +1889,7 @@ AMQP 消息通常包含以下几个部分：
           return QueueBuilder.durable("simple.queue"）         // 指定队列名称, 并持久化
                              .tt1(10000）                      // 设置队列的超时时间，10秒
                              .deadLetterExchange("dl.direct"） // 指定死信交换机
-                             .build();
+      					   .build();
       }
       ```
 

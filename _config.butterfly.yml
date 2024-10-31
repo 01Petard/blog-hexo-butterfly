@@ -583,8 +583,8 @@ tag_ui: # 留空或 index
 # can set it to color or image (可設置圖片 或者 顔色)
 # The formal of image: url(http://xxxxxx.com/xxx.jpg)
 # background: url(https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/100152151_p0_1080p.jpg)  # 战双壁纸
-# background: url(https://api.kdcc.cn/img/bingimg/dayimg.jpg)
-background: url(https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410251949796.jpg) # 一张很好看的背景壁纸
+background: url(https://api.kdcc.cn/img/bingimg/dayimg.jpg)
+#background: url(https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410251949796.jpg) # 一张很好看的背景壁纸
 #background: url(https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/20670939_97117174_p0.png)
 #background: url(https://i.postimg.cc/0jyFy2Qn/20670939-97117174-p0-1080.png)
 
