@@ -104,7 +104,7 @@ top_img: /img/Java-tutorials-by-GeeksForGeeks.png
 
 **2.1 请求幂等性**
 
-?		确保同一个请求多次执行的结果相同，不会重复执行某些操作，如：
+确保同一个请求多次执行的结果相同，不会重复执行某些操作，如：
 
 - **唯一标识**：为每个请求分配一个唯一的标识符（如订单号），在处理请求时先检查该标识符是否存在。
 - **状态码**：使用 HTTP 状态码来表示请求的幂等性，如 `201 Created` 表示资源已被创建，后续请求可以直接返回 `200 OK` 而不需要再次创建。
@@ -500,8 +500,6 @@ private volatile long ctl;
 ```
 
 例如，在创建新线程时，`addWorker` 方法会使用 `compareAndSetWorkerCount` 来更新线程池的当前线程数，这个操作是原子的。
-
-java深色版本
 
 ```java
 protected boolean compareAndSetWorkerCount(int expect, int update) {
