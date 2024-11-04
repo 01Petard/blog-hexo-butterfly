@@ -731,7 +731,7 @@ aside:
       link: https://github.com/01Petard
   card_announcement:
     enable: true
-    content: ACG隐者，同人Fans，混沌善良；仓鼠党、“舟”谷人、数码迷；中左光谱。这是我的个人博客，也是我的赛博休息室。希望浏览这些东西能给你一些启示！
+    content: 新博客地址：https://01petard.github.io/blog-vue-vitepress/。ACG隐者，同人Fans，混沌善良；仓鼠党、“舟”谷人、数码迷；中左光谱。这是我的个人博客，也是我的赛博休息室。希望浏览这些东西能给你一些启示！
   card_recent_post:
     enable: true
     limit: 5 # if set 0 will show all
