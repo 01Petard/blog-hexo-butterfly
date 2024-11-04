@@ -1,7 +1,7 @@
 ---
 title: ffmpeg使用命令
-date: ‎2022‎-11-14 18:05:15
-updated:
+date: 2022-11-14 18:05:15
+updated: 
 categories: 
 - 软件
 tags: 
@@ -11,8 +11,8 @@ keywords:
 - ffmpeg
 - 视频处理
 description: ffmpeg命令太多了，本人也是用的时候学一下。
-cover: https://user-images.githubusercontent.com/88981/194717684-9919353b-8d51-4920-9980-3193fd895390.png
-top_img: https://og.tailgraph.com/og?fontFamily=Inter&title=ffmpeg&titleTailwind=text-gray-800%20font-bold%20text-6xl&text=Play,%20record,%20convert,%20and%20stream%20audio%20and%20video&textTailwind=text-gray-700%20text-2xl%20mt-4&logoUrl=https%3A%2F%2Ffig.io%2Ficons%2Ffig.svg&logoTailwind=bg-transparent%20mx-auto%20mb-8%20h-16%20w-16&bgTailwind=bg-white&footerTailwind=text-teal-600
+cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202411030524339.png
+top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202411030525536.png
 ---
 
 ## 0、[ffmpeg](https://blog.csdn.net/HYEHYEHYE/article/details/122000352)安装教程

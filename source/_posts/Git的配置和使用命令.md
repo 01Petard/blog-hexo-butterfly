@@ -9,8 +9,8 @@ tags:
 keywords:
 - Git
 description: Git的配置、使用，足够个人使用
-cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410252000741.jpg
-top_img: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410252000741.jpg
+cover: https://www.mrfangge.com/img/blog/git.jpg
+top_img: https://www.mrfangge.com/img/blog/git.jpg
 top: 999
 ---
 
@@ -300,8 +300,6 @@ git log origin/main..main
 git log --graph origin/main..main
 ```
 
-![image-20230905192459811](C:\Users\hzx\AppData\Roaming\Typora\typora-user-images\image-20230905192459811.png)
-
 ### 2.7 显示分支的提交历史
 
 ```shell
@@ -416,7 +414,7 @@ git push origin --delete [分支名]
 
 ### 4.1 合并两个分支的最新提交到新的分支
 
-```shsell
+```shell
 git checkout -b [分支名]
 ```
 
@@ -443,7 +441,7 @@ git cherry-pick <issue2-commit-sha>
 git checkout [分支名]
 ```
 
-```shell’
+```shell
 git cherry-pick <issue-commit-sha>
 ```
 

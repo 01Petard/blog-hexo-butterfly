@@ -13,7 +13,7 @@ keywords:
 - 虚拟机
 - Linux
 description: 在Linux上使用Docker部署相关服务
-cover: https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202410251939819.png
+cover: https://miro.medium.com/v2/resize:fit:1400/0*ddZLS-Gd9GFc71Lc
 top_img: https://www.docker.com/wp-content/uploads/2023/06/meta-image-what-is-a-container.png
 top: 998
 ---
@@ -326,7 +326,7 @@ docker volume create [volume]
 
 查看所有数据卷
 
-```shel;l
+```shell
 docker volume ls
 ```
 
@@ -723,7 +723,7 @@ my_startup.bat：`目录路径\nacos\bin\startup.cmd -m standalone`
 
 先远程连接服务器数据库，创建nacos数据库
 
-```mysql
+```sql
 CREATE database if NOT EXISTS `nacos_config` default character set utf8mb4 collate utf8mb4_unicode_ci;
 use `nacos_config`;
  
@@ -1044,7 +1044,7 @@ docker load -i mq.tar
 >  -p 15672:15672 \    后台管理界面的端口
 >  -p 5672:5672 \      消息通信的端口
 
-```## shell
+```shell
 docker run \
  -e RABBITMQ_DEFAULT_USER=admin \
  -e RABBITMQ_DEFAULT_PASS=a \
@@ -1070,7 +1070,7 @@ docker run \
 
 拉取/加载镜像
 
-```shel
+```shell
 docker load -i es.tar
 ```
 
@@ -1243,7 +1243,7 @@ docker network create es-net
 
 拉取/加载镜像
 
-```shel
+```shell
 docker load -i kibana.tar
 ```
 
@@ -1452,7 +1452,7 @@ server {
 
 拉取镜像
 
-```shelll
+```shell
 docker pull minio/minio
 ```
 
