@@ -1,7 +1,7 @@
 ---
 title: My Java Guide - Spring
 date: 2024-10-15 00:23:00
-updated: 2024-10-15 00:23:00
+updated: 2024-11-10 22:16:00
 categories: 
 - 学习
 tags: 
@@ -237,7 +237,7 @@ public class Main {
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beanshttp://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
     <bean id="orders" class="com.company.spring5.bean.Orders" init-method="initMethod" destroy-method="destroyMethod">
@@ -332,7 +332,7 @@ Bean不一定是线程安全的。
 
 **循环依赖**：有多个类被Spring管理，它们在实例化时互相持有对方，最终形成闭环。
 
-<img src="https://pic.code-nav.cn/mianshiya/question_picture/1772087337535152129/VagJkJyh_658dafbb-f354-41e0-97e9-896759a20c94_mianshiya.png" alt="img" style="zoom:100%;" />
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202411071640490.png" alt="img" style="zoom:100%;" />
 
 示例代码：
 
@@ -403,7 +403,7 @@ Spring为单例搞的三个 map，也就是三级依赖：
 
 步骤 2 中如果查询发现 Bean 还未创建，就直接返回 null，返回 null 之后，说明这个 Bean 还未创建，这个时候会标记这个 Bean 正在创建中，然后再调用 `createBean` 来创建 Bean，而实际创建是调用方法 `doCreateBean`。doCreateBean 这个方法就会执行上面我们说的三步骤：实例化、属性注入初始化。在实例化 Bean 之后，**会往 三级缓存（singletonFactories）塞入一个工厂，而调用这个工厂的 `getObject` 方法，就能得到这个 Bean**。
 
-<img src="https://pic.code-nav.cn/mianshiya/question_picture/1815995005551374337/SU9AOSuc_image-20240911195840657_mianshiya.png" alt="image-20240911195840657.png" style="zoom:85%;" />
+<img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202411071641321.png" alt="image-20240911195840657.png" style="zoom:85%;" />
 
 # IOC
 
@@ -1031,15 +1031,35 @@ Spring 事务管理具有以下特点：
 
 ## 传播行为（Propagation）
 
-传播行为定义了当一个方法被另一个事务性的方法调用时，应该如何处理事务。常见的传播行为包括：
+事务的传播行为说白了就是多个方法都有进行写操作时，对于事物的控制，作为事物的传播级别，在Spring中体现为一个叫 `Propagation` 的类中。
 
-- **`PROPAGATION_REQUIRED`**：如果有事务活动，就加入当前事务；如果没有，就创建一个新的事务。
-- `PROPAGATION_SUPPORTS`：如果有事务活动，就加入当前事务；如果没有，就以非事务方式运行。
-- `PROPAGATION_MANDATORY`：必须在现有的事务上下文中执行；如果没有事务，则抛出异常。
-- `PROPAGATION_REQUIRES_NEW`：总是创建一个新的事务，无论当前是否存在事务。
-- `PROPAGATION_NOT_SUPPORTED`：以非事务方式运行，并挂起任何存在的事务。
-- `PROPAGATION_NEVER`：以非事务方式运行，如果存在事务，则抛出异常。
-- `PROPAGATION_NESTED`：如果存在事务，则在嵌套事务内执行；如果没有，则行为类似于 `PROPAGATION_REQUIRED`。
+`Propagation` 类定义了当一个方法被另一个事务性的方法调用时，应该如何处理事务。常见的传播行为包括：
+
+- `REQUIRED`：如果有事务活动，就加入当前事务；如果没有，就创建一个新的事务。
+
+  > 最简单的事物传播机制，将方法中所有执行的过程全部作为一个事物，要么成功，要么失败，一次只占用一个数据库连接。
+
+  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202411092123712.png" alt="image-20241109212341682" style="zoom:67%;" />
+
+- `REQUIRES_NEW`：总是创建一个新的事务，无论当前是否存在事务。
+
+  > 每次执行方法，都会新开一个数据库连接，每次方法的执行都是独立的，不受任何影响。（可以预见的性能很差）
+
+  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202411092125052.png" alt="image-20241109212529011" style="zoom:67%;" />
+
+- `NESTED`：如果存在事务，则在嵌套事务内执行；如果没有，则行为类似于 `PROPAGATION_REQUIRED`。
+
+  > 此模式下会利用数据库的**存档点机制**，即使事务运行过程中失败了，也会回滚到之前的存档点。
+
+  <img src="https://cdn.jsdelivr.net/gh/01Petard/imageURL@main/img/202411092121831.png" alt="image-20241109212153782" style="zoom:67%;" />
+
+- `SUPPORTS`：如果有事务活动，就加入当前事务；如果没有，就以非事务方式运行。
+
+- `NOT_SUPPORTED`：以非事务方式运行，并挂起任何存在的事务。
+
+- `MANDATORY`：必须在现有的事务上下文中执行；如果没有事务，则抛出异常。
+
+- `NEVER`：以非事务方式运行，如果存在事务，则抛出异常。
 
 ## 隔离级别（Isolation Level）
 
@@ -1236,7 +1256,7 @@ MapperStatement对象的结构：
 
   1. 全局配置文件
 
-  ```xml
+  ```
   <settings>
       <setting name="cacheEnabled" value="true/>
   </settings>
@@ -1244,8 +1264,8 @@ MapperStatement对象的结构：
 
   2. 映射文件
 
-  ```xml
-  使用<cache/>标签让mapper.xml映射文件生效二级缓存
+  ```
+  使用“<cache/>”标签让mapper.xml映射文件生效二级缓存
   ```
 
 ## Mybatis一二级缓存的脏数据问题
