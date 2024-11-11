@@ -15,9 +15,9 @@ cover: /img/data-structures-and-algorithms-concept-icon.png
 top_img: /img/Java-tutorials-by-GeeksForGeeks.png
 ---
 
-# <div align="center">--------------------线性表--------------------</div>
+# <div align="center">---------------线性表、栈---------------</div>
 
-# 
+# 线性表
 
 ```java
 class SqList {
@@ -402,6 +402,8 @@ class MinStack {
 }
 ```
 
+# <div align="center">---------------------树---------------------</div>
+
 # 二叉树
 
 ## 二叉树结构
@@ -785,94 +787,7 @@ public static double calculateCompressionRate(int originalSize, int encodedSize)
 }
 ```
 
-# 搜索算法
-
-## 广度优先搜索
-
-## 深度优先搜索
-
-```java
-public class 搜索算法_DFS_BFS {
-    private int N;  // 节点数量
-    private List<List<Integer>> adjList;
-
-    public 搜索算法_DFS_BFS(int n) {
-        N = n;
-        adjList = new LinkedList<>();
-        for (int i = 0; i < N; ++i)
-            adjList.add(new LinkedList<>());
-    }
-
-    // 无向图
-    public void addEdge(int v, int w) {
-        adjList.get(v).add(w);
-        adjList.get(w).add(v);
-    }
-
-    /**
-     * 广度优先搜索
-     * @param val 开始遍历的节点值
-     */
-    public void BFS(int val) {
-        boolean[] visited = new boolean[N];
-        LinkedList<Integer> queue = new LinkedList<>();
-        // // 将当前节点标记为已访问
-        visited[val] = true;
-        queue.add(val);
-
-        while (!queue.isEmpty()) {
-            val = queue.poll();
-            System.out.print(val + " ");
-            // 获取当前节点的所有邻居节点
-            List<Integer> neighbors = adjList.get(val);
-            for (Integer n : neighbors) {
-                if (!visited[n]) {
-                    visited[n] = true;
-                    queue.add(n);
-                }
-            }
-        }
-    }
-
-    /**
-     * 深度优先搜索
-     * @param val 开始遍历的节点值
-     */
-    public void DFS(int val) {
-        boolean[] visited = new boolean[N];
-        DFSUtil(val, visited);
-    }
-
-    private void DFSUtil(int v, boolean[] visited) {
-        // 将当前节点标记为已访问
-        visited[v] = true;
-        System.out.print(v + " ");
-
-        List<Integer> neighbors = adjList.get(v);
-        // 访问 节点v 的所有子节点及其相邻节点，实现深度遍历
-        for (Integer w : neighbors) {
-            if (!visited[w])
-                DFSUtil(w, visited);
-        }
-    }
-
-    public static void main(String[] args) {
-        搜索算法_DFS_BFS g = new 搜索算法_DFS_BFS(14);  // 修改为足够大的节点数量
-
-        g.addEdge(10, 11);
-        g.addEdge(10, 12);
-        g.addEdge(11, 12);
-        g.addEdge(12, 10);
-        g.addEdge(12, 13);
-        g.addEdge(13, 13);
-
-        System.out.print("深度优先搜索: ");
-        g.DFS(13);
-        System.out.print("\n广度优先搜索: ");
-        g.BFS(11);
-    }
-}
-```
+# <div align="center">-------------排序、搜索算法-------------</div>
 
 # 排序算法
 
@@ -1275,9 +1190,94 @@ public static int binSearch(int[] arr, int low, int high, int item) {
 }
  ```
 
-# <div align="center">----------------数据淘汰算法----------------</div>
+# 搜索算法
 
-# 
+## 广度优先搜索、深度优先搜索
+
+```java
+public class 搜索算法_DFS_BFS {
+    private int N;  // 节点数量
+    private List<List<Integer>> adjList;
+
+    public 搜索算法_DFS_BFS(int n) {
+        N = n;
+        adjList = new LinkedList<>();
+        for (int i = 0; i < N; ++i)
+            adjList.add(new LinkedList<>());
+    }
+
+    // 无向图
+    public void addEdge(int v, int w) {
+        adjList.get(v).add(w);
+        adjList.get(w).add(v);
+    }
+
+    /**
+     * 广度优先搜索
+     * @param val 开始遍历的节点值
+     */
+    public void BFS(int val) {
+        boolean[] visited = new boolean[N];
+        LinkedList<Integer> queue = new LinkedList<>();
+        // // 将当前节点标记为已访问
+        visited[val] = true;
+        queue.add(val);
+
+        while (!queue.isEmpty()) {
+            val = queue.poll();
+            System.out.print(val + " ");
+            // 获取当前节点的所有邻居节点
+            List<Integer> neighbors = adjList.get(val);
+            for (Integer n : neighbors) {
+                if (!visited[n]) {
+                    visited[n] = true;
+                    queue.add(n);
+                }
+            }
+        }
+    }
+
+    /**
+     * 深度优先搜索
+     * @param val 开始遍历的节点值
+     */
+    public void DFS(int val) {
+        boolean[] visited = new boolean[N];
+        DFSUtil(val, visited);
+    }
+
+    private void DFSUtil(int v, boolean[] visited) {
+        // 将当前节点标记为已访问
+        visited[v] = true;
+        System.out.print(v + " ");
+
+        List<Integer> neighbors = adjList.get(v);
+        // 访问 节点v 的所有子节点及其相邻节点，实现深度遍历
+        for (Integer w : neighbors) {
+            if (!visited[w])
+                DFSUtil(w, visited);
+        }
+    }
+
+    public static void main(String[] args) {
+        搜索算法_DFS_BFS g = new 搜索算法_DFS_BFS(14);  // 修改为足够大的节点数量
+
+        g.addEdge(10, 11);
+        g.addEdge(10, 12);
+        g.addEdge(11, 12);
+        g.addEdge(12, 10);
+        g.addEdge(12, 13);
+        g.addEdge(13, 13);
+
+        System.out.print("深度优先搜索: ");
+        g.DFS(13);
+        System.out.print("\n广度优先搜索: ");
+        g.BFS(11);
+    }
+}
+```
+
+# <div align="center">----------------数据淘汰算法----------------</div>
 
 ## LRU 算法（最近最少使用）
 
@@ -1456,7 +1456,7 @@ class LFUCache {
 }
 ```
 
-# 多线程并发题
+# <div align="center">----------------多线程并发题----------------</div>
 
 ## 多线程交替打印数字
 
