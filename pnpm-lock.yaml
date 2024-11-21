@@ -33,7 +33,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0(chokidar@3.6.0)
       hexo-filter-gitcalendar:
-        specifier: ^1.0.9
+        specifier: ^1.0.11
         version: 1.0.11
       hexo-generator-archive:
         specifier: ^1.0.0
